@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Piloto System - Caraz</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=4.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=4.0">
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR DE OFERTAS & PROMOCIONES (ESTILO INFOTEC) -->
+    <div class="top-promo-bar">
+        <div class="container">
+            <div class="top-promo-content">
+                <div class="top-promo-left">
+                    <span class="promo-fire-tag"><i class="fa-solid fa-fire"></i> ZONA GAMER & TECH</span>
+                    <span class="top-promo-text">¡Hasta <strong>35% OFF</strong> en Laptops Lenovo, Periféricos y Repotenciación SSD en Caraz!</span>
+                </div>
+                <div class="top-promo-right">
+                    <span class="promo-info-item"><i class="fa-solid fa-truck-fast"></i> Envíos en 24h</span>
+                    <span class="promo-sep">|</span>
+                    <span class="promo-info-item"><i class="fa-solid fa-shield-halved"></i> Garantía Local</span>
+                    <span class="promo-sep">|</span>
+                    <a href="https://wa.me/51961081784?text=Hola%20Full%20Piloto%20System!%20Deseo%20consultar%20ofertas" target="_blank" class="promo-whatsapp-link">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp Caraz
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. CINTILLO CON CONTADOR DE OFERTAS FLASH ("OFERTA DEL DÍA") -->
+    <div class="flash-sale-strip">
+        <div class="container">
+            <div class="flash-sale-inner">
+                <div class="flash-sale-main-info">
+                    <span class="flash-badge-pill">
+                        <i class="fa-solid fa-bolt"></i> Flash Sale
+                    </span>
+                    <span class="flash-sale-text">
+                        Laptops Lenovo V15 y Slim 3 con <strong>envío gratis hoy en Caraz</strong>
+                    </span>
+                </div>
+
+                <div class="flash-timer-wrapper">
+                    <span class="flash-timer-label"><i class="fa-regular fa-clock"></i> Termina en:</span>
+                    <div class="flash-timer-boxes">
+                        <span class="flash-time-unit" id="flashHours">05</span>
+                        <span class="flash-time-sep">:</span>
+                        <span class="flash-time-unit" id="flashMinutes">48</span>
+                        <span class="flash-time-sep">:</span>
+                        <span class="flash-time-unit" id="flashSeconds">20</span>
+                    </div>
+                    <a href="#promosCatalog" class="flash-sale-cta-btn">
+                        <i class="fa-solid fa-bag-shopping"></i> ¡Aprovechar Oferta!
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER PRINCIPAL -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                
+                <!-- Logo & Branding -->
+                <a href="{% url 'inicio' %}" class="brand-logo">
+                    <div class="brand-icon">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <div class="brand-info">
+                        <div class="brand-name">Full Piloto <span>System</span></div>
+                        <div class="brand-sub">Caraz</div>
+                    </div>
+                </a>
+
+                <!-- Buscador Central (Desktop y Móvil Desplegable) -->
+                <div class="header-search" id="headerSearchBox">
+                    <form method="GET" action="{% url 'inicio' %}" id="headerSearchForm">
+                        <div class="search-container">
+                            <i class="fa-solid fa-magnifying-glass search-icon-left"></i>
+                            <input type="text" name="q" id="headerSearchInput" value="{{ query }}" class="search-input" placeholder="Buscar laptops, accesorios...">
+                            <button type="submit" class="search-btn">
+                                <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                            </button>
+                            <!-- Botón cerrar para móvil -->
+                            <button type="button" class="mobile-search-close-btn" onclick="toggleMobileSearch(false)" title="Cerrar búsqueda">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="header-actions">
+                    <!-- Botón disparador de búsqueda para móvil (Lupa táctil) -->
+                    <button type="button" class="mobile-search-trigger-btn" id="mobileSearchTrigger" onclick="toggleMobileSearch()" title="Buscar productos">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <!-- Icono / Botón de Usuario (Navegación al Login Estático) -->
+                    <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Mi Cuenta">
+                        <div class="action-icon-circle user-icon-circle">
+                            <i class="fa-regular fa-user"></i>
+                        </div>
+                        <div class="action-label-box user-label-box">
+                            <span class="small-title">Bienvenido</span>
+                            <span class="main-value">Ingresar</span>
+                        </div>
+                    </a>
+
+                    <!-- Carrito de Compras -->
+                    <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()">
+                        <div class="action-icon-circle">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="cart-badge">0</span>
+                        </div>
+                        <div class="action-label-box">
+                            <span class="small-title">Mi Carrito</span>
+                            <span class="main-value">S/. 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+
+
+    <!-- 1. CARRUSEL DE BURBUJAS DE CATEGORÍAS (ESTILO TIENDA ONLINE / AMAZON / MELI) -->
+    <section class="category-bubbles-section">
+        <div class="container">
+            <div class="category-bubbles-list">
+                
+                <a href="{% url 'inicio' %}" class="category-bubble-card active">
+                    <div class="category-bubble-circle">
+                        <i class="fa-solid fa-laptop"></i>
+                        <span class="bubble-badge-hot">TOP</span>
+                    </div>
+                    <span class="category-bubble-label">Laptops Caraz</span>
+                </a>
+
+                <a href="https://wa.me/51961081784?text=Hola%20deseo%20servicio%20tecnico%20y%20mantenimiento%20de%20laptop%20en%20Caraz" target="_blank" class="category-bubble-card">
+                    <div class="category-bubble-circle">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <span class="category-bubble-label">Soporte Técnico</span>
+                </a>
+
+            </div>
+        </div>
+    </section>
+    <!-- SECCIÓN HERO SLIDER & BANNERS OFICIALES -->
+    <section class="hero-banner-section">
+        <div class="container">
+            <div class="hero-slider-wrap" id="heroSlider">
+                <div class="hero-slides-container" id="heroSlidesContainer">
+                    
+                    <!-- Slide 0: Lenovo V15 G4 AMN Ryzen 3 7320U -->
+                    <div class="hero-slide slide-gamer-tuf active">
+                        <div class="hero-slide-content">
+                            <span class="hero-pill-badge gamer-badge-yellow">
+                                <i class="fa-solid fa-laptop"></i> AMD RYZEN 3 7320U • SERIE 7000
+                            </span>
+                            <h2 class="hero-slide-title">
+                                <a href="{% url 'detalle_producto' 101 %}" style="color: inherit; text-decoration: none;">Lenovo V15 G4 <span>Ryzen 3 7320U 512GB SSD</span></a>
+                            </h2>
+                            <p class="hero-slide-desc">
+                                Procesador AMD Ryzen 3 7320U (4 núcleos / 8 hilos hasta 4.10GHz), 8GB LPDDR5 5500MHz ultrarrápida y 512GB SSD M.2 NVMe PCIe 4.0. Pantalla 15.6" Full HD antirreflejo y teclado en español con pad numérico.
+                            </p>
+
+                            <div class="hero-specs-chips">
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-microchip"></i> Ryzen 3 7320U (4.10 GHz)</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-memory"></i> 8GB LPDDR5 5500MHz</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-hard-drive"></i> 512GB SSD PCIe NVMe</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-display"></i> 15.6" Full HD Antirreflejo</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-shield-halved"></i> Garantía Oficial 1 Año</span>
+                            </div>
+
+                            <div class="hero-slide-actions">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_101', name:'Laptop Lenovo V15 G4 AMN Ryzen 3 7320U 8GB LPDDR5 512GB SSD 15.6\" FHD', price:2149.00, icon:'fa-solid fa-laptop', qty:1, maxStock:8})">
+                                    <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 2,149.00
+                                </button>
+                                <a href="{% url 'detalle_producto' 101 %}" class="btn-hero-secondary">
+                                    <i class="fa-solid fa-circle-info"></i> Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Showcase Visual Grande con Sub-Carrusel de Fotos -->
+                        <div class="hero-visual-card">
+                            <div class="laptop-showcase-container">
+                                <div class="laptop-main-preview" onclick="location.href='{% url 'detalle_producto' 101 %}'" style="cursor: pointer;" title="Ver detalles del equipo">
+                                    <div class="floating-badges-row">
+                                        <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> En Stock Caraz</span>
+                                        <span class="glass-badge glass-badge-feature warranty"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
+                                    </div>
+                                    <img id="laptopImg_0" src="{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}" alt="Lenovo V15 G4 Ryzen 3" loading="lazy">
+                                    <div class="hero-price-floating-tag">S/. 2,149.00</div>
+                                </div>
+                                <div class="laptop-gallery-thumbs" aria-label="Fotos de la Laptop">
+                                    <button type="button" class="laptop-mini-thumb active" onclick="switchLaptopImg('laptopImg_0', '{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}', this)" title="Vista Frontal">
+                                        <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}" alt="Frontal">
+                                    </button>
+                                    <button type="button" class="laptop-mini-thumb" onclick="switchLaptopImg('laptopImg_0', '{% static 'inicio/images/lenovo_v15/lenovo_v15_2.png' %}', this)" title="Teclado y Touchpad">
+                                        <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_2.png' %}" alt="Teclado">
+                                    </button>
+                                    <button type="button" class="laptop-mini-thumb" onclick="switchLaptopImg('laptopImg_0', '{% static 'inicio/images/lenovo_v15/lenovo_v15_3.png' %}', this)" title="Lateral y Puertos">
+                                        <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_3.png' %}" alt="Lateral">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 1: Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5 16GB DDR5 -->
+                    <div class="hero-slide slide-gamer-audio">
+                        <div class="hero-slide-content">
+                            <span class="hero-pill-badge gamer-badge-yellow">
+                                <i class="fa-solid fa-crown"></i> GAMA ALTA • CORE i5 SERIE H + 16GB RAM
+                            </span>
+                            <h2 class="hero-slide-title">
+                                <a href="{% url 'detalle_producto' 104 %}" style="color: inherit; text-decoration: none;">Lenovo IdeaPad Slim 3 <span>Core i5 16GB DDR5</span></a>
+                            </h2>
+                            <p class="hero-slide-desc">
+                                Intel Core i5-13420H Alto Rendimiento (8 núcleos / 12 hilos hasta 4.60GHz), 16GB RAM DDR5, 512GB SSD NVMe Gen4. Pantalla prémium 15.3" WUXGA (1920x1200) IPS con proporción 16:10 y chasis ultradelgado color Gris Ártico.
+                            </p>
+
+                            <div class="hero-specs-chips">
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-microchip"></i> Core i5-13420H Serie H (4.6 GHz)</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-memory"></i> 16GB DDR5 Multitarea Pro</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-hard-drive"></i> 512GB SSD NVMe Gen4</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-laptop"></i> 15.3" WUXGA IPS 16:10</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
+                            </div>
+
+                            <div class="hero-slide-actions">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_104', name:'Laptop Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5-13420H 16GB DDR5 512GB SSD 15.3\" WUXGA', price:3299.00, icon:'fa-solid fa-laptop', qty:1, maxStock:4})">
+                                    <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 3,299.00
+                                </button>
+                                <a href="{% url 'detalle_producto' 104 %}" class="btn-hero-secondary">
+                                    <i class="fa-solid fa-circle-info"></i> Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Showcase Visual Grande con Sub-Carrusel de Fotos -->
+                        <div class="hero-visual-card">
+                            <div class="laptop-showcase-container">
+                                <div class="laptop-main-preview" onclick="location.href='{% url 'detalle_producto' 104 %}'" style="cursor: pointer;" title="Ver detalles del equipo">
+                                    <div class="floating-badges-row">
+                                        <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> En Stock Caraz</span>
+                                        <span class="glass-badge glass-badge-feature"><i class="fa-solid fa-truck-fast"></i> Envío Gratis</span>
+                                    </div>
+                                    <img id="laptopImg_1" src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}" alt="Lenovo IdeaPad Slim 3 Core i5" loading="lazy">
+                                    <div class="hero-price-floating-tag">S/. 3,299.00</div>
+                                </div>
+                                <div class="laptop-gallery-thumbs" aria-label="Fotos de la Laptop">
+                                    <button type="button" class="laptop-mini-thumb active" onclick="switchLaptopImg('laptopImg_1', '{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}', this)" title="Frontal">
+                                        <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}" alt="Frontal">
+                                    </button>
+                                    <button type="button" class="laptop-mini-thumb" onclick="switchLaptopImg('laptopImg_1', '{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_2.png' %}', this)" title="Teclado">
+                                        <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_2.png' %}" alt="Teclado">
+                                    </button>
+                                    <button type="button" class="laptop-mini-thumb" onclick="switchLaptopImg('laptopImg_1', '{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_3.png' %}', this)" title="Lateral">
+                                        <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_3.png' %}" alt="Lateral">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Laptop HP 15-FC0225DX Ryzen 7 Touchscreen -->
+                    <div class="hero-slide slide-gamer-combo">
+                        <div class="hero-slide-content">
+                            <span class="hero-pill-badge gamer-badge-yellow">
+                                <i class="fa-solid fa-hand-pointer"></i> PANTALLA TÁCTIL • AMD RYZEN 7 • 16GB RAM
+                            </span>
+                            <h2 class="hero-slide-title">
+                                <a href="{% url 'detalle_producto' 106 %}" style="color: inherit; text-decoration: none;">HP 15 Touchscreen <span>Ryzen 7 16GB 512GB SSD</span></a>
+                            </h2>
+                            <p class="hero-slide-desc">
+                                Procesador AMD Ryzen 7 7730U (8 núcleos / 16 hilos hasta 4.50GHz), 16GB RAM y 512GB SSD PCIe NVMe. Pantalla multitáctil 15.6" Full HD Touchscreen y Windows 11 Home original.
+                            </p>
+
+                            <div class="hero-specs-chips">
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-microchip"></i> Ryzen 7 7730U (8 núcleos)</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-memory"></i> 16GB RAM Multitarea</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-hard-drive"></i> 512GB SSD PCIe NVMe</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-hand-pointer"></i> 15.6" FHD Touchscreen</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
+                            </div>
+
+                            <div class="hero-slide-actions">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_106', name:'Laptop HP 15-FC0225DX AMD Ryzen 7 7730U 16GB 512GB SSD 15.6\" FHD Touchscreen', price:3399.00, icon:'fa-solid fa-laptop', qty:1, maxStock:5})">
+                                    <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 3,399.00
+                                </button>
+                                <a href="{% url 'detalle_producto' 106 %}" class="btn-hero-secondary">
+                                    <i class="fa-solid fa-circle-info"></i> Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="hero-visual-card">
+                            <div class="laptop-showcase-container">
+                                <div class="laptop-main-preview" onclick="location.href='{% url 'detalle_producto' 106 %}'" style="cursor: pointer;" title="Ver detalles del equipo">
+                                    <div class="floating-badges-row">
+                                        <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> En Stock Caraz</span>
+                                        <span class="glass-badge glass-badge-feature"><i class="fa-solid fa-hand-pointer"></i> Touchscreen</span>
+                                    </div>
+                                    <img src="/static/inicio/images/nuevas_laptops/106_hp_r7.jpg" alt="Laptop HP 15 Ryzen 7 Touchscreen" loading="lazy">
+                                    <div class="hero-price-floating-tag">S/. 3,399.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Lenovo IdeaPad 5 2en1 16AHP9 Convertible 360° -->
+                    <div class="hero-slide slide-gamer-turbo">
+                        <div class="hero-slide-content">
+                            <span class="hero-pill-badge gamer-badge-yellow">
+                                <i class="fa-solid fa-rotate"></i> 2 EN 1 CONVERTIBLE 360° • RYZEN 7 8845HS + 1TB SSD
+                            </span>
+                            <h2 class="hero-slide-title">
+                                <a href="{% url 'detalle_producto' 108 %}" style="color: inherit; text-decoration: none;">Lenovo 5 2en1 360° <span>Ryzen 7 con IA + 1TB SSD</span></a>
+                            </h2>
+                            <p class="hero-slide-desc">
+                                AMD Ryzen 7 8845HS con IA integrada (hasta 5.10GHz), 16GB LPDDR5X ultrarrápida y 1TB SSD NVMe Gen4. Pantalla 16" WUXGA IPS Táctil convertible en tablet con chasis de aluminio.
+                            </p>
+
+                            <div class="hero-specs-chips">
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-brain"></i> Ryzen 7 8845HS + Ryzen AI</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-memory"></i> 16GB LPDDR5X 6400MHz</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-hard-drive"></i> 1TB SSD Gen4 NVMe</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-rotate"></i> 16" WUXGA Touch 360°</span>
+                                <span class="spec-chip gamer-chip"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
+                            </div>
+
+                            <div class="hero-slide-actions">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_108', name:'Laptop 2 en 1 Lenovo IdeaPad 5 16AHP9 AMD Ryzen 7 8845HS 16GB 1TB SSD 16\" WUXGA Touch 360°', price:4099.00, icon:'fa-solid fa-laptop', qty:1, maxStock:3})">
+                                    <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 4,099.00
+                                </button>
+                                <a href="{% url 'detalle_producto' 108 %}" class="btn-hero-secondary">
+                                    <i class="fa-solid fa-circle-info"></i> Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="hero-visual-card">
+                            <div class="laptop-showcase-container">
+                                <div class="laptop-main-preview" onclick="location.href='{% url 'detalle_producto' 108 %}'" style="cursor: pointer;" title="Ver detalles del equipo">
+                                    <div class="floating-badges-row">
+                                        <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> En Stock Caraz</span>
+                                        <span class="glass-badge glass-badge-feature"><i class="fa-solid fa-crown"></i> Prémium 360°</span>
+                                    </div>
+                                    <img src="/static/inicio/images/nuevas_laptops/108_lenovo_yoga_r7.jpg" alt="Lenovo IdeaPad 5 2en1 16AHP9" loading="lazy">
+                                    <div class="hero-price-floating-tag">S/. 4,099.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Flechas de Control -->
+                <button type="button" class="slider-arrow-btn slider-arrow-prev" id="sliderPrevBtn" aria-label="Slide anterior">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button type="button" class="slider-arrow-btn slider-arrow-next" id="sliderNextBtn" aria-label="Slide siguiente">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <!-- Paginador con Dots -->
+                <div class="slider-dots-container" id="sliderDots">
+                    <button type="button" class="slider-dot active" onclick="HeroSlider.goTo(0)" aria-label="Slide 1"></button>
+                    <button type="button" class="slider-dot" onclick="HeroSlider.goTo(1)" aria-label="Slide 2"></button>
+                    <button type="button" class="slider-dot" onclick="HeroSlider.goTo(2)" aria-label="Slide 3"></button>
+                    <button type="button" class="slider-dot" onclick="HeroSlider.goTo(3)" aria-label="Slide 4"></button>
+                </div>
+            </div>
+
+            <!-- 4 Tarjetas de Confianza y Respaldo Local -->
+            <div class="trust-features-grid">
+                <div class="trust-feature-card">
+                    <div class="trust-icon-box blue">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <div class="trust-text-title">Delivery en Caraz</div>
+                        <div class="trust-text-desc">Gratis desde S/. 100 o tarifa fija S/. 5.00</div>
+                    </div>
+                </div>
+
+                <div class="trust-feature-card">
+                    <div class="trust-icon-box purple">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </div>
+                    <div>
+                        <div class="trust-text-title">Yape, Plin y Tarjetas</div>
+                        <div class="trust-text-desc">Paga al recibir o con código QR sin recargos</div>
+                    </div>
+                </div>
+
+                <div class="trust-feature-card">
+                    <div class="trust-icon-box emerald">
+                        <i class="fa-solid fa-shield-check"></i>
+                    </div>
+                    <div>
+                        <div class="trust-text-title">Garantía Local en Tienda</div>
+                        <div class="trust-text-desc">Soporte directo en Caraz sin intermediarios</div>
+                    </div>
+                </div>
+
+                <div class="trust-feature-card">
+                    <div class="trust-icon-box amber">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                    </div>
+                    <div>
+                        <div class="trust-text-title">Servicio Técnico Pro</div>
+                        <div class="trust-text-desc">Diagnóstico y repotenciación en el día</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CUERPO: SECCIÓN DE PROMOCIONES DESTACADAS -->
+    <main class="promos-section" id="promosCatalog">
+        <div class="container">
+            
+            <!-- Encabezado de la Sección Banner Estilo Mercado Libre -->
+            <div class="promos-header meli-promos-banner" style="margin-bottom: 30px;">
+                <div class="meli-banner-content">
+                    <span class="promos-badge" style="background:#ffe600; color:#2d3277; border-color:#e6cf00;">
+                        <i class="fa-solid fa-bolt"></i> PROMOCIONES EXCLUSIVAS 2026
+                    </span>
+                    <h1 class="promos-title">Laptops en Oferta con Entrega Inmediata</h1>
+                    <p class="promos-subtitle">
+                        Equipos sellados, garantía escrita en Caraz y configuración lista para trabajar, estudiar o jugar. ¡Aprovecha los mejores precios locales!
+                    </p>
+                </div>
+            </div>
+
+            {% if query or categoria_seleccionada %}
+            <div class="filter-results-bar" style="background:#ffffff; border:1.5px solid #ffe600; border-radius:12px; padding:16px 22px; margin-bottom:28px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="font-size:19px; font-weight:900; color:#2d3277; margin:0; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-magnifying-glass" style="color:#3483fa;"></i>
+                        {% if query %}Resultados para: "{{ query }}"{% else %}Categoría: {{ categoria_seleccionada|title }}{% endif %}
+                    </h2>
+                    <span style="font-size:13px; color:#666666;">Se encontraron {{ productos|length }} productos disponibles</span>
+                </div>
+                <a href="{% url 'inicio' %}" style="display:inline-flex; align-items:center; gap:6px; background:#fffbe6; color:#2d3277; border:1px solid #ffe600; padding:8px 16px; border-radius:8px; font-weight:700; text-decoration:none; font-size:13px; transition:all 0.2s;">
+                    <i class="fa-solid fa-xmark"></i> Ver catálogo completo
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Grid de Promociones de Laptops con Fotos Grandes -->
+            <div class="promos-grid">
+                {% for prod in productos %}
+                <div class="promo-card blue clickable-product-card" onclick="location.href='{% url 'detalle_producto' prod.id %}'" style="cursor: pointer;">
+                    <div>
+                        <div class="promo-top-meta">
+                            <span class="promo-tag">{{ prod.categoria.nombre|default:"Full Piloto" }}</span>
+                            {% if prod.stock <= 4 %}
+                            <span class="promo-discount-badge" style="background:#f59e0b;"><i class="fa-solid fa-bolt"></i> Pocas unidades</span>
+                            {% else %}
+                            <span class="promo-discount-badge" style="background:#00a650;"><i class="fa-solid fa-check"></i> Disponible</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="promo-image-box">
+                            <div class="floating-badges-row">
+                                <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> Stock: {{ prod.stock }} un.</span>
+                                <span class="glass-badge glass-badge-feature warranty"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
+                            </div>
+                            {% if prod.imagen_url %}
+                            <img src="{{ prod.imagen_url }}" alt="{{ prod.nombre }}" loading="lazy">
+                            {% else %}
+                            <i class="fa-solid fa-laptop" style="font-size:65px; color:#9ca3af;"></i>
+                            {% endif %}
+                            <button type="button" class="btn-quick-view-hover" onclick="event.stopPropagation(); QuickViewManager.open({{ prod.id }});" title="Vista rápida">
+                                <i class="fa-solid fa-eye"></i> Vista Rápida
+                            </button>
+                            <!-- INSIGNIAS DE CONFIANZA Y FACILIDAD DE COMPRA -->
+                            <div class="floating-store-trust-badges">
+                                <span class="trust-chip trust-chip-free-delivery"><i class="fa-solid fa-truck-fast"></i> Envío Gratis</span>
+                                <span class="trust-chip trust-chip-yape"><i class="fa-solid fa-qrcode"></i> Yape / Plin</span>
+                                <span class="trust-chip trust-chip-new"><i class="fa-solid fa-sparkles"></i> Nuevo</span>
+                            </div>
+                        </div>
+
+                        <h2 class="promo-name"><a href="{% url 'detalle_producto' prod.id %}" class="product-title-link">{{ prod.nombre }}</a></h2>
+                        <p class="promo-desc">{{ prod.descripcion|truncatewords:24 }}</p>
+                    </div>
+
+                    <div>
+                        <div class="promo-pricing-box">
+                            <div class="price-label-col">
+                                <span>Precio</span>
+                                <span style="color:#00a650; font-weight:800;">Oferta Caraz</span>
+                            </div>
+                            <div class="price-main">S/. {{ prod.precio }}</div>
+                        </div>
+
+                        <div class="promo-card-actions-group">
+                            <button type="button" class="btn-promo-action" onclick="event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio }}, icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock }} })">
+                                <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align:center; padding:50px 20px; grid-column: 1 / -1; background:#ffffff; border-radius:14px; border:1px solid #e5e7eb;">
+                    <i class="fa-solid fa-laptop" style="font-size:45px; color:#cbd5e1; margin-bottom:15px;"></i>
+                    <h3 style="font-size:20px; font-weight:800; color:#2d3277; margin-bottom:8px;">No hay laptops disponibles en este momento</h3>
+                    <p style="color:#666; font-size:14px;">Visítanos pronto o consúltanos por WhatsApp.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <strong>Full Piloto System</strong> &copy; 2026 • Caraz, Áncash - Perú
+            </div>
+            <div class="footer-socials">
+                <a href="https://wa.me/51961081784" target="_blank" class="footer-social-link" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                <a href="#" class="footer-social-link" title="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="#" class="footer-social-link" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="#" class="footer-social-link" title="TikTok">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BOTÓN FLOTANTE DE WHATSAPP RESPONSIVE -->
+    <a href="https://wa.me/51961081784?text=Hola%20Full%20Piloto%20System!%20Deseo%20hacer%20una%20consulta" 
+       target="_blank" 
+       class="whatsapp-float-btn" 
+       aria-label="Contactar por WhatsApp" 
+       title="Escríbenos por WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span>WhatsApp</span>
+    </a>
+
+    <!-- COMPONENTE CARRITO DRAWER & CHECKOUT -->
+    {% include 'cart_component.html' %}
+
+    <!-- ========================================================
+         MODAL DE VISTA RÁPIDA (QUICK VIEW) CON ZOOM Y MINIATURAS
+         ======================================================== -->
+    <div class="quickview-modal-overlay" id="quickViewModal" onclick="if(event.target === this) QuickViewManager.close();">
+        <div class="quickview-modal-card" role="dialog" aria-modal="true">
+            <button type="button" class="quickview-close-btn" onclick="QuickViewManager.close()" title="Cerrar vista rápida">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="quickview-modal-body">
+                <!-- Columna Izquierda: Galería con efecto Lupa / Zoom -->
+                <div class="quickview-gallery-col">
+                    <div class="quickview-main-image-wrap" id="qvImageWrap">
+                        <img id="qvMainImg" src="" alt="Laptop">
+                        <div class="quickview-zoom-hint">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i> Pasa el cursor para hacer zoom
+                        </div>
+                    </div>
+
+                    <div class="quickview-thumbs-strip" id="qvThumbsStrip">
+                        <!-- Las miniaturas se inyectan dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Información, Specs y Compra -->
+                <div class="quickview-info-col">
+                    <div class="quickview-tag-row">
+                        <span class="quickview-brand-tag" id="qvBrandTag">Lenovo 2026</span>
+                        <span class="quickview-stock-tag" id="qvStockTag"><i class="fa-solid fa-check"></i> Stock en Caraz</span>
+                    </div>
+
+                    <h3 class="quickview-title" id="qvTitle">Nombre del Producto</h3>
+
+                    <div class="quickview-pricing-box">
+                        <div>
+                            <span style="font-size:11px; font-weight:700; color:#64748b; display:block; text-transform:uppercase;">Precio de Oferta</span>
+                            <span class="quickview-price-main" id="qvPrice">S/. 0.00</span>
+                        </div>
+                        <span class="quickview-price-badge"><i class="fa-solid fa-truck-fast"></i> Envío Gratis en Caraz</span>
+                    </div>
+
+                    <div class="quickview-specs-box">
+                        <table id="qvSpecsTable">
+                            <!-- Specs dinámicas -->
+                        </table>
+                    </div>
+
+                    <div class="quickview-actions">
+                        <button type="button" class="btn-quickview-add" id="qvBtnAddToCart">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                        </button>
+                        <div class="quickview-btn-row">
+                            <a href="#" class="btn-quickview-detail" id="qvBtnFullDetail">
+                                <i class="fa-solid fa-circle-info"></i> Ficha Completa
+                            </a>
+                            <a href="#" target="_blank" class="btn-quickview-whatsapp" id="qvBtnWhatsApp">
+                                <i class="fa-brands fa-whatsapp"></i> Pedir por WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DEL GESTOR DE VISTA RÁPIDA (QUICK VIEW) -->
+    <script>
+    const QuickViewManager = {
+        currentProduct: null,
+
+        async open(productId) {
+            const modal = document.getElementById('quickViewModal');
+            if (!modal) return;
+
+            // Limpieza inicial de estados
+            document.getElementById('qvTitle').textContent = 'Cargando equipo...';
+            document.getElementById('qvPrice').textContent = 'S/. ...';
+            document.getElementById('qvSpecsTable').innerHTML = '<tr><td colspan="2" style="text-align:center; padding:18px;"><i class="fa-solid fa-spinner fa-spin" style="color:#3483fa;"></i> Obteniendo detalles...</td></tr>';
+            document.getElementById('qvThumbsStrip').innerHTML = '';
+            document.getElementById('qvMainImg').src = '';
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const res = await fetch(`/api/producto/${productId}/`);
+                if (!res.ok) throw new Error('Error al cargar');
+                const data = await res.json();
+                this.currentProduct = data;
+                this.render(data);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('qvTitle').textContent = 'No se pudo cargar la vista rápida';
+                document.getElementById('qvSpecsTable').innerHTML = '<tr><td colspan="2" style="color:#ef4444; padding:12px;">Por favor abre la ficha completa para más información.</td></tr>';
+            }
+        },
+
+        render(data) {
+            document.getElementById('qvTitle').textContent = data.nombre;
+            document.getElementById('qvPrice').textContent = `S/. ${data.precio.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('qvStockTag').innerHTML = `<i class="fa-solid fa-check"></i> ${data.stock} unidades en Caraz`;
+            document.getElementById('qvBtnFullDetail').href = data.detalle_url;
+            document.getElementById('qvBtnWhatsApp').href = `https://wa.me/51961081784?text=${encodeURIComponent(`Hola Full Piloto System! Me interesa la ${data.nombre} al precio de S/.${data.precio}. ¿Tienen stock disponible en tienda?`)}`;
+
+            // Configurar botón Agregar al Carrito
+            const btnAdd = document.getElementById('qvBtnAddToCart');
+            btnAdd.onclick = () => {
+                CartManager.addItem({
+                    id: `prod_${data.id}`,
+                    name: data.nombre,
+                    price: data.precio,
+                    icon: 'fa-solid fa-laptop',
+                    qty: 1,
+                    maxStock: data.stock
+                });
+                this.close();
+            };
+
+            // Galería de fotos
+            const mainImg = document.getElementById('qvMainImg');
+            const thumbsStrip = document.getElementById('qvThumbsStrip');
+            thumbsStrip.innerHTML = '';
+
+            if (data.imagenes && data.imagenes.length > 0) {
+                mainImg.src = data.imagenes[0];
+
+                data.imagenes.forEach((imgUrl, index) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `quickview-thumb-btn ${index === 0 ? 'active' : ''}`;
+                    btn.innerHTML = `<img src="${imgUrl}" alt="Foto ${index + 1}">`;
+                    btn.onclick = () => {
+                        mainImg.src = imgUrl;
+                        document.querySelectorAll('.quickview-thumb-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    };
+                    thumbsStrip.appendChild(btn);
+                });
+            } else {
+                mainImg.src = '/static/inicio/images/placeholder.png';
+            }
+
+            // Configurar lupa / zoom interactivo
+            this.setupZoom();
+
+            // Renderizar tabla de especificaciones
+            const table = document.getElementById('qvSpecsTable');
+            table.innerHTML = '';
+            if (data.specs && data.specs.length > 0) {
+                data.specs.forEach(([label, value]) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${label}</td><td>${value}</td>`;
+                    table.appendChild(row);
+                });
+            }
+        },
+
+        setupZoom() {
+            const wrap = document.getElementById('qvImageWrap');
+            const img = document.getElementById('qvMainImg');
+            if (!wrap || !img) return;
+
+            wrap.onmousemove = (e) => {
+                const rect = wrap.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                img.style.transformOrigin = `${x}% ${y}%`;
+                img.style.transform = 'scale(1.9)';
+            };
+
+            wrap.onmouseleave = () => {
+                img.style.transformOrigin = 'center center';
+                img.style.transform = 'scale(1)';
+            };
+        },
+
+        close() {
+            const modal = document.getElementById('quickViewModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+    };
+
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            QuickViewManager.close();
+            toggleMobileSearch(false);
+        }
+    });
+
+    // Control del buscador desplegable inteligente en móvil
+    function toggleMobileSearch(forceState) {
+        const box = document.getElementById('headerSearchBox');
+        const trigger = document.getElementById('mobileSearchTrigger');
+        const input = document.getElementById('headerSearchInput');
+        if (!box) return;
+
+        const willOpen = typeof forceState === 'boolean' ? forceState : !box.classList.contains('active-mobile');
+        
+        if (willOpen) {
+            box.classList.add('active-mobile');
+            if (trigger) trigger.classList.add('active');
+            setTimeout(() => { if (input) input.focus(); }, 100);
+        } else {
+            box.classList.remove('active-mobile');
+            if (trigger) trigger.classList.remove('active');
+            if (input) input.blur();
+        }
+    }
+
+    // Cerrar el buscador al hacer click en cualquier otro lado de la pantalla
+    document.addEventListener('click', (e) => {
+        const box = document.getElementById('headerSearchBox');
+        const trigger = document.getElementById('mobileSearchTrigger');
+        if (!box || !box.classList.contains('active-mobile')) return;
+
+        // Si el click no fue ni dentro del buscador ni en el botón de la lupa, se cierra
+        if (!box.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
+            toggleMobileSearch(false);
+        }
+    });
+    </script>
+
+    <!-- SCRIPT DEL CARRUSEL PRO & COUNTDOWN -->
+    <script src="{% static 'inicio/js/hero-slider.js' %}"></script>
+</body>
+</html>

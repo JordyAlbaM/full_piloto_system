@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carrito de Compras - Full Piloto System Caraz</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'inicio/css/carrito.css' %}">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}">
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-wrap">
+                <a href="{% url 'inicio' %}" class="logo-link">
+                    <div class="logo-icon"><i class="fa-solid fa-laptop-code"></i></div>
+                    <span>Full Piloto <span style="color:var(--fps-primary);">System</span></span>
+                </a>
+                <a href="{% url 'inicio' %}" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> Seguir Comprando
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-title-box">
+                <h1>Tu Carrito de Compras</h1>
+                <p>Gestiona tus productos seleccionados y confirma tu orden con el medio de pago más cómodo para ti.</p>
+            </div>
+
+            <div class="cart-grid-layout">
+                <!-- Columna Izquierda: Lista detallada -->
+                <div class="cart-card-main" id="cartFullList">
+                    <!-- Dinámico -->
+                </div>
+
+                <!-- Columna Derecha: Resumen -->
+                <div class="cart-summary-sidebar">
+                    <h2 class="summary-title">Resumen de Compra</h2>
+                    
+                    <div id="pageShippingNotice" class="shipping-notice-box">
+                        <i class="fa-solid fa-truck-fast"></i>
+                        <span id="pageShippingNoticeText">Calculando envío...</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Subtotal de productos</span>
+                        <span id="pageSubtotal" style="font-weight: 700; color: var(--fps-dark-slate);">S/. 0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Costo de Envío (Caraz)</span>
+                        <span id="pageShippingCost" style="font-weight:800;">S/. 5.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Garantía Local en Caraz</span>
+                        <span style="color:#059669; font-weight:800;"><i class="fa-solid fa-shield-check"></i> 100% Cubierta</span>
+                    </div>
+                    <div class="summary-total-row">
+                        <span>Total:</span>
+                        <span id="pageTotal" style="color:#dc2626;">S/. 0.00</span>
+                    </div>
+
+                    <button type="button" class="btn-order-checkout" onclick="CartManager.openCheckoutModal()">
+                        <i class="fa-solid fa-credit-card"></i> Pagar Pedido Ahora
+                    </button>
+
+                    <a href="{% url 'inicio' %}" class="btn-continue-shop">
+                        <i class="fa-solid fa-plus"></i> Añadir más productos
+                    </a>
+
+                    <div class="payment-icons-box">
+                        <p>Aceptamos los principales medios de pago</p>
+                        <div class="payment-icons-row">
+                            <span class="pay-pill yape" style="font-size:11px; padding:3px 7px; background:#f3e8ff; color:#742284; border-radius:6px; font-weight:800;">Yape</span>
+                            <span class="pay-pill plin" style="font-size:11px; padding:3px 7px; background:#e6fffa; color:#00897b; border-radius:6px; font-weight:800;">Plin</span>
+                            <span class="pay-pill card" style="font-size:11px; padding:3px 7px; background:#eff6ff; color:#1d4ed8; border-radius:6px; font-weight:800;">Visa/Mastercard</span>
+                            <span class="pay-pill cash" style="font-size:11px; padding:3px 7px; background:#ecfdf5; color:#059669; border-radius:6px; font-weight:800;">Efectivo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <strong>Full Piloto System</strong> &copy; 2026 • Caraz, Áncash - Perú
+        </div>
+    </footer>
+
+    {% include 'cart_component.html' %}
+
+    <script src="{% static 'inicio/js/carrito.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}">
+
+<!-- Overlay Oscuro del Drawer -->
+<div class="cart-drawer-overlay" id="cartOverlay" onclick="CartManager.closeCart()"></div>
+
+<!-- Drawer Lateral del Carrito -->
+<aside class="cart-drawer" id="cartDrawer" aria-label="Carrito de compras">
+    <div class="cart-header">
+        <div class="cart-header-title">
+            <div class="cart-header-icon-box">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <div>
+                <div>Tu Carrito</div>
+                <div style="font-size: 11px; font-weight: 500; color: #94a3b8;">Full Piloto System Caraz</div>
+            </div>
+            <span class="cart-header-count" id="cartHeaderCount">0 items</span>
+        </div>
+        <button type="button" class="cart-close-btn" onclick="CartManager.closeCart()" aria-label="Cerrar carrito">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <!-- Indicador de Envío Transparente y Dinámico -->
+    <div class="cart-shipping-meter">
+        <div class="shipping-text">
+            <span id="shippingMeterText"><i class="fa-solid fa-truck-fast"></i> Envío Caraz</span>
+            <span id="shippingMeterStatus" style="font-weight: 800;"></span>
+        </div>
+        <div class="shipping-progress-bar">
+            <div class="shipping-progress-fill" id="shippingProgressFill"></div>
+        </div>
+        <div class="shipping-detail-hint" id="shippingDetailHint">
+            <i class="fa-solid fa-circle-info"></i> Costo regular de delivery en Caraz: <strong>S/. 5.00</strong> (Gratis a partir de S/. 100)
+        </div>
+    </div>
+
+    <!-- Lista de Artículos -->
+    <div class="cart-items-container" id="cartItemsList">
+        <!-- Renderizado dinámico vía JavaScript -->
+    </div>
+
+    <!-- Footer del Drawer -->
+    <div class="cart-footer" id="cartFooter">
+        <div class="cart-summary-line">
+            <span>Subtotal de productos</span>
+            <span id="cartSubtotal" style="font-weight: 700; color: #0b1120;">S/. 0.00</span>
+        </div>
+        <div class="cart-summary-line">
+            <span id="cartShippingLabel">Costo de Entrega</span>
+            <span id="cartShippingCost" style="font-weight: 800;">S/. 5.00</span>
+        </div>
+        <div class="cart-summary-total">
+            <span>Total a Pagar:</span>
+            <span class="cart-total-value" id="cartTotal">S/. 0.00</span>
+        </div>
+
+        <!-- Métodos de Pago disponibles con Branding Oficial -->
+        <div class="payment-methods-strip">
+            <span class="pay-pill yape"><i class="fa-solid fa-qrcode"></i> Yape</span>
+            <span class="pay-pill plin"><i class="fa-solid fa-bolt"></i> Plin</span>
+            <span class="pay-pill card"><i class="fa-solid fa-credit-card"></i> Visa / MC</span>
+            <span class="pay-pill cash"><i class="fa-solid fa-hand-holding-dollar"></i> Efectivo</span>
+        </div>
+
+        <button type="button" class="cart-action-btn btn-proceed-checkout" onclick="CartManager.openCheckoutModal()">
+            <i class="fa-solid fa-credit-card"></i> Pagar Pedido Ahora
+        </button>
+        <button type="button" class="cart-action-btn btn-clear-cart" onclick="CartManager.clearCart()">
+            <i class="fa-regular fa-trash-can"></i> Vaciar Carrito
+        </button>
+    </div>
+</aside>
+
+<!-- Modal Pasarela de Pago / Checkout Seguro -->
+<div class="checkout-modal-overlay" id="checkoutModalOverlay">
+    <div class="checkout-modal">
+        <div class="modal-header">
+            <h4><i class="fa-solid fa-shield-halved"></i> Pasarela de Pago & Entrega</h4>
+            <button type="button" class="modal-close-btn" onclick="CartManager.closeCheckoutModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="checkoutOrderForm" onsubmit="CartManager.submitCheckoutOrder(event)">
+            {% csrf_token %}
+            <div class="modal-body">
+                
+                <!-- Selector Visual del Método de Pago -->
+                <div class="payment-selector-title">
+                    <i class="fa-solid fa-wallet" style="color: #2563eb;"></i> Elige cómo deseas pagar:
+                </div>
+                <div class="payment-options-grid">
+                    <div class="payment-choice-card selected" onclick="CartManager.selectPayment('yape_plin', this)">
+                        <div class="payment-choice-header">
+                            <i class="fa-solid fa-qrcode" style="color: #742284; font-size:18px;"></i>
+                            <span>Yape / Plin</span>
+                        </div>
+                        <div class="payment-choice-desc">Código QR o número sin comisión</div>
+                    </div>
+                    <div class="payment-choice-card" onclick="CartManager.selectPayment('tarjeta', this)">
+                        <div class="payment-choice-header">
+                            <i class="fa-brands fa-cc-visa" style="color: #1a1f71; font-size:18px;"></i>
+                            <span>Tarjeta Débito/Crédito</span>
+                        </div>
+                        <div class="payment-choice-desc">POS móvil en casa o Link Niubiz</div>
+                    </div>
+                    <div class="payment-choice-card" onclick="CartManager.selectPayment('efectivo', this)">
+                        <div class="payment-choice-header">
+                            <i class="fa-solid fa-hand-holding-dollar" style="color: #059669; font-size:18px;"></i>
+                            <span>Pago Contra-entrega</span>
+                        </div>
+                        <div class="payment-choice-desc">Efectivo al recibir en Caraz</div>
+                    </div>
+                    <div class="payment-choice-card" onclick="CartManager.selectPayment('transferencia', this)">
+                        <div class="payment-choice-header">
+                            <i class="fa-solid fa-building-columns" style="color: #d97706; font-size:18px;"></i>
+                            <span>Transferencia BCP/BBVA</span>
+                        </div>
+                        <div class="payment-choice-desc">Depósito directo o CCI</div>
+                    </div>
+                </div>
+
+                <!-- Detalle dinámico según el método de pago seleccionado -->
+                <div class="payment-dynamic-box" id="paymentDynamicBox">
+                    <!-- Inyectado dinámicamente -->
+                </div>
+
+                <!-- Datos del Comprador -->
+                <div class="payment-selector-title">
+                    <i class="fa-solid fa-location-dot" style="color: #2563eb;"></i> Datos de Entrega en Caraz:
+                </div>
+                <div class="modal-form-group">
+                    <label for="orderCustomerName">Nombre y Apellidos *</label>
+                    <input type="text" id="orderCustomerName" class="modal-input" placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="orderCustomerPhone">Celular / WhatsApp para confirmación *</label>
+                    <input type="tel" id="orderCustomerPhone" class="modal-input" placeholder="Ej: 961 081 784" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="orderDeliveryType">Modalidad de Envío</label>
+                    <select id="orderDeliveryType" class="modal-select" onchange="CartManager.onDeliveryOptionChanged()">
+                        <option value="delivery_caraz">Delivery en Caraz Centro (+S/. 5.00 o Gratis > S/. 100)</option>
+                        <option value="recojo_tienda">Recojo en Tienda Física (Caraz Centro - S/. 0.00)</option>
+                        <option value="provincia">Envío a Provincias (Yungay, Huaraz, Huaylas - S/. 10.00)</option>
+                    </select>
+                </div>
+                <div class="modal-form-group" id="addressInputGroup">
+                    <label for="orderCustomerAddress">Dirección de Entrega / Referencia</label>
+                    <input type="text" id="orderCustomerAddress" class="modal-input" placeholder="Ej: Jr. San Martín #450 (Frente a la plaza)">
+                </div>
+                <div class="modal-form-group">
+                    <label for="orderNotes">Nota adicional (opcional)</label>
+                    <input type="text" id="orderNotes" class="modal-input" placeholder="Ej: Pagaré con billete de S/. 100, traer cambio">
+                </div>
+
+                <!-- Desglose Final -->
+                <div class="checkout-summary-strip">
+                    <div>
+                        <div class="title">Total a Pagar (Con Entrega):</div>
+                        <small id="checkoutDeliveryBadge" style="color:#a7f3d0; font-weight:600;">Delivery Caraz incluido</small>
+                    </div>
+                    <div class="amount" id="checkoutFinalAmount">S/. 0.00</div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cart-action-btn btn-clear-cart" style="width:auto; flex:1;" onclick="CartManager.closeCheckoutModal()">
+                    Volver
+                </button>
+                <button type="submit" class="cart-action-btn btn-complete-payment">
+                    <i class="fa-solid fa-circle-check"></i> Confirmar y Pagar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast Flotante de Producto Añadido -->
+<div class="cart-toast" id="cartToast">
+    <div class="toast-icon-circle">
+        <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <div class="toast-body-text">
+        <div class="toast-body-title" id="cartToastTitle">¡Producto añadido!</div>
+        <div class="toast-body-subtitle" id="cartToastSubtitle">Tienes 1 en el carrito</div>
+    </div>
+    <div class="toast-actions-box">
+        <button type="button" class="toast-view-btn" onclick="CartManager.openCart()">
+            Ver Carrito
+        </button>
+        <button type="button" class="toast-close-btn" onclick="CartManager.hideToast()" title="Cerrar notificación" aria-label="Cerrar notificación">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Script del Motor de Carrito y Pagos -->
+<script src="{% static 'inicio/js/cart.js' %}"></script>

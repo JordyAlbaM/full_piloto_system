@@ -1,0 +1,136 @@
+[
+  {
+    "url": "https://infotec.com.pe/laptop/25099-laptop-lenovo-v15-g4-amn-ryzen-3-7320u-8gb-ddr5-256gb-ssd-156-fhd-freedos-82yu00x4lm-.html",
+    "name": "Laptop",
+    "price": 2000.0,
+    "images": [
+      "https://infotec.com.pe/91284-large_default/laptop-lenovo-v15-g4-amn-ryzen-3-7320u-8gb-ddr5-256gb-ssd-156-fhd-freedos-82yu00x4lm-.jpg",
+      "https://infotec.com.pe/78119-large_default/laptop-lenovo-v15-g4-amn-ryzen-3-7320u-8gb-ddr5-256gb-ssd-156-fhd-freedos-82yu00x4lm-.jpg",
+      "https://infotec.com.pe/78118-large_default/laptop-lenovo-v15-g4-amn-ryzen-3-7320u-8gb-ddr5-256gb-ssd-156-fhd-freedos-82yu00x4lm-.jpg",
+      "https://infotec.com.pe/78120-large_default/laptop-lenovo-v15-g4-amn-ryzen-3-7320u-8gb-ddr5-256gb-ssd-156-fhd-freedos-82yu00x4lm-.jpg",
+      "https://infotec.com.pe/78121-large_default/laptop-lenovo-v15-g4-amn-ryzen-3-7320u-8gb-ddr5-256gb-ssd-156-fhd-freedos-82yu00x4lm-.jpg"
+    ],
+    "features": {
+      "Modelo": "V5 G4 AMN",
+      "Producto": "Laptop",
+      "Procesador": "AMD Ryzen 3",
+      "Tarjeta de video": "AMD Radeon",
+      "Memoria RAM": "8GB DDR5",
+      "Almacenamiento": "256GB (SSD)",
+      "Pantalla": "15.6''FHD",
+      "Teclado": "Español",
+      "Sistema Operativo": "FreeDOS",
+      "SKUP": "SU004",
+      "Marca": "Lenovo",
+      "Táctil": "No",
+      "Convertible 360°": "No"
+    }
+  },
+  {
+    "url": "https://infotec.com.pe/laptop/31029-laptop-lenovo-v15-g5-irl-i3-1315u-8gb-ddr5-512gb-ssd-156-fhd-freedos-83gw005mld.html",
+    "name": "Laptop",
+    "price": 2000.0,
+    "images": [
+      "https://infotec.com.pe/110494-large_default/laptop-lenovo-v15-g5-irl-i3-1315u-8gb-ddr5-512gb-ssd-156-fhd-freedos-83gw005mld.jpg",
+      "https://infotec.com.pe/106260-large_default/laptop-lenovo-v15-g5-irl-i3-1315u-8gb-ddr5-512gb-ssd-156-fhd-freedos-83gw005mld.jpg",
+      "https://infotec.com.pe/106261-large_default/laptop-lenovo-v15-g5-irl-i3-1315u-8gb-ddr5-512gb-ssd-156-fhd-freedos-83gw005mld.jpg",
+      "https://infotec.com.pe/106262-large_default/laptop-lenovo-v15-g5-irl-i3-1315u-8gb-ddr5-512gb-ssd-156-fhd-freedos-83gw005mld.jpg",
+      "https://infotec.com.pe/106263-large_default/laptop-lenovo-v15-g5-irl-i3-1315u-8gb-ddr5-512gb-ssd-156-fhd-freedos-83gw005mld.jpg"
+    ],
+    "features": {
+      "Modelo": "83GW005MLD",
+      "Producto": "Laptop",
+      "Procesador": "Core i3 - 13th Gen",
+      "Tarjeta de video": "Intel UHD Graphics",
+      "Memoria RAM": "8GB DDR5",
+      "Almacenamiento": "512GB (SSD)",
+      "Pantalla": "15.6''FHD",
+      "Teclado": "Español",
+      "Sistema Operativo": "FreeDOS",
+      "GARANTIA": "1 AÑO",
+      "Marca": "Lenovo",
+      "Táctil": "No",
+      "Convertible 360°": "No"
+    }
+  },
+  {
+    "url": "https://infotec.com.pe/laptop/32054-laptop-hp-15-fc0225dx-ryzen-7-7730u-16gb-512gb-ssd-156-fhd-touchscreen-windows-11-d96e6ua-aba.html",
+    "name": "Laptop",
+    "price": 2000.0,
+    "images": [
+      "https://infotec.com.pe/111319-large_default/laptop-hp-15-fc0225dx-ryzen-7-7730u-16gb-512gb-ssd-156-fhd-touchscreen-windows-11-d96e6ua-aba.jpg",
+      "https://infotec.com.pe/111316-large_default/laptop-hp-15-fc0225dx-ryzen-7-7730u-16gb-512gb-ssd-156-fhd-touchscreen-windows-11-d96e6ua-aba.jpg",
+      "https://infotec.com.pe/111315-large_default/laptop-hp-15-fc0225dx-ryzen-7-7730u-16gb-512gb-ssd-156-fhd-touchscreen-windows-11-d96e6ua-aba.jpg",
+      "https://infotec.com.pe/111317-large_default/laptop-hp-15-fc0225dx-ryzen-7-7730u-16gb-512gb-ssd-156-fhd-touchscreen-windows-11-d96e6ua-aba.jpg"
+    ],
+    "features": {
+      "Modelo": "15-FC0225DX",
+      "Producto": "Laptop",
+      "Procesador": "AMD Ryzen 7",
+      "Tarjeta de video": "AMD Radeon",
+      "Memoria RAM": "16GB DDR4",
+      "Almacenamiento": "512GB (SSD)",
+      "Pantalla": "15.6''FHD",
+      "Teclado": "Ingles",
+      "Sistema Operativo": "Windows 11",
+      "GARANTIA": "1 Año",
+      "SKUP": "ALC25",
+      "Marca": "HP",
+      "Táctil": "Si",
+      "Convertible 360°": "No"
+    }
+  },
+  {
+    "url": "https://infotec.com.pe/laptop/31739-laptop-hp-15-fd0127dx-intel-core-7-150u-16gb-ddr5-512gb-ssd-156-fhd-touchscreen-windows-11-b4hn8ua.html",
+    "name": "Laptop",
+    "price": 2000.0,
+    "images": [
+      "https://infotec.com.pe/110513-large_default/laptop-hp-15-fd0127dx-intel-core-7-150u-16gb-ddr5-512gb-ssd-156-fhd-touchscreen-windows-11-b4hn8ua.jpg",
+      "https://infotec.com.pe/109610-large_default/laptop-hp-15-fd0127dx-intel-core-7-150u-16gb-ddr5-512gb-ssd-156-fhd-touchscreen-windows-11-b4hn8ua.jpg",
+      "https://infotec.com.pe/109612-large_default/laptop-hp-15-fd0127dx-intel-core-7-150u-16gb-ddr5-512gb-ssd-156-fhd-touchscreen-windows-11-b4hn8ua.jpg"
+    ],
+    "features": {
+      "Modelo": "15-FD0127DX",
+      "Producto": "Laptop",
+      "Procesador": "Intel Core 7",
+      "Tarjeta de video": "Intel Iris Xe Graphics",
+      "Memoria RAM": "16GB DDR5",
+      "Almacenamiento": "512GB (SSD)",
+      "Pantalla": "15.6''FHD",
+      "Teclado": "Ingles",
+      "Sistema Operativo": "Windows 11",
+      "GARANTIA": "1 Año",
+      "SKUP": "CU015",
+      "Marca": "HP",
+      "Táctil": "Si",
+      "Convertible 360°": "No"
+    }
+  },
+  {
+    "url": "https://infotec.com.pe/laptop/31923-laptop-lenovo-5-16ahp9-2en1-ryzen-7-8845hs-16gb-1tb-ssd-16-wuxga-touchscreen-windows-11-83ds0056us.html",
+    "name": "Laptop",
+    "price": 2000.0,
+    "images": [
+      "https://infotec.com.pe/110701-large_default/laptop-lenovo-5-16ahp9-2en1-ryzen-7-8845hs-16gb-1tb-ssd-16-wuxga-touchscreen-windows-11-83ds0056us.jpg",
+      "https://infotec.com.pe/110697-large_default/laptop-lenovo-5-16ahp9-2en1-ryzen-7-8845hs-16gb-1tb-ssd-16-wuxga-touchscreen-windows-11-83ds0056us.jpg",
+      "https://infotec.com.pe/110700-large_default/laptop-lenovo-5-16ahp9-2en1-ryzen-7-8845hs-16gb-1tb-ssd-16-wuxga-touchscreen-windows-11-83ds0056us.jpg",
+      "https://infotec.com.pe/110699-large_default/laptop-lenovo-5-16ahp9-2en1-ryzen-7-8845hs-16gb-1tb-ssd-16-wuxga-touchscreen-windows-11-83ds0056us.jpg",
+      "https://infotec.com.pe/110698-large_default/laptop-lenovo-5-16ahp9-2en1-ryzen-7-8845hs-16gb-1tb-ssd-16-wuxga-touchscreen-windows-11-83ds0056us.jpg"
+    ],
+    "features": {
+      "Modelo": "83DS0056US",
+      "Producto": "Laptop",
+      "Procesador": "AMD Ryzen 7",
+      "Tarjeta de video": "AMD Radeon",
+      "Memoria RAM": "16GB LPDDR5X",
+      "Almacenamiento": "1TB (SSD)",
+      "Teclado": "Ingles",
+      "Sistema Operativo": "Windows 11",
+      "GARANTIA": "1 Año",
+      "SKUP": "ALC25",
+      "Marca": "Lenovo",
+      "Táctil": "Si",
+      "Convertible 360°": "Si"
+    }
+  }
+]

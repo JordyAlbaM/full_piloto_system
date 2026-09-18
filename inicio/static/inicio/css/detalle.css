@@ -1,0 +1,830 @@
+        :root {
+            --primary: #ffe600;
+            --primary-dark: #ffd100;
+            --primary-border: #e6cf00;
+            --primary-light: #fffde6;
+            --accent: #3483fa;
+            --accent-hover: #2968c8;
+            --meli-green: #00a650;
+            --dark: #0b1329;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --bg-light: #ffffff;
+            --border-color: #e2e8f0;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.08);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #181f38;
+            color: #cbd5e1;
+            font-size: 12px;
+            padding: 7px 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .top-bar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Header Mercado Libre Yellow */
+        .main-header {
+            background: #ffe600;
+            border-bottom: 1px solid #e6cf00;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 14px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: #2d3277;
+            color: #ffe600;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            box-shadow: 0 2px 6px rgba(45, 50, 119, 0.25);
+        }
+        .brand-name {
+            font-size: 21px;
+            font-weight: 800;
+            color: #2d3277;
+            letter-spacing: -0.3px;
+        }
+        .brand-name span { color: #00a650; }
+
+        .btn-back-nav {
+            text-decoration: none;
+            color: #2d3277;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(45, 50, 119, 0.2);
+            background: rgba(255, 255, 255, 0.7);
+            transition: var(--transition);
+        }
+        .btn-back-nav:hover {
+            background: #ffffff;
+            color: #1e245a;
+            border-color: #2d3277;
+        }
+
+        /* Breadcrumbs */
+        .breadcrumbs {
+            padding: 18px 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .breadcrumbs a {
+            color: #2d3277;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .breadcrumbs a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+        .breadcrumbs span {
+            margin: 0 8px;
+        }
+
+        /* Detalle Layout */
+        .product-detail-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid #dcdcdc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            padding: 35px;
+            margin-bottom: 40px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* Galería de Imagen */
+        .product-gallery {
+            position: sticky;
+            top: 90px;
+        }
+        .main-image-box {
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            border: 1px solid #e2e8f0;
+            height: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            padding: 30px 24px;
+        }
+        .main-image-box img {
+            max-width: 95%;
+            max-height: 92%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin: auto;
+            mix-blend-mode: multiply;
+            transition: transform 0.3s ease;
+        }
+        .main-image-box:hover img {
+            transform: scale(1.04);
+        }
+        .main-image-box .icon-placeholder {
+            font-size: 90px;
+            color: #94a3b8;
+        }
+        /* Insignias Flotantes Glassmorphism en Detalle */
+        .floating-badges-row {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            z-index: 4;
+        }
+        .glass-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            line-height: 1;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+        .glass-badge-stock {
+            background: rgba(16, 185, 129, 0.22);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            font-weight: 800;
+        }
+        .glass-badge-stock.low {
+            background: rgba(245, 158, 11, 0.22);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+        .glass-badge-feature {
+            background: rgba(15, 23, 42, 0.7);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .glass-badge-feature.warranty i {
+            color: #34d399;
+        }
+        .glass-badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: currentColor;
+            box-shadow: 0 0 8px currentColor;
+            display: inline-block;
+        }
+
+        /* Info del Producto */
+        .product-info-col {
+            display: flex;
+            flex-direction: column;
+        }
+        .category-pill {
+            display: inline-block;
+            background: #ffe600;
+            color: #2d3277;
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            width: fit-content;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .product-main-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--dark);
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #f59e0b;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .product-rating span {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        .price-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+        .price-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .price-amount {
+            font-size: 34px;
+            font-weight: 800;
+            color: #b91c1c;
+            line-height: 1.1;
+        }
+        .price-note {
+            font-size: 12px;
+            color: #10b981;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .stock-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #059669;
+            background: #ecfdf5;
+            padding: 6px 14px;
+            border-radius: 6px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+        .btn-whatsapp-buy {
+            flex: 1;
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+            transition: var(--transition);
+        }
+        .btn-whatsapp-buy:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+        .btn-store-consult {
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--border-color);
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-store-consult:hover {
+            background: #f1f5f9;
+        }
+
+        /* Características & Ficha */
+        .product-desc-box {
+            border-top: 1px solid var(--border-color);
+            padding-top: 25px;
+        }
+        .section-subtitle {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .desc-text {
+            color: #475569;
+            font-size: 14.5px;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            white-space: pre-line;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+        .specs-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .specs-table td:first-child {
+            font-weight: 600;
+            color: var(--dark);
+            width: 35%;
+            background: #f8fafc;
+        }
+        .specs-table td:last-child {
+            color: #64748b;
+        }
+
+        /* Tienda Beneficios en detalle */
+        .local-guarantee-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-md);
+            padding: 18px;
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .guarantee-icon {
+            font-size: 28px;
+            color: #00a650;
+        }
+        .guarantee-text h5 {
+            font-size: 14px;
+            color: #14532d;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .guarantee-text p {
+            font-size: 12.5px;
+            color: #166534;
+        }
+
+        /* Footer */
+        .footer {
+            background: #060a14;
+            color: #94a3b8;
+            padding: 24px 20px;
+            font-size: 13px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin-top: auto;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .footer-socials {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .footer-social-link {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+        .footer-social-link:hover {
+            background: var(--primary);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* Botón Flotante de WhatsApp */
+        .whatsapp-float-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            border-radius: 50px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+            text-decoration: none;
+            z-index: 9999;
+            font-weight: 700;
+            font-size: 14.5px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: floatPulse 2.5s infinite;
+        }
+        .whatsapp-float-btn i {
+            font-size: 24px;
+        }
+        .whatsapp-float-btn:hover {
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.6);
+            color: white;
+        }
+        @keyframes floatPulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6); }
+            70% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* ========================================================
+           RESPONSIVE DESIGN DETALLE DE PRODUCTO (MÓVILES Y TABLETS)
+           ======================================================== */
+        @media (max-width: 992px) {
+            .detail-grid { 
+                grid-template-columns: 1fr; 
+                gap: 24px;
+            }
+            .product-gallery {
+                position: relative;
+                top: 0;
+            }
+            .main-image-box {
+                height: 380px;
+            }
+            .product-detail-card {
+                padding: 24px 20px;
+                margin-bottom: 25px;
+            }
+            .product-main-title {
+                font-size: 23px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 4px;
+                font-size: 11px;
+            }
+            .header-content {
+                gap: 8px;
+            }
+            .header-content .user-label-text {
+                display: none;
+            }
+            .header-content .action-button.user-btn {
+                padding: 8px 10px !important;
+            }
+            .header-content .cart-trigger-btn {
+                padding: 8px 10px !important;
+                gap: 6px !important;
+            }
+            .header-content .cart-trigger-btn .main-value {
+                display: none;
+            }
+            .brand-name {
+                font-size: 16.5px;
+            }
+            .brand-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+            .btn-back-nav {
+                padding: 7px 10px;
+                font-size: 12px;
+                gap: 5px;
+            }
+            .breadcrumbs {
+                padding: 12px 0;
+                font-size: 12px;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .breadcrumbs::-webkit-scrollbar {
+                display: none;
+            }
+            .product-detail-card {
+                padding: 16px 14px;
+                border-radius: 14px;
+                margin-bottom: 20px;
+                animation: detailCardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .main-image-box {
+                height: 280px;
+                padding: 14px 10px;
+            }
+            .main-image-box .icon-placeholder {
+                font-size: 60px;
+            }
+            .floating-badges-row {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                gap: 6px;
+            }
+            .glass-badge {
+                font-size: 10.5px;
+                padding: 4px 8px;
+            }
+            .product-main-title {
+                font-size: 19px;
+                line-height: 1.35;
+                margin-bottom: 10px;
+            }
+            .product-rating {
+                font-size: 12.5px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }
+            .product-rating span {
+                font-size: 12px;
+            }
+            .price-section {
+                padding: 14px;
+                margin-bottom: 16px;
+            }
+            .price-amount {
+                font-size: 26px;
+            }
+            .quantity-selection-box {
+                padding: 14px !important;
+                margin-bottom: 16px !important;
+            }
+            .quantity-selection-box > div:first-child {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 4px;
+            }
+            .action-buttons { 
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin-bottom: 22px;
+            }
+            .btn-whatsapp-buy, .btn-store-consult {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 14px;
+                font-size: 14px;
+                border-radius: 10px;
+                min-height: 46px;
+            }
+            .specs-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .specs-table tbody {
+                display: table;
+                width: 100%;
+            }
+            .specs-table td {
+                padding: 9px 10px;
+                font-size: 12px;
+                word-break: break-word;
+            }
+            .specs-table td:first-child {
+                width: 40%;
+                font-size: 11.5px;
+            }
+            .local-guarantee-card {
+                padding: 14px;
+                gap: 12px;
+                margin-top: 20px;
+            }
+            .guarantee-icon {
+                font-size: 22px;
+            }
+            .guarantee-text h5 {
+                font-size: 13px;
+            }
+            .guarantee-text p {
+                font-size: 12px;
+            }
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 8px;
+            }
+            .footer {
+                padding: 20px 16px 85px 16px; /* Espacio para barra flotante móvil */
+                text-align: center;
+            }
+            .footer-content {
+                flex-direction: column;
+                gap: 12px;
+                justify-content: center;
+            }
+            .whatsapp-float-btn {
+                bottom: 74px; /* elevar para no chocar con la barra de compra */
+                right: 14px;
+                padding: 0;
+                border-radius: 50%;
+                width: 48px;
+                height: 48px;
+                justify-content: center;
+                box-shadow: 0 4px 16px rgba(37, 211, 102, 0.45);
+            }
+            .whatsapp-float-btn span {
+                display: none;
+            }
+            .whatsapp-float-btn i {
+                font-size: 24px;
+            }
+        }
+
+        /* Barra de Compra Rápida Inferior Fija para Móviles */
+        .mobile-quick-action-bar {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-quick-action-bar {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #ffffff;
+                border-top: 1px solid #e2e8f0;
+                padding: 10px 14px;
+                box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.08);
+                z-index: 999;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+            }
+            .mobile-bar-price {
+                display: flex;
+                flex-direction: column;
+            }
+            .mobile-bar-price-label {
+                font-size: 10px;
+                font-weight: 700;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+            .mobile-bar-price-val {
+                font-size: 18px;
+                font-weight: 900;
+                color: #0f172a;
+                line-height: 1.1;
+            }
+            .mobile-bar-buttons {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex: 1;
+                justify-content: flex-end;
+            }
+            .mobile-bar-btn-wa {
+                width: 42px;
+                height: 42px;
+                border-radius: 10px;
+                background: #f0fdf4;
+                color: #00a650;
+                border: 1.5px solid #00a650;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 19px;
+                text-decoration: none;
+                flex-shrink: 0;
+            }
+            .mobile-bar-btn-cart {
+                flex: 1;
+                max-width: 190px;
+                height: 42px;
+                border-radius: 10px;
+                background: #3483fa;
+                color: #ffffff;
+                border: none;
+                font-size: 13px;
+                font-weight: 800;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 7px;
+                cursor: pointer;
+                box-shadow: 0 3px 10px rgba(52, 131, 250, 0.3);
+            }
+        }
+
+        @keyframes detailCardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 0 10px;
+            }
+            .main-image-box {
+                height: 240px;
+                padding: 10px 6px;
+            }
+            .product-main-title {
+                font-size: 17px;
+            }
+            .price-amount {
+                font-size: 22px;
+            }
+            .local-guarantee-card {
+                padding: 12px;
+                gap: 10px;
+            }
+            .guarantee-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .quantity-selection-box {
+                padding: 12px !important;
+            }
+            .detail-thumb-btn {
+                width: 54px !important;
+                height: 42px !important;
+            }
+        }

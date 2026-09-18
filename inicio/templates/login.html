@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar a tu Cuenta - Full Piloto System Caraz</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="{% static 'inicio/css/login.css' %}?v=1.0">
+</head>
+<body>
+
+    <!-- Header Superior -->
+    <header class="login-header">
+        <div class="login-header-container">
+            <a href="{% url 'inicio' %}" class="brand-logo" title="Volver al inicio">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <div class="brand-name">Full Piloto <span>System</span></div>
+            </a>
+
+            <a href="{% url 'inicio' %}" class="header-back-link">
+                <i class="fa-solid fa-arrow-left"></i> Volver a la Tienda
+            </a>
+        </div>
+    </header>
+
+    <!-- Contenido Principal Centrado -->
+    <main class="login-main-wrapper">
+        <div class="login-card">
+            
+            <div class="login-card-header">
+                <div class="login-avatar-badge">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+                <h1 class="login-card-title" id="authTitle">¡Hola! Para seguir, ingresa tu cuenta</h1>
+                <p class="login-card-desc" id="authDesc">Accede a tus pedidos, laptops cotizadas y seguimiento en Caraz.</p>
+            </div>
+
+            <!-- Tabs visuales (Estático) -->
+            <div class="auth-tabs-nav">
+                <button type="button" class="auth-tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">
+                    Iniciar Sesión
+                </button>
+                <button type="button" class="auth-tab-btn" id="tabRegister" onclick="switchAuthTab('register')">
+                    Crear Cuenta
+                </button>
+            </div>
+
+            <!-- Formulario Estático -->
+            <form id="authStaticForm" onsubmit="handleStaticSubmit(event)">
+                
+                <!-- Campo Nombre (solo visible en Registro) -->
+                <div class="form-group" id="groupFullName" style="display: none;">
+                    <div class="form-label-row">
+                        <label class="form-label" for="userFullName">Nombres y Apellidos</label>
+                    </div>
+                    <div class="form-input-container">
+                        <input type="text" id="userFullName" class="form-input-field" placeholder="Ej. Juan Pérez">
+                        <i class="fa-regular fa-id-card form-input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Campo Celular / DNI (solo visible en Registro) -->
+                <div class="form-group" id="groupPhone" style="display: none;">
+                    <div class="form-label-row">
+                        <label class="form-label" for="userPhone">Número de Celular</label>
+                    </div>
+                    <div class="form-input-container">
+                        <input type="tel" id="userPhone" class="form-input-field" placeholder="943 000 000">
+                        <i class="fa-solid fa-mobile-screen form-input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Campo Correo / Usuario -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="userEmail">Correo electrónico o Teléfono</label>
+                    </div>
+                    <div class="form-input-container">
+                        <input type="text" id="userEmail" class="form-input-field" placeholder="nombre@correo.com" required autocomplete="username">
+                        <i class="fa-regular fa-envelope form-input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Campo Contraseña -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="userPassword">Contraseña</label>
+                        <a href="javascript:void(0)" class="form-forgot-pass" id="linkForgotPass" onclick="showFeedback('Recuperación de contraseña próximamente')">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <div class="form-input-container">
+                        <input type="password" id="userPassword" class="form-input-field" placeholder="••••••••" required autocomplete="current-password">
+                        <i class="fa-solid fa-lock form-input-icon"></i>
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()" aria-label="Mostrar/Ocultar contraseña">
+                            <i class="fa-regular fa-eye" id="iconEye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recordarme -->
+                <div class="form-checkbox-row">
+                    <input type="checkbox" id="chkRemember" checked>
+                    <label for="chkRemember">Mantener mi sesión iniciada</label>
+                </div>
+
+                <!-- Botón Submit -->
+                <button type="submit" class="btn-auth-submit" id="btnSubmit">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span class="auth-divider-line"></span>
+                <span class="auth-divider-text">o continúa con</span>
+                <span class="auth-divider-line"></span>
+            </div>
+
+            <!-- Accesos Rápidos Estáticos -->
+            <div class="auth-social-stack">
+                <a href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20hacer%20una%20consulta%20directa" target="_blank" class="btn-auth-social whatsapp">
+                    <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i>
+                    <span>Consultar por WhatsApp</span>
+                </a>
+            </div>
+
+            <!-- Notice informativo de modo estático -->
+            <div class="auth-notice-box">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Tus datos de compra están protegidos por el sistema de seguridad de Full Piloto System Caraz.</span>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="login-footer">
+        <p>Full Piloto System &copy; 2026 • Jr. 28 de Julio, Caraz - Áncash</p>
+    </footer>
+
+    <!-- Script de interacción estática de interfaz -->
+    <script>
+        let currentMode = 'login';
+
+        function switchAuthTab(mode) {
+            currentMode = mode;
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+            const groupFullName = document.getElementById('groupFullName');
+            const groupPhone = document.getElementById('groupPhone');
+            const authTitle = document.getElementById('authTitle');
+            const authDesc = document.getElementById('authDesc');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const linkForgot = document.getElementById('linkForgotPass');
+
+            if (mode === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                groupFullName.style.display = 'none';
+                groupPhone.style.display = 'none';
+                authTitle.innerText = '¡Hola! Para seguir, ingresa tu cuenta';
+                authDesc.innerText = 'Accede a tus pedidos, laptops cotizadas y seguimiento en Caraz.';
+                btnSubmit.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión';
+                if (linkForgot) linkForgot.style.display = 'inline';
+            } else {
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                groupFullName.style.display = 'block';
+                groupPhone.style.display = 'block';
+                authTitle.innerText = 'Crea tu cuenta en Full Piloto System';
+                authDesc.innerText = 'Regístrate para comprar más rápido y recibir ofertas exclusivas en Caraz.';
+                btnSubmit.innerHTML = '<i class="fa-solid fa-user-plus"></i> Registrarme';
+                if (linkForgot) linkForgot.style.display = 'none';
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('userPassword');
+            const eyeIcon = document.getElementById('iconEye');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        }
+
+        function showFeedback(msg) {
+            alert(msg);
+        }
+
+        function handleStaticSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('userEmail').value;
+            const action = currentMode === 'login' ? 'Inicio de sesión' : 'Registro de cuenta';
+            alert(`[Modo Estático / Prototipo UI]\n${action} simulado con éxito para:\n${email}`);
+        }
+    </script>
+
+</body>
+</html>

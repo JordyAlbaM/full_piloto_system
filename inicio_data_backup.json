@@ -1,0 +1,280 @@
+[
+{
+  "model": "inicio.categoria",
+  "pk": 1,
+  "fields": {
+    "nombre": "Laptops & PC",
+    "slug": "laptops-pc"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 2,
+  "fields": {
+    "nombre": "Periféricos",
+    "slug": "perifericos"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 3,
+  "fields": {
+    "nombre": "Almacenamiento",
+    "slug": "almacenamiento"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 4,
+  "fields": {
+    "nombre": "Audio",
+    "slug": "audio"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 5,
+  "fields": {
+    "nombre": "Software & Antivirus",
+    "slug": "software-antivirus"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 1,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop Lenovo IdeaPad 3 15.6\"",
+    "descripcion": "Ryzen 5 5500U, 16GB RAM, 512GB SSD NVMe. Ideal para trabajo y oficina.",
+    "precio": "1899.00",
+    "stock": 5,
+    "imagen_url": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-07T19:59:10.557Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 2,
+  "fields": {
+    "categoria": 2,
+    "nombre": "Mouse Logitech G203 Lightsync",
+    "descripcion": "Sensor 8000 DPI, iluminación RGB Lightsync, 6 botones programables.",
+    "precio": "89.00",
+    "stock": 14,
+    "imagen_url": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-07T19:59:10.565Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 3,
+  "fields": {
+    "categoria": 2,
+    "nombre": "Teclado Mecánico Redragon Kumara K552",
+    "descripcion": "Switches Blue, retroiluminación LED roja, estructura metálica duradera.",
+    "precio": "145.00",
+    "stock": 8,
+    "imagen_url": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-07T19:59:10.573Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 4,
+  "fields": {
+    "categoria": 3,
+    "nombre": "SSD Kingston NV2 1TB M.2 NVMe",
+    "descripcion": "Velocidades de lectura hasta 3500 MB/s, interfaz PCIe 4.0 x4.",
+    "precio": "249.00",
+    "stock": 12,
+    "imagen_url": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-07T19:59:10.579Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 5,
+  "fields": {
+    "categoria": 4,
+    "nombre": "Audífonos Gamer HyperX Cloud Stinger 2",
+    "descripcion": "Drivers de 50mm, micrófono con cancelación de ruido y giro para silenciar.",
+    "precio": "179.00",
+    "stock": 7,
+    "imagen_url": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-07T19:59:10.585Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 6,
+  "fields": {
+    "categoria": 3,
+    "nombre": "Disco Duro Externo Seagate 2TB USB 3.0",
+    "descripcion": "Respaldo rápido para PC y laptop, formato compacto y resistente.",
+    "precio": "260.00",
+    "stock": 4,
+    "imagen_url": "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-07T19:59:10.595Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 7,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop ASUS Vivobook 15 Pro OLED Intel Core i7",
+    "descripcion": "Intel Core i7-13700H (14 núcleos hasta 5.0 GHz), 16GB RAM DDR5, 1TB SSD NVMe M.2 Gen4, Pantalla 15.6\" FHD NanoEdge, Gráficos Intel Iris Xe, Teclado Retroiluminado con sensor de huella, Batería de larga duración con carga rápida. Garantía oficial 1 año en tienda Caraz.",
+    "precio": "3299.00",
+    "stock": 6,
+    "imagen_url": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=700&q=80",
+    "disponible": true,
+    "creado": "2026-09-08T23:45:30.341Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 8,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop HP Pavilion 15-EG Intel Core i5",
+    "descripcion": "Intel Core i5-1235U (10 núcleos hasta 4.4 GHz), 16GB RAM DDR4 3200MHz, 512GB SSD NVMe ultrarrápido, Pantalla 15.6\" Full HD IPS antirreflejo, Audio by B&O, Wi-Fi 6 + Bluetooth 5.2, Diseño ultrafino en aluminio plateado. Garantía local en tienda Caraz.",
+    "precio": "2499.00",
+    "stock": 8,
+    "imagen_url": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=700&q=80",
+    "disponible": true,
+    "creado": "2026-09-08T23:45:30.356Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 9,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop Gamer ASUS TUF Gaming F15 Core i7 RTX 4060",
+    "descripcion": "Potencia gaming extrema, pantalla 144Hz FHD, 16GB DDR5, 512GB SSD NVMe Gen4.",
+    "precio": "4199.00",
+    "stock": 8,
+    "imagen_url": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-09T20:21:32.498Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 10,
+  "fields": {
+    "categoria": 2,
+    "nombre": "Combo Gamer Teclado Mecánico RGB + Mouse 7200DPI",
+    "descripcion": "Kit completo gamer retroiluminado anti-ghosting con switches táctiles y mouse ergonómico.",
+    "precio": "189.00",
+    "stock": 8,
+    "imagen_url": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-09T20:21:32.518Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 11,
+  "fields": {
+    "categoria": 4,
+    "nombre": "Auriculares Gamer Redragon Zeus H510 7.1 Surround",
+    "descripcion": "Sonido envolvente 7.1 con almohadillas viscoelásticas, micrófono desmontable con cancelación.",
+    "precio": "219.00",
+    "stock": 8,
+    "imagen_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-09T20:21:32.526Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 12,
+  "fields": {
+    "categoria": 3,
+    "nombre": "Memoria RAM Kingston Fury Beast 16GB DDR4 3200MHz",
+    "descripcion": "Módulo de alto rendimiento con disipador térmico de perfil bajo para gaming y renderizado.",
+    "precio": "169.00",
+    "stock": 8,
+    "imagen_url": "https://images.unsplash.com/photo-1562976540-1502c2145186?w=500&q=80",
+    "disponible": true,
+    "creado": "2026-09-09T20:21:32.540Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 101,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop Lenovo V15 G4 AMN Ryzen 3 7320U 8GB LPDDR5 512GB SSD 15.6\" FHD",
+    "descripcion": "Laptop Lenovo V15 G4 AMN (82YU017LLM) con procesador AMD Ryzen 3 7320U (4 núcleos / 8 hilos hasta 4.1GHz), 8GB Memoria RAM LPDDR5 5500MHz ultra rápida y almacenamiento masivo de 512GB SSD M.2 PCIe NVMe. Pantalla 15.6\" Full HD (1920x1080) antirreflejo, gráficos AMD Radeon 610M integrados, teclado en español completo con teclado numérico y garantía de 1 año en Caraz.",
+    "precio": "2149.00",
+    "stock": 8,
+    "imagen_url": "/static/inicio/images/lenovo_v15/lenovo_v15_1.jpg",
+    "disponible": true,
+    "creado": "2026-09-09T21:06:34.188Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 102,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop Lenovo V15 G4 AMN Ryzen 5 7520U 8GB LPDDR5 256GB SSD 15.6\" FHD",
+    "descripcion": "Laptop empresarial Lenovo V15 G4 AMN (82YU00X6LM) equipada con procesador AMD Ryzen 5 7520U (4 núcleos / 8 hilos hasta 4.30GHz), 8GB Memoria RAM LPDDR5 5500MHz y 256GB SSD PCIe NVMe M.2. Pantalla 15.6\" Full HD (1920x1080) antirreflejo, gráficos AMD Radeon 610M, teclado en español completo con teclado numérico y garantía de 1 año en Caraz.",
+    "precio": "2349.00",
+    "stock": 10,
+    "imagen_url": "/static/inicio/images/lenovo_v15_r5/lenovo_v15_r5_1.jpg",
+    "disponible": true,
+    "creado": "2026-09-09T21:06:34.206Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 103,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop Lenovo V15 G5 IRL Intel Core i3-1315U 8GB DDR5 512GB SSD 15.6\" FHD",
+    "descripcion": "Laptop de última generación Lenovo V15 G5 IRL (83GW005MLD) con procesador Intel Core i3-1315U 13va Gen (6 núcleos y 8 hilos hasta 4.50GHz con Turbo Boost), 8GB RAM DDR5 5200MHz de alta velocidad y 512GB SSD PCIe NVMe M.2. Pantalla 15.6\" Full HD antirreflejo, gráficos Intel UHD Graphics y teclado en español completo.",
+    "precio": "2499.00",
+    "stock": 6,
+    "imagen_url": "/static/inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_1.jpg",
+    "disponible": true,
+    "creado": "2026-09-09T21:06:34.217Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 104,
+  "fields": {
+    "categoria": 1,
+    "nombre": "Laptop Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5-13420H 16GB DDR5 512GB SSD 15.3\" WUXGA",
+    "descripcion": "Máxima potencia para productividad y multitarea pesada: Lenovo IdeaPad Slim 3 15IRH10 (83K1016CLM) con potente procesador de alto rendimiento Intel Core i5-13420H (8 núcleos / 12 hilos hasta 4.60GHz), 16GB Memoria RAM DDR5, 512GB SSD M.2 PCIe Gen4 NVMe. Pantalla prémium 15.3\" WUXGA (1920x1200) formato 16:10, chasis ultradelgado Slim, teclado en español y garantía oficial de 1 año en Caraz.",
+    "precio": "3299.00",
+    "stock": 7,
+    "imagen_url": "/static/inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.jpg",
+    "disponible": true,
+    "creado": "2026-09-09T21:06:34.239Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 105,
+  "fields": {
+    "categoria": 5,
+    "nombre": "Antivirus ESET NOD32 (1 Año)",
+    "descripcion": "Licencia oficial original ESET NOD32 Antivirus por 1 año para 1 PC. Protección proactiva y legendaria contra virus, malware, ransomware y phishing sin ralentizar tu equipo. Activación inmediata con clave digital y soporte de instalación en tienda Caraz.",
+    "precio": "75.00",
+    "stock": 25,
+    "imagen_url": "/static/inicio/images/eset_nod32.jpg",
+    "disponible": true,
+    "creado": "2026-09-10T20:47:19.387Z"
+  }
+}
+]

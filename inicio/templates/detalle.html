@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ producto.nombre }} - Full Piloto System Caraz</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="{% static 'inicio/css/detalle.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=3.0">
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <span><i class="fa-solid fa-location-dot"></i> Full Piloto System - Jr. 28 de Julio, Caraz</span>
+                <span><i class="fa-solid fa-clock"></i> Atención inmediata de 8:30 AM a 7:30 PM</span>
+            </div>
+        </div>
+    </div>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+            <a href="{% url 'inicio' %}" class="brand-logo">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-laptop-code"></i>
+                </div>
+                <div class="brand-name">Full Piloto <span>System</span></div>
+            </a>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión" style="display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: inherit;">
+                    <div style="color: #64748b; font-size: 16px;">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+                    <span class="user-label-text" style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Ingresar</span>
+                </a>
+
+                <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" style="display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-color); cursor: pointer;">
+                    <div style="position: relative; color: var(--primary); font-size: 18px;">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span class="cart-badge" style="position: absolute; top: -7px; right: -9px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; border-radius: 10px; padding: 1px 5px;">0</span>
+                    </div>
+                    <span class="main-value" style="font-weight: 800; color: #0f172a; font-size: 13.5px;">S/. 0.00</span>
+                </div>
+
+                <a href="{% url 'inicio' %}" class="btn-back-nav">
+                    <i class="fa-solid fa-arrow-left"></i> Catálogo
+                </a>
+            </div>
+        </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumbs">
+            <a href="{% url 'inicio' %}">Inicio</a>
+            <span>/</span>
+            <a href="{% url 'inicio' %}?categoria={{ producto.categoria.slug }}">{{ producto.categoria.nombre|default:"General" }}</a>
+            <span>/</span>
+            <strong>{{ producto.nombre }}</strong>
+        </nav>
+
+        <div class="product-detail-card">
+            <div class="detail-grid">
+                
+                <!-- Columna Izquierda: Imagen y Galería -->
+                <div class="product-gallery">
+                    <div class="main-image-box" id="detailMainImageBox">
+                        <div class="floating-badges-row">
+                            {% if producto.stock <= 5 %}
+                                <span class="glass-badge glass-badge-stock low"><span class="glass-badge-dot"></span> Pocas unidades ({{ producto.stock }} un.)</span>
+                            {% else %}
+                                <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> En Stock Caraz</span>
+                            {% endif %}
+                            <span class="glass-badge glass-badge-feature warranty"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
+                        </div>
+                        {% if producto.imagen_url %}
+                            <img id="detailMainImg" src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
+                        {% else %}
+                            <div class="icon-placeholder">
+                                {% if "Laptop" in producto.nombre or "PC" in producto.nombre %}
+                                    <i class="fa-solid fa-laptop"></i>
+                                {% elif "Mouse" in producto.nombre %}
+                                    <i class="fa-solid fa-computer-mouse"></i>
+                                {% elif "Teclado" in producto.nombre %}
+                                    <i class="fa-regular fa-keyboard"></i>
+                                {% elif "SSD" in producto.nombre or "Disco" in producto.nombre %}
+                                    <i class="fa-solid fa-hard-drive"></i>
+                                {% elif "Audífonos" in producto.nombre or "Audio" in producto.nombre %}
+                                    <i class="fa-solid fa-headphones"></i>
+                                {% elif "Antivirus" in producto.nombre or "ESET" in producto.nombre %}
+                                    <i class="fa-solid fa-shield-virus"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-box"></i>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if producto.id == 101 %}
+                    <!-- Miniaturas interactivas para Laptop Lenovo V15 G4 Ryzen 3 -->
+                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
+                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_4.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_4.png' %}" alt="Posterior" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_5.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_5.png' %}" alt="Abierto" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                    </div>
+                    {% elif producto.id == 102 %}
+                    <!-- Miniaturas interactivas para Laptop Lenovo V15 G4 Ryzen 5 -->
+                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
+                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                    </div>
+                    {% elif producto.id == 103 %}
+                    <!-- Miniaturas interactivas para Laptop Lenovo V15 G5 Core i3 -->
+                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
+                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                    </div>
+                    {% elif producto.id == 104 %}
+                    <!-- Miniaturas interactivas para Laptop Lenovo IdeaPad Slim 3 Core i5 -->
+                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
+                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Columna Derecha: Información y Compra -->
+                <div class="product-info-col">
+                    <span class="category-pill">{{ producto.categoria.nombre|default:"Cómputo & Hardware" }}</span>
+                    <h1 class="product-main-title">{{ producto.nombre }}</h1>
+
+                    <div class="product-rating">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                        <span>(4.9 de satisfacción de clientes en Caraz)</span>
+                    </div>
+
+                    <div class="price-section">
+                        <div class="price-label">Precio al por menor / Unidad</div>
+                        <div class="price-amount">S/. {{ producto.precio }}</div>
+                        <div class="price-note"><i class="fa-solid fa-check"></i> Incluye IGV, comprobante de pago e instalación básica</div>
+                    </div>
+
+                    <!-- Selector de Cantidad con Límite Máximo de Stock -->
+                    <div class="quantity-selection-box" style="background:#f8fafc; padding:16px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <label style="font-size:13px; font-weight:700; color:#0f172a;">Cantidad a Comprar:</label>
+                            <span id="detailStockIndicator" style="font-size:12px; font-weight:800; color:#059669;">
+                                <i class="fa-solid fa-boxes-stacked"></i> {{ producto.stock }} unidades disponibles
+                            </span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                            <div class="detail-qty-stepper" style="display:inline-flex; align-items:center; background:#ffffff; border:1.5px solid #cbd5e1; border-radius:10px; padding:4px;">
+                                <button type="button" id="btnQtyMinus" onclick="DetailProductPage.changeQty(-1)" style="width:36px; height:36px; border:none; background:#f1f5f9; border-radius:8px; cursor:pointer; font-size:14px; color:#1e293b; transition:all 0.2s;">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <input type="number" id="detailQtyInput" value="1" min="1" max="{{ producto.stock }}" readonly style="width:50px; text-align:center; border:none; font-weight:900; font-size:16px; color:#0f172a; outline:none; background:transparent;">
+                                <button type="button" id="btnQtyPlus" onclick="DetailProductPage.changeQty(1)" style="width:36px; height:36px; border:none; background:#f1f5f9; border-radius:8px; cursor:pointer; font-size:14px; color:#1e293b; transition:all 0.2s;">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                            <div style="font-size:13.5px; color:#64748b;">
+                                Subtotal: <strong id="detailDynamicSubtotal" style="color:#0f172a; font-size:18px; font-weight:900;">S/. {{ producto.precio }}</strong>
+                            </div>
+                        </div>
+                        <div id="detailMaxStockAlert" style="display:none; margin-top:10px; font-size:12px; font-weight:700; color:#d97706;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Has alcanzado el stock máximo disponible de este producto ({{ producto.stock }} unidades).
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="action-buttons">
+                        <button type="button" 
+                                id="btnAddToCartDetail"
+                                class="btn-whatsapp-buy" 
+                                style="background: #3483fa; color: #ffffff; box-shadow: 0 4px 14px rgba(52, 131, 250, 0.35); border: none; cursor: pointer;"
+                                onclick="DetailProductPage.addToCart(this)">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                        </button>
+                        <a id="btnWhatsAppDirect"
+                           href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20comprar%20{{ producto.nombre|urlencode }}%20(x1%20unidad)%20al%20precio%20de%20S/.{{ producto.precio }}" 
+                           target="_blank" 
+                           class="btn-store-consult"
+                           style="color: #00a650; border-color: #00a650; font-weight: 700;">
+                            <i class="fa-brands fa-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                    </div>
+
+                    <div class="product-desc-box">
+                        <h3 class="section-subtitle"><i class="fa-solid fa-align-left" style="color: var(--primary);"></i> Descripción del Producto</h3>
+                        <p class="desc-text">
+                            {{ producto.descripcion|default:"Este equipo cuenta con la garantía oficial de Full Piloto System Caraz. Equipos sellados, con garantía técnica presencial y servicio postventa inmediato." }}
+                        </p>
+
+                        <h3 class="section-subtitle"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> Especificaciones Técnicas</h3>
+                        <table class="specs-table">
+                            {% if producto.id == 101 %}
+                            <tr>
+                                <td>Marca / Modelo</td>
+                                <td><strong>Lenovo V15 G4 AMN (82YU017LLM)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Procesador</td>
+                                <td>AMD Ryzen 3 7320U (4 núcleos / 8 hilos, 2.4GHz hasta 4.10GHz Turbo Boost, 4MB Caché L3)</td>
+                            </tr>
+                            <tr>
+                                <td>Memoria RAM</td>
+                                <td>8GB LPDDR5 5500MHz Soldada (Alta Velocidad y Bajo Consumo)</td>
+                            </tr>
+                            <tr>
+                                <td>Almacenamiento</td>
+                                <td>512GB SSD M.2 2242 PCIe 4.0x4 NVMe</td>
+                            </tr>
+                            <tr>
+                                <td>Pantalla</td>
+                                <td>15.6" Full HD (1920x1080) TN, 250 nits, Antirreflejo (Anti-glare)</td>
+                            </tr>
+                            <tr>
+                                <td>Tarjeta Gráfica</td>
+                                <td>Gráficos integrados AMD Radeon 610M Graphics</td>
+                            </tr>
+                            <tr>
+                                <td>Teclado</td>
+                                <td>Español Latinoamérica con teclado numérico independiente</td>
+                            </tr>
+                            <tr>
+                                <td>Conectividad</td>
+                                <td>Wi-Fi 6 + Bluetooth 5.1, Puerto Ethernet RJ-45 Gigabit</td>
+                            </tr>
+                            <tr>
+                                <td>Puertos</td>
+                                <td>1x USB-C 3.2 Gen 1 (datos y Power Delivery), 2x USB 3.2 Gen 1, 1x HDMI 1.4b, Jack Audio 3.5mm</td>
+                            </tr>
+                            <tr>
+                                <td>Cámara & Audio</td>
+                                <td>Cámara HD 720p con obturador de privacidad + Altavoces estéreo Dolby Audio</td>
+                            </tr>
+                            <tr>
+                                <td>Garantía</td>
+                                <td>12 Meses Oficial con respaldo técnico en tienda Caraz</td>
+                            </tr>
+                            {% elif producto.id == 102 %}
+                            <tr>
+                                <td>Marca / Modelo</td>
+                                <td><strong>Lenovo V15 G4 AMN (82YU00X6LM)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Procesador</td>
+                                <td>AMD Ryzen 5 7520U (4 núcleos / 8 hilos, 2.80GHz hasta 4.30GHz Turbo Boost, 4MB Caché L3)</td>
+                            </tr>
+                            <tr>
+                                <td>Memoria RAM</td>
+                                <td>8GB LPDDR5 5500MHz Soldada (Bajo consumo y máxima fluidez)</td>
+                            </tr>
+                            <tr>
+                                <td>Almacenamiento</td>
+                                <td>256GB SSD M.2 2242 PCIe NVMe ultrarrápido</td>
+                            </tr>
+                            <tr>
+                                <td>Pantalla</td>
+                                <td>15.6" Full HD (1920x1080) antirreflejo</td>
+                            </tr>
+                            <tr>
+                                <td>Tarjeta Gráfica</td>
+                                <td>Gráficos integrados AMD Radeon 610M Graphics</td>
+                            </tr>
+                            <tr>
+                                <td>Teclado</td>
+                                <td>Español Latinoamérica con teclado numérico integrado</td>
+                            </tr>
+                            <tr>
+                                <td>Conectividad & Puertos</td>
+                                <td>Wi-Fi 6 + Bluetooth, Puerto Ethernet RJ-45 Gigabit, USB-C, USB 3.2, HDMI</td>
+                            </tr>
+                            <tr>
+                                <td>Garantía</td>
+                                <td>12 Meses Oficial con respaldo técnico en Caraz</td>
+                            </tr>
+                            {% elif producto.id == 103 %}
+                            <tr>
+                                <td>Marca / Modelo</td>
+                                <td><strong>Lenovo V15 G5 IRL (83GW005MLD) - Serie 2026</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Procesador</td>
+                                <td>Intel Core i3-1315U 13va Generación (6 núcleos / 8 hilos hasta 4.50GHz Turbo Boost, 10MB Caché)</td>
+                            </tr>
+                            <tr>
+                                <td>Memoria RAM</td>
+                                <td>8GB DDR5 5200MHz de alta velocidad</td>
+                            </tr>
+                            <tr>
+                                <td>Almacenamiento</td>
+                                <td>512GB SSD M.2 PCIe NVMe Gen4</td>
+                            </tr>
+                            <tr>
+                                <td>Pantalla</td>
+                                <td>15.6" Full HD (1920x1080) micro-edge antirreflejo</td>
+                            </tr>
+                            <tr>
+                                <td>Tarjeta Gráfica</td>
+                                <td>Intel UHD Graphics</td>
+                            </tr>
+                            <tr>
+                                <td>Teclado</td>
+                                <td>Español Latinoamérica ergonómico con pad numérico</td>
+                            </tr>
+                            <tr>
+                                <td>Garantía</td>
+                                <td>12 Meses Oficial con soporte en tienda Caraz</td>
+                            </tr>
+                            {% elif producto.id == 104 %}
+                            <tr>
+                                <td>Marca / Modelo</td>
+                                <td><strong>Lenovo IdeaPad Slim 3 15IRH10 (83K1016CLM)</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Procesador</td>
+                                <td>Intel Core i5-13420H Serie H Alto Rendimiento (8 núcleos / 12 hilos, 4P + 4E hasta 4.60GHz, 12MB Caché)</td>
+                            </tr>
+                            <tr>
+                                <td>Memoria RAM</td>
+                                <td>16GB DDR5 4800MHz / 5200MHz Multitarea Pro</td>
+                            </tr>
+                            <tr>
+                                <td>Almacenamiento</td>
+                                <td>512GB SSD M.2 2242 PCIe 4.0x4 NVMe</td>
+                            </tr>
+                            <tr>
+                                <td>Pantalla Prémium</td>
+                                <td>15.3" WUXGA (1920x1200) IPS 300 nits, Anti-glare, Formato 16:10 Área Ampliada</td>
+                            </tr>
+                            <tr>
+                                <td>Tarjeta Gráfica</td>
+                                <td>Intel UHD Graphics para procesadores de 13va Gen</td>
+                            </tr>
+                            <tr>
+                                <td>Diseño & Chasis</td>
+                                <td>Chasis Slim Ultradelgado y Liviano color Gris Ártico</td>
+                            </tr>
+                            <tr>
+                                <td>Teclado & Audio</td>
+                                <td>Teclado en español con numpad + Altavoces estéreo con Dolby Audio</td>
+                            </tr>
+                            <tr>
+                                <td>Garantía</td>
+                                <td>12 Meses Oficial con respaldo técnico en tienda Caraz</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td>Marca / Modelo</td>
+                                <td>{{ producto.nombre }}</td>
+                            </tr>
+                            <tr>
+                                <td>Categoría</td>
+                                <td>{{ producto.categoria.nombre|default:"Laptops & Cómputo" }}</td>
+                            </tr>
+                            <tr>
+                                <td>Stock Físico</td>
+                                <td><strong>{{ producto.stock }} unidades</strong> en almacén Caraz</td>
+                            </tr>
+                            <tr>
+                                <td>Garantía</td>
+                                <td>12 Meses directa en tienda Full Piloto System</td>
+                            </tr>
+                            <tr>
+                                <td>Entrega</td>
+                                <td>Inmediata en Jr. 28 de Julio, Caraz o delivery a domicilio</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+
+                    <div class="local-guarantee-card">
+                        <div class="guarantee-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="guarantee-text">
+                            <h5>Garantía Local en Caraz</h5>
+                            <p>Cuentas con respaldo técnico inmediato. Si tienes dudas de configuración o ampliación de memoria, nuestro servicio técnico te atiende en tienda.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTOS RELACIONADOS -->
+        {% if productos_relacionados %}
+        <section class="related-products-section" style="margin-bottom: 45px;">
+            <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                <div>
+                    <span style="font-size:12px; font-weight:800; color:#3483fa; text-transform:uppercase; letter-spacing:0.5px;">Más Opciones Disponibles</span>
+                    <h3 style="font-size:22px; font-weight:900; color:#0f172a; margin-top:4px;">Equipos Relacionados en Caraz</h3>
+                </div>
+                <a href="{% url 'inicio' %}" style="color:#3483fa; font-weight:700; font-size:13.5px; text-decoration:none;">
+                    Ver todo el catálogo <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+                {% for item in productos_relacionados %}
+                <div class="related-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:18px; display:flex; flex-direction:column; justify-content:space-between; transition:all 0.25s ease; box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+                    <div>
+                        <div style="height:200px; background:#ffffff; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; margin-bottom:12px; border:1px solid #f1f5f9; padding: 12px;">
+                            {% if item.imagen_url %}
+                                <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" style="max-width:95%; max-height:92%; width:auto; height:auto; object-fit:contain; margin:auto; display:block;">
+                            {% else %}
+                                <i class="fa-solid fa-laptop" style="font-size:55px; color:#cbd5e1;"></i>
+                            {% endif %}
+                        </div>
+                        <span style="font-size:10.5px; font-weight:800; color:#00a650; background:#f0fdf4; border:1px solid #dcfce7; padding:3px 8px; border-radius:6px; text-transform:uppercase;">
+                            Stock: {{ item.stock }} un.
+                        </span>
+                        <h4 style="font-size:14.5px; font-weight:800; color:#0f172a; margin:8px 0; line-height:1.3; height:38px; overflow:hidden; text-overflow:ellipsis;">
+                            {{ item.nombre }}
+                        </h4>
+                    </div>
+                    <div style="margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
+                        <div>
+                            <span style="font-size:11px; color:#64748b; display:block;">Precio</span>
+                            <span style="font-size:17px; font-weight:900; color:#0f172a;">S/. {{ item.precio }}</span>
+                        </div>
+                        <a href="{% url 'detalle_producto' item.id %}" style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#1e293b; padding:7px 12px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700; transition:all 0.2s;">
+                            Ver Detalle <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <strong>Full Piloto System</strong> &copy; 2026 • Caraz, Áncash - Perú
+            </div>
+            <div class="footer-socials">
+                <a href="https://wa.me/51943000000" target="_blank" class="footer-social-link" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                <a href="#" class="footer-social-link" title="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="#" class="footer-social-link" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="#" class="footer-social-link" title="TikTok">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BARRA FLOTANTE DE COMPRA RÁPIDA INFERIOR (MÓVIL) -->
+    <div class="mobile-quick-action-bar">
+        <div class="mobile-bar-price">
+            <span class="mobile-bar-price-label">Subtotal</span>
+            <span class="mobile-bar-price-val" id="mobileBarSubtotal">S/. {{ producto.precio }}</span>
+        </div>
+        <div class="mobile-bar-buttons">
+            <a id="btnMobileWhatsAppDirect" 
+               href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20comprar%20{{ producto.nombre|urlencode }}%20al%20precio%20de%20S/.{{ producto.precio }}" 
+               target="_blank" 
+               class="mobile-bar-btn-wa" 
+               title="Pedir por WhatsApp"
+               aria-label="Pedir por WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <button type="button" 
+                    id="btnMobileAddToCart" 
+                    class="mobile-bar-btn-cart" 
+                    onclick="DetailProductPage.addToCart(this)">
+                <i class="fa-solid fa-cart-plus"></i> Comprar
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTÓN FLOTANTE DE WHATSAPP RESPONSIVE -->
+    <a href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20consultar%20sobre%20este%20producto:%20{{ producto.nombre|urlencode }}" 
+       target="_blank" 
+       class="whatsapp-float-btn" 
+       aria-label="Contactar por WhatsApp" 
+       title="Escríbenos por WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span>WhatsApp</span>
+    </a>
+
+    <!-- COMPONENTE CARRITO DRAWER & CHECKOUT -->
+    {% include 'cart_component.html' %}
+
+    <script>
+        const DetailProductPage = {
+            productId: 'prod_{{ producto.id }}',
+            productName: '{{ producto.nombre|escapejs }}',
+            unitPrice: parseFloat('{{ producto.precio }}'),
+            maxStock: parseInt('{{ producto.stock }}') || 8,
+            currentQty: 1,
+
+            init() {
+                this.updateDisplay();
+            },
+
+            changeQty(delta) {
+                const nextQty = this.currentQty + delta;
+                const alertEl = document.getElementById('detailMaxStockAlert');
+                const plusBtn = document.getElementById('btnQtyPlus');
+                const minusBtn = document.getElementById('btnQtyMinus');
+
+                if (nextQty > this.maxStock) {
+                    if (alertEl) alertEl.style.display = 'block';
+                    if (window.CartManager) {
+                        CartManager.showToast({
+                            title: '⚠️ Stock máximo alcanzado',
+                            subtitle: `Solo disponemos de ${this.maxStock} unidades en tienda`,
+                            isWarning: true
+                        });
+                    }
+                    return;
+                }
+
+                if (nextQty < 1) {
+                    return;
+                }
+
+                this.currentQty = nextQty;
+                if (alertEl) {
+                    alertEl.style.display = this.currentQty >= this.maxStock ? 'block' : 'none';
+                }
+
+                if (plusBtn) {
+                    plusBtn.style.opacity = this.currentQty >= this.maxStock ? '0.4' : '1';
+                }
+                if (minusBtn) {
+                    minusBtn.style.opacity = this.currentQty <= 1 ? '0.4' : '1';
+                }
+
+                this.updateDisplay();
+            },
+
+            updateDisplay() {
+                const input = document.getElementById('detailQtyInput');
+                const subtotalEl = document.getElementById('detailDynamicSubtotal');
+                const mobileSubtotalEl = document.getElementById('mobileBarSubtotal');
+                const waBtn = document.getElementById('btnWhatsAppDirect');
+                const mobileWaBtn = document.getElementById('btnMobileWhatsAppDirect');
+
+                if (input) input.value = this.currentQty;
+                const subtotal = (this.unitPrice * this.currentQty).toFixed(2);
+                if (subtotalEl) subtotalEl.innerText = `S/. ${subtotal}`;
+                if (mobileSubtotalEl) mobileSubtotalEl.innerText = `S/. ${subtotal}`;
+
+                const msg = encodeURIComponent(`Hola Full Piloto System! Deseo comprar ${this.productName} (x${this.currentQty} ${this.currentQty === 1 ? 'unidad' : 'unidades'}) al total de S/. ${subtotal}`);
+                if (waBtn) waBtn.href = `https://wa.me/51943000000?text=${msg}`;
+                if (mobileWaBtn) mobileWaBtn.href = `https://wa.me/51943000000?text=${msg}`;
+            },
+
+            addToCart(btn) {
+                if (!window.CartManager) return;
+                
+                const success = CartManager.addItem({
+                    id: this.productId,
+                    name: this.productName,
+                    price: this.unitPrice,
+                    icon: 'fa-solid fa-laptop',
+                    qty: this.currentQty,
+                    maxStock: this.maxStock
+                });
+
+                if (success) {
+                    const prevText = btn.innerHTML;
+                    const cur = CartManager.getItems().find(i => i.id === this.productId);
+                    const q = cur ? cur.qty : this.currentQty;
+
+                    btn.classList.add('btn-added-success');
+                    btn.innerHTML = `<i class="fa-solid fa-check"></i> ¡Agregado! (x${q})`;
+
+                    setTimeout(() => {
+                        btn.classList.remove('btn-added-success');
+                        btn.innerHTML = prevText;
+                    }, 1400);
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            DetailProductPage.init();
+        });
+    </script>
+
+</body>
+</html>
+
