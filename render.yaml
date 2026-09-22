@@ -12,11 +12,4 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase:
-          name: full-piloto-db
-          property: connectionString
-
-databases:
-  - name: full-piloto-db
-    databaseName: piloto_db
-    user: piloto_user
+        sync: false
