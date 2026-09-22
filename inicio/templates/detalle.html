@@ -118,63 +118,14 @@
                         {% endif %}
                     </div>
 
-                    {% if producto.id == 101 %}
-                    <!-- Miniaturas interactivas para Laptop Lenovo V15 G4 Ryzen 3 -->
+                    {% if galeria_fotos and galeria_fotos|length > 1 %}
+                    <!-- Miniaturas interactivas dinámicas -->
                     <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
-                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
+                        {% for foto in galeria_fotos %}
+                        <button type="button" class="detail-thumb-btn {% if forloop.first %}active{% endif %}" onclick="document.getElementById('detailMainImg').src='{{ foto }}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid {% if forloop.first %}#3483fa{% else %}#cbd5e1{% endif %}; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
+                            <img src="{{ foto }}" alt="{{ producto.nombre }} - Foto {{ forloop.counter }}" style="width:100%; height:100%; object-fit:contain;">
                         </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_4.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_4.png' %}" alt="Posterior" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15/lenovo_v15_5.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15/lenovo_v15_5.png' %}" alt="Abierto" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                    </div>
-                    {% elif producto.id == 102 %}
-                    <!-- Miniaturas interactivas para Laptop Lenovo V15 G4 Ryzen 5 -->
-                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
-                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15_r5/lenovo_v15_r5_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                    </div>
-                    {% elif producto.id == 103 %}
-                    <!-- Miniaturas interactivas para Laptop Lenovo V15 G5 Core i3 -->
-                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
-                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_v15_g5_i3/lenovo_v15_g5_i3_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                    </div>
-                    {% elif producto.id == 104 %}
-                    <!-- Miniaturas interactivas para Laptop Lenovo IdeaPad Slim 3 Core i5 -->
-                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
-                        <button type="button" class="detail-thumb-btn active" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #3483fa; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}" alt="Frontal" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_2.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_2.png' %}" alt="Teclado" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
-                        <button type="button" class="detail-thumb-btn" onclick="document.getElementById('detailMainImg').src='{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_3.png' %}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_3.png' %}" alt="Lateral" style="width:100%; height:100%; object-fit:contain;">
-                        </button>
+                        {% endfor %}
                     </div>
                     {% endif %}
                 </div>

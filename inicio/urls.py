@@ -9,4 +9,5 @@ urlpatterns = [
     path('carrito/', views.carrito, name='carrito'),
     path('api/producto/<int:producto_id>/', views.api_producto_detalle, name='api_producto_detalle'),
     path('api/crear-pedido/', views.api_crear_pedido, name='api_crear_pedido'),
+    path('api/importar-infotec/', views.api_importar_infotec, name='api_importar_infotec'),
 ]

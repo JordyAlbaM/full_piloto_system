@@ -74,9 +74,11 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='productos', null=True, blank=True)
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    precio = models.DecimalField('Precio de Oferta (S/.)', max_digits=10, decimal_places=2)
+    precio_tachado = models.DecimalField('Precio Normal Tachado (S/.)', max_digits=10, decimal_places=2, null=True, blank=True, help_text="Precio anterior antes del descuento")
     stock = models.IntegerField(default=10)
     imagen_url = models.URLField(blank=True, help_text="URL de imagen externa o placeholder")
+    imagenes_secundarias = models.TextField(blank=True, help_text="URLs de imágenes secundarias/galería separadas por salto de línea")
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
 
@@ -85,23 +87,40 @@ class Producto(models.Model):
 
     @property
     def porcentaje_descuento(self):
-        """Calcula un porcentaje de ahorro variable realista (entre 12% y 28%) según el producto"""
+        """Calcula el porcentaje de ahorro real a partir del precio tachado si existe"""
+        from decimal import Decimal
+        if self.precio_tachado and self.precio_tachado > self.precio and self.precio_tachado > 0:
+            pct = ((self.precio_tachado - self.precio) / self.precio_tachado) * Decimal('100.0')
+            return int(round(pct))
+        # Fallback a variación atractiva si no se configuró precio tachado manual
         variaciones = [15, 22, 18, 25, 14, 20, 16, 24, 19, 21, 12, 28]
         idx = (self.id or 1) % len(variaciones)
         return variaciones[idx]
 
     @property
     def precio_anterior(self):
-        """Calcula el precio anterior coherente con su porcentaje de descuento específico y redondeado comercialmente"""
+        """Retorna el precio tachado personalizado si existe, o genera uno proporcional al descuento"""
+        if self.precio_tachado and self.precio_tachado > 0:
+            return round(self.precio_tachado, 2)
         from decimal import Decimal
         pct = Decimal(self.porcentaje_descuento)
-        # Si precio = precio_anterior * (1 - pct/100) -> precio_anterior = precio / (1 - pct/100)
         factor = Decimal('1.0') - (pct / Decimal('100.0'))
         if factor <= 0:
             return round(self.precio * Decimal('1.20'), 2)
         precio_elevado = self.precio / factor
-        # Redondear al entero más cercano o terminación atractiva
         return round(precio_elevado, 2)
+
+    def get_galeria_imagenes(self):
+        """Retorna lista de imágenes incluyendo la principal y las secundarias"""
+        imgs = []
+        if self.imagen_url:
+            imgs.append(self.imagen_url.strip())
+        if self.imagenes_secundarias:
+            for line in self.imagenes_secundarias.splitlines():
+                l = line.strip()
+                if l and l not in imgs:
+                    imgs.append(l)
+        return imgs
 
 
 class Pedido(models.Model):

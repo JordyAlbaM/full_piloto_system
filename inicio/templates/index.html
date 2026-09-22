@@ -165,13 +165,34 @@
         <div class="container">
             <div class="category-bubbles-list">
                 
-                <a href="{% url 'inicio' %}" class="category-bubble-card active">
+                <a href="{% url 'inicio' %}" class="category-bubble-card {% if not categoria_seleccionada %}active{% endif %}">
                     <div class="category-bubble-circle">
-                        <i class="fa-solid fa-laptop"></i>
-                        <span class="bubble-badge-hot">TOP</span>
+                        <i class="fa-solid fa-border-all"></i>
+                        <span class="bubble-badge-hot">TODO</span>
                     </div>
-                    <span class="category-bubble-label">Laptops Caraz</span>
+                    <span class="category-bubble-label">Ver Todo</span>
                 </a>
+
+                {% for cat in categorias %}
+                <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="category-bubble-card {% if categoria_seleccionada == cat.slug %}active{% endif %}">
+                    <div class="category-bubble-circle">
+                        {% if 'laptop' in cat.slug %}
+                            <i class="fa-solid fa-laptop"></i>
+                        {% elif 'periferico' in cat.slug %}
+                            <i class="fa-solid fa-keyboard"></i>
+                        {% elif 'almacenamiento' in cat.slug %}
+                            <i class="fa-solid fa-hard-drive"></i>
+                        {% elif 'audio' in cat.slug %}
+                            <i class="fa-solid fa-headphones"></i>
+                        {% elif 'software' in cat.slug %}
+                            <i class="fa-solid fa-shield-virus"></i>
+                        {% else %}
+                            <i class="fa-solid fa-microchip"></i>
+                        {% endif %}
+                    </div>
+                    <span class="category-bubble-label">{{ cat.nombre }}</span>
+                </a>
+                {% endfor %}
 
                 <a href="https://wa.me/51961081784?text=Hola%20deseo%20servicio%20tecnico%20y%20mantenimiento%20de%20laptop%20en%20Caraz" target="_blank" class="category-bubble-card">
                     <div class="category-bubble-circle">

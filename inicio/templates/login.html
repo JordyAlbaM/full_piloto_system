@@ -277,14 +277,46 @@
             </form>
 
             {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
-            <!-- FORMULARIO 3: AGREGAR PRODUCTO A LA BASE DE DATOS (SOLO SUPERUSUARIO / ADMIN) -->
-            <form method="POST" action="{% url 'login' %}?tab=add_product" id="formAddProduct" style="{% if active_tab != 'add_product' %}display: none;{% endif %}">
+            <!-- FORMULARIO 3: AGREGAR O EDITAR PRODUCTO A LA BASE DE DATOS (SOLO SUPERUSUARIO / ADMIN) -->
+            <form method="POST" action="{% url 'login' %}?tab={% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}" id="formAddProduct" style="{% if active_tab != 'add_product' and active_tab != 'edit_product' %}display: none;{% endif %}">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="add_product">
+                <input type="hidden" name="action" id="formProductAction" value="{% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}">
+                {% if producto_a_editar %}
+                <input type="hidden" name="producto_id" value="{{ producto_a_editar.id }}">
+                {% endif %}
 
-                <div class="admin-badge-strip">
-                    <i class="fa-solid fa-user-shield"></i>
-                    <span>Modo Administrador: <strong>{{ user.get_full_name|default:user.email }}</strong></span>
+                <div class="admin-badge-strip" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Modo Administrador: <strong>{{ user.get_full_name|default:user.email }}</strong></span>
+                    </div>
+                    {% if active_tab == 'edit_product' %}
+                    <span style="background: #f59e0b; color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 800;">
+                        <i class="fa-solid fa-pen-to-square"></i> Editando #{{ producto_a_editar.id }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- CAJA DE IMPORTACIÓN RÁPIDA DESDE INFOTEC -->
+                <div class="infotec-import-card" style="background: #eff6ff; border: 1.5px dashed #3b82f6; border-radius: 12px; padding: 14px 16px; margin: 16px 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="font-weight: 800; font-size: 13px; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-bolt-lightning" style="color: #2563eb;"></i> Clonar / Importar desde Infotec
+                        </div>
+                        <span style="font-size: 11px; color: #64748b; font-weight: 600;">Autocompleta nombre, precio, fotos y descripción</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="url" id="infotecUrlInput" placeholder="Pega el enlace aquí: https://infotec.com.pe/..." style="flex: 1; padding: 9px 12px; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 13px; outline: none; background: #ffffff;">
+                        <button type="button" id="btnImportarInfotec" onclick="importarDeInfotec()" style="background: #2563eb; color: #fff; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Importar</span>
+                        </button>
+                    </div>
+                    <div id="importLoadingStatus" style="display: none; margin-top: 8px; font-size: 12px; color: #2563eb; font-weight: 600;">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Conectando con Infotec y descargando fotos...
+                    </div>
+                    <div id="importSuccessBadge" style="display: none; margin-top: 8px; font-size: 12px; color: #059669; font-weight: 700;">
+                        <i class="fa-solid fa-circle-check"></i> <span id="importSuccessText"></span>
+                    </div>
                 </div>
 
                 {% if producto_form.non_field_errors %}
@@ -337,11 +369,11 @@
                     </div>
                 </div>
 
-                <!-- Precio y Estado Disponible -->
+                <!-- Precio Oferta y Precio Tachado -->
                 <div class="auth-form-row">
                     <div class="form-group">
                         <div class="form-label-row">
-                            <label class="form-label" for="id_precio">Precio de Venta (S/.) *</label>
+                            <label class="form-label" for="id_precio">Precio de Oferta (S/.) *</label>
                         </div>
                         <div class="form-input-container">
                             {{ producto_form.precio }}
@@ -352,21 +384,33 @@
                         {% endif %}
                     </div>
 
-                    <div class="form-group" style="display: flex; flex-direction: column; justify-content: center;">
+                    <div class="form-group">
                         <div class="form-label-row">
-                            <label class="form-label">Disponibilidad Inmediata</label>
+                            <label class="form-label" for="id_precio_tachado">Precio Normal Tachado (S/.)</label>
+                            <span class="form-label-hint">Opcional</span>
                         </div>
-                        <label class="checkbox-switch-label" for="id_disponible">
-                            {{ producto_form.disponible }}
-                            <span>Visible para compra en web</span>
-                        </label>
+                        <div class="form-input-container">
+                            {{ producto_form.precio_tachado }}
+                            <i class="fa-solid fa-strikethrough form-input-icon"></i>
+                        </div>
+                        {% if producto_form.precio_tachado.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.precio_tachado.errors|striptags }}</div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- URL de Imagen -->
+                <!-- Disponibilidad Inmediata -->
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="checkbox-switch-label" for="id_disponible">
+                        {{ producto_form.disponible }}
+                        <span>Visible para compra en la web</span>
+                    </label>
+                </div>
+
+                <!-- URL de Imagen Principal -->
                 <div class="form-group">
                     <div class="form-label-row">
-                        <label class="form-label" for="id_imagen_url">URL de Imagen (Foto del producto)</label>
+                        <label class="form-label" for="id_imagen_url">URL de Imagen Principal (Foto de portada)</label>
                         <span class="form-label-hint">Enlace https o ruta /static/...</span>
                     </div>
                     <div class="form-input-container">
@@ -375,6 +419,20 @@
                     </div>
                     {% if producto_form.imagen_url.errors %}
                     <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagen_url.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- URLs de Imágenes Secundarias / Galería -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="id_imagenes_secundarias">Fotos Secundarias (Galería interactiva)</label>
+                        <span class="form-label-hint">Una URL por línea</span>
+                    </div>
+                    <div class="form-input-container">
+                        {{ producto_form.imagenes_secundarias }}
+                    </div>
+                    {% if producto_form.imagenes_secundarias.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagenes_secundarias.errors|striptags }}</div>
                     {% endif %}
                 </div>
 
@@ -391,47 +449,65 @@
                     {% endif %}
                 </div>
 
-                <!-- Botón Submit Guardar Producto -->
+                <!-- Botón Submit Guardar / Actualizar Producto -->
                 <button type="submit" class="btn-auth-submit" id="btnSubmitAddProduct" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Guardar y Publicar en Tienda
+                    <i class="fa-solid fa-cloud-arrow-up"></i> {% if active_tab == 'edit_product' %}Actualizar Producto en Tienda{% else %}Guardar y Publicar en Tienda{% endif %}
                 </button>
+                
+                {% if active_tab == 'edit_product' %}
+                <a href="{% url 'login' %}?tab=recent_products" class="btn-auth-submit" style="background: #64748b; margin-top: 10px; text-decoration: none; text-align: center; display: block;">
+                    <i class="fa-solid fa-xmark"></i> Cancelar Edición
+                </a>
+                {% endif %}
             </form>
 
-            <!-- VISTA DE PRODUCTOS RECIENTES AGREGADOS (SOLO ADMIN) -->
+            <!-- VISTA DE PRODUCTOS EN LA BASE DE DATOS CON EDICIÓN (SOLO ADMIN) -->
             <div id="viewRecentProducts" style="{% if active_tab != 'recent_products' %}display: none;{% endif %} margin-top: 10px;">
                 <div class="admin-recent-header">
-                    <h3><i class="fa-solid fa-list-check"></i> Últimos productos en la base de datos:</h3>
+                    <h3><i class="fa-solid fa-boxes-stacked"></i> Catálogo Completo ({{ productos_recientes|length }} productos):</h3>
                     <a href="{% url 'inicio' %}" target="_blank" class="admin-view-all-link">Ir a la tienda <i class="fa-solid fa-external-link"></i></a>
                 </div>
                 
-                <div class="admin-recent-list">
+                <div class="admin-recent-list" style="max-height: 520px; overflow-y: auto;">
                     {% for p in productos_recientes %}
-                    <div class="admin-product-row">
-                        <div class="admin-product-row-img">
-                            {% if p.imagen_url %}
-                            <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}">
-                            {% else %}
-                            <i class="fa-solid fa-laptop"></i>
-                            {% endif %}
-                        </div>
-                        <div class="admin-product-row-info">
-                            <div class="title">{{ p.nombre }}</div>
-                            <div class="meta">
-                                <span class="badge-cat">{{ p.categoria.nombre|default:"General" }}</span>
-                                <span class="stock">Stock: <strong>{{ p.stock }}</strong></span>
-                                <span class="price">S/. {{ p.precio }}</span>
+                    <div class="admin-product-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border-bottom: 1px solid #f1f5f9;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                            <div class="admin-product-row-img" style="width: 48px; height: 48px; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fff; flex-shrink: 0;">
+                                {% if p.imagen_url %}
+                                <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" style="width: 100%; height: 100%; object-fit: contain;">
+                                {% else %}
+                                <i class="fa-solid fa-laptop" style="color: #94a3b8;"></i>
+                                {% endif %}
+                            </div>
+                            <div class="admin-product-row-info" style="min-width: 0;">
+                                <div class="title" style="font-weight: 700; font-size: 13.5px; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.nombre }}</div>
+                                <div class="meta" style="font-size: 12px; color: #64748b; display: flex; gap: 10px; align-items: center; margin-top: 2px;">
+                                    <span class="badge-cat" style="background: #e0f2fe; color: #0284c7; padding: 1px 6px; border-radius: 4px; font-weight: 600;">{{ p.categoria.nombre|default:"General" }}</span>
+                                    <span class="stock">Stock: <strong>{{ p.stock }}</strong></span>
+                                    <span class="price" style="font-weight: 800; color: #059669;">S/. {{ p.precio }}</span>
+                                    {% if not p.disponible %}
+                                    <span style="color: #ef4444; font-size: 10.5px; font-weight: 700;">(Oculto)</span>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
-                        <a href="{% url 'detalle_producto' p.id %}" target="_blank" class="btn-row-action" title="Ver en tienda">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </a>
+                        
+                        <!-- Acciones: Editar y Ver -->
+                        <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                            <a href="{% url 'login' %}?edit={{ p.id }}" class="btn-row-action" title="Editar producto" style="background: #eff6ff; color: #2563eb; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; text-decoration: none; border: 1px solid #bfdbfe;">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a href="{% url 'detalle_producto' p.id %}" target="_blank" class="btn-row-action" title="Ver en tienda" style="background: #f8fafc; color: #475569; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; text-decoration: none; border: 1px solid #e2e8f0;">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
                     </div>
                     {% empty %}
-                    <p style="text-align:center; padding: 20px; color:#64748b;">No hay productos registrados recientemente.</p>
+                    <p style="text-align:center; padding: 20px; color:#64748b;">No hay productos registrados en la base de datos.</p>
                     {% endfor %}
                 </div>
                 
-                <button type="button" class="btn-auth-submit" onclick="switchAuthTab('add_product')" style="margin-top: 18px; background: #2563eb;">
+                <button type="button" class="btn-auth-submit" onclick="window.location.href='{% url 'login' %}?tab=add_product'" style="margin-top: 18px; background: #2563eb;">
                     <i class="fa-solid fa-plus"></i> Registrar otro producto
                 </button>
             </div>
@@ -497,11 +573,17 @@
                 if (authTitle) authTitle.innerText = 'Panel de Administración: Registrar Laptop / Producto';
                 if (authDesc) authDesc.innerText = 'Agrega nuevos equipos al catálogo y base de datos con todos sus datos y especificaciones.';
                 if (authAvatar) authAvatar.innerHTML = '<i class="fa-solid fa-laptop-code" style="color: #2563eb;"></i>';
+            } else if (mode === 'edit_product') {
+                if (tabAddProduct) tabAddProduct.classList.add('active');
+                if (formAddProduct) formAddProduct.style.display = 'block';
+                if (authTitle) authTitle.innerText = 'Panel de Administración: Editar Producto';
+                if (authDesc) authDesc.innerText = 'Modifica precios, stock, fotos o descripción del producto seleccionado.';
+                if (authAvatar) authAvatar.innerHTML = '<i class="fa-solid fa-pen-to-square" style="color: #f59e0b;"></i>';
             } else if (mode === 'recent_products') {
                 if (tabRecent) tabRecent.classList.add('active');
                 if (viewRecentProducts) viewRecentProducts.style.display = 'block';
                 if (authTitle) authTitle.innerText = 'Inventario Reciente de la Tienda';
-                if (authDesc) authDesc.innerText = 'Listado de los últimos productos registrados en la base de datos de Caraz.';
+                if (authDesc) authDesc.innerText = 'Listado de los productos registrados en la base de datos de Caraz.';
                 if (authAvatar) authAvatar.innerHTML = '<i class="fa-solid fa-boxes-stacked" style="color: #059669;"></i>';
             } else if (mode === 'register') {
                 if (tabRegister) tabRegister.classList.add('active');
@@ -515,6 +597,77 @@
                 if (authTitle) authTitle.innerText = '¡Hola! Para seguir, ingresa tu cuenta';
                 if (authDesc) authDesc.innerText = 'Accede a tus pedidos, laptops cotizadas y seguimiento en Caraz.';
                 if (authAvatar) authAvatar.innerHTML = '<i class="fa-regular fa-user"></i>';
+            }
+        }
+
+        async function importarDeInfotec() {
+            const input = document.getElementById('infotecUrlInput');
+            const btn = document.getElementById('btnImportarInfotec');
+            const statusBox = document.getElementById('importLoadingStatus');
+            const successBadge = document.getElementById('importSuccessBadge');
+            const successText = document.getElementById('importSuccessText');
+
+            if (!input || !input.value.trim()) {
+                alert('Por favor pega un enlace válido de Infotec (Ej: https://infotec.com.pe/...)');
+                return;
+            }
+
+            const url = input.value.trim();
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            statusBox.style.display = 'block';
+            successBadge.style.display = 'none';
+
+            try {
+                const res = await fetch(`/api/importar-infotec/?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert('Error: ' + (data.error || 'No se pudo importar el producto'));
+                    return;
+                }
+
+                // Autocompletar campos
+                if (data.nombre) document.getElementById('id_nombre').value = data.nombre;
+                if (data.precio) document.getElementById('id_precio').value = data.precio;
+                if (data.descripcion) document.getElementById('id_descripcion').value = data.descripcion;
+                if (data.imagen_url) document.getElementById('id_imagen_url').value = data.imagen_url;
+                if (data.imagenes_secundarias) {
+                    const sec = document.getElementById('id_imagenes_secundarias');
+                    if (sec) sec.value = data.imagenes_secundarias;
+                }
+
+                // Autodetectar categoría
+                const nombreLower = (data.nombre || '').toLowerCase();
+                const catSelect = document.getElementById('id_categoria');
+                if (catSelect) {
+                    for (let opt of catSelect.options) {
+                        const t = opt.text.toLowerCase();
+                        if ((nombreLower.includes('ssd') || nombreLower.includes('disco') || nombreLower.includes('solido') || nombreLower.includes('kingston') || nombreLower.includes('m.2')) && t.includes('almacenamiento')) {
+                            catSelect.value = opt.value;
+                            break;
+                        } else if ((nombreLower.includes('mouse') || nombreLower.includes('teclado') || nombreLower.includes('pad') || nombreLower.includes('case')) && t.includes('periférico')) {
+                            catSelect.value = opt.value;
+                            break;
+                        } else if ((nombreLower.includes('audio') || nombreLower.includes('audifono') || nombreLower.includes('headset')) && t.includes('audio')) {
+                            catSelect.value = opt.value;
+                            break;
+                        } else if ((nombreLower.includes('laptop') || nombreLower.includes('notebook') || nombreLower.includes('pc')) && t.includes('laptop')) {
+                            catSelect.value = opt.value;
+                            break;
+                        }
+                    }
+                }
+
+                successText.textContent = `¡Datos extraídos con éxito! (${data.total_fotos} fotos obtenidas). Revisa los campos y pulsa Guardar.`;
+                successBadge.style.display = 'block';
+
+            } catch (err) {
+                alert('Ocurrió un error al contactar el servidor: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                statusBox.style.display = 'none';
             }
         }
 

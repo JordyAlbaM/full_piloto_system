@@ -103,13 +103,15 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['nombre', 'categoria', 'precio', 'stock', 'imagen_url', 'disponible', 'descripcion']
+        fields = ['nombre', 'categoria', 'precio', 'precio_tachado', 'stock', 'imagen_url', 'imagenes_secundarias', 'disponible', 'descripcion']
         labels = {
             'nombre': 'Nombre / Modelo de la Laptop o Producto',
             'categoria': 'Categoría',
-            'precio': 'Precio de Venta (S/.)',
+            'precio': 'Precio de Oferta / Venta (S/.)',
+            'precio_tachado': 'Precio Normal Tachado (S/.) (Opcional)',
             'stock': 'Stock Disponible en Caraz',
-            'imagen_url': 'URL de Imagen (Enlace Web o Ruta Local)',
+            'imagen_url': 'URL de Imagen Principal',
+            'imagenes_secundarias': 'Fotos Secundarias (Galería - una URL por línea)',
             'disponible': '¿Producto Activo para la Venta?',
             'descripcion': 'Descripción y Especificaciones Técnicas',
         }
@@ -124,6 +126,12 @@ class ProductoForm(forms.ModelForm):
                 'step': '0.01',
                 'min': '1'
             }),
+            'precio_tachado': forms.NumberInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: 2899.00 (Mayor al precio de oferta)',
+                'step': '0.01',
+                'min': '1'
+            }),
             'stock': forms.NumberInput(attrs={
                 'class': 'form-input-field',
                 'placeholder': 'Ej: 8',
@@ -131,7 +139,12 @@ class ProductoForm(forms.ModelForm):
             }),
             'imagen_url': forms.URLInput(attrs={
                 'class': 'form-input-field',
-                'placeholder': 'https://ejemplo.com/laptop.jpg o /static/inicio/images/...'
+                'placeholder': 'https://infotec.com.pe/... o /static/inicio/images/...'
+            }),
+            'imagenes_secundarias': forms.Textarea(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'https://infotec.com.pe/foto2.jpg\nhttps://infotec.com.pe/foto3.jpg\n(Una URL por línea)',
+                'rows': 3
             }),
             'disponible': forms.CheckboxInput(attrs={
                 'class': 'form-checkbox-custom'
@@ -148,6 +161,12 @@ class ProductoForm(forms.ModelForm):
         if precio is not None and precio <= 0:
             raise forms.ValidationError('El precio debe ser mayor a 0.')
         return precio
+
+    def clean_precio_tachado(self):
+        precio_tachado = self.cleaned_data.get('precio_tachado')
+        if precio_tachado is not None and precio_tachado <= 0:
+            raise forms.ValidationError('El precio tachado debe ser mayor a 0.')
+        return precio_tachado
 
     def clean_stock(self):
         stock = self.cleaned_data.get('stock')
