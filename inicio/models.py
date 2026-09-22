@@ -83,6 +83,26 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+    @property
+    def porcentaje_descuento(self):
+        """Calcula un porcentaje de ahorro variable realista (entre 12% y 28%) según el producto"""
+        variaciones = [15, 22, 18, 25, 14, 20, 16, 24, 19, 21, 12, 28]
+        idx = (self.id or 1) % len(variaciones)
+        return variaciones[idx]
+
+    @property
+    def precio_anterior(self):
+        """Calcula el precio anterior coherente con su porcentaje de descuento específico y redondeado comercialmente"""
+        from decimal import Decimal
+        pct = Decimal(self.porcentaje_descuento)
+        # Si precio = precio_anterior * (1 - pct/100) -> precio_anterior = precio / (1 - pct/100)
+        factor = Decimal('1.0') - (pct / Decimal('100.0'))
+        if factor <= 0:
+            return round(self.precio * Decimal('1.20'), 2)
+        precio_elevado = self.precio / factor
+        # Redondear al entero más cercano o terminación atractiva
+        return round(precio_elevado, 2)
+
 
 class Pedido(models.Model):
     ESTADOS_CHOICES = [

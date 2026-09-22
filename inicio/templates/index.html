@@ -107,8 +107,30 @@
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
 
-                    <!-- Icono / Botón de Usuario (Navegación al Login Estático) -->
-                    <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Mi Cuenta">
+                    <!-- Icono / Botón de Usuario -->
+                    <!-- Icono / Botón de Usuario -->
+                    {% if user.is_authenticated %}
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        {% if user.is_superuser or user.rol == 'admin' %}
+                        <a href="{% url 'login' %}?tab=add_product" class="action-button" title="Panel Administrador: Registrar Producto" style="padding: 7px 12px; background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; text-decoration: none; display: flex; align-items: center; gap: 6px; border-radius: 10px; font-weight: 700; font-size: 12px;">
+                            <i class="fa-solid fa-plus-circle"></i> <span>+ Producto</span>
+                        </a>
+                        {% endif %}
+                        <div class="action-button user-btn" style="cursor: default;" title="{{ user.email }}">
+                            <div class="action-icon-circle user-icon-circle" style="background: #e0f2fe; color: #0284c7;">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                            <div class="action-label-box user-label-box">
+                                <span class="small-title">Hola, {{ user.first_name|default:user.username|truncatechars:10 }}</span>
+                                <span class="main-value" style="color: #059669; font-size: 11px;">{% if user.is_superuser %}Admin{% else %}En línea{% endif %}</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'logout' %}" class="action-button" title="Cerrar Sesión" style="padding: 6px 10px; background: #fee2e2; border-color: #fca5a5; color: #dc2626;">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </a>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Registrarse">
                         <div class="action-icon-circle user-icon-circle">
                             <i class="fa-regular fa-user"></i>
                         </div>
@@ -117,6 +139,7 @@
                             <span class="main-value">Ingresar</span>
                         </div>
                     </a>
+                    {% endif %}
 
                     <!-- Carrito de Compras -->
                     <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()">
@@ -509,10 +532,15 @@
                     <div>
                         <div class="promo-pricing-box">
                             <div class="price-label-col">
-                                <span>Precio</span>
-                                <span style="color:#00a650; font-weight:800;">Oferta Caraz</span>
+                                <span class="price-old">S/. {{ prod.precio_anterior }}</span>
+                                <span style="color:#00a650; font-weight:800; font-size:11.5px;">
+                                    <i class="fa-solid fa-arrow-down"></i> {{ prod.porcentaje_descuento }}% OFF
+                                </span>
                             </div>
-                            <div class="price-main">S/. {{ prod.precio }}</div>
+                            <div style="text-align:right;">
+                                <span style="display:block; font-size:10px; color:#64748b; font-weight:700; text-transform:uppercase;">Oferta Caraz</span>
+                                <div class="price-main">S/. {{ prod.precio }}</div>
+                            </div>
                         </div>
 
                         <div class="promo-card-actions-group">
@@ -538,7 +566,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div>
-                <strong>Full Piloto System</strong> &copy; 2026 • Caraz, Áncash - Perú
+                <strong>Full Piloto System</strong> &copy; 2026 • Jr. Sucre 715 (frente a Pollería Mayli), Caraz - Áncash
             </div>
             <div class="footer-socials">
                 <a href="https://wa.me/51961081784" target="_blank" class="footer-social-link" title="WhatsApp">
@@ -606,7 +634,13 @@
                     <div class="quickview-pricing-box">
                         <div>
                             <span style="font-size:11px; font-weight:700; color:#64748b; display:block; text-transform:uppercase;">Precio de Oferta</span>
-                            <span class="quickview-price-main" id="qvPrice">S/. 0.00</span>
+                            <div style="display:flex; align-items:baseline; gap:8px;">
+                                <span style="font-size:13px; color:#94a3b8; text-decoration:line-through; font-weight:600;" id="qvPriceOld">S/. 0.00</span>
+                                <span class="quickview-price-main" id="qvPrice">S/. 0.00</span>
+                                <span id="qvDiscountBadge" style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-weight:800; font-size:11px; padding:2px 7px; border-radius:6px;">
+                                    -18% OFF
+                                </span>
+                            </div>
                         </div>
                         <span class="quickview-price-badge"><i class="fa-solid fa-truck-fast"></i> Envío Gratis en Caraz</span>
                     </div>
@@ -669,6 +703,15 @@
 
         render(data) {
             document.getElementById('qvTitle').textContent = data.nombre;
+            const oldPriceVal = data.precio_anterior || (data.precio * 1.20);
+            const qvOldEl = document.getElementById('qvPriceOld');
+            if (qvOldEl) {
+                qvOldEl.textContent = `S/. ${oldPriceVal.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            }
+            const qvDiscountBadge = document.getElementById('qvDiscountBadge');
+            if (qvDiscountBadge && data.porcentaje_descuento) {
+                qvDiscountBadge.textContent = `-${data.porcentaje_descuento}% OFF`;
+            }
             document.getElementById('qvPrice').textContent = `S/. ${data.precio.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('qvStockTag').innerHTML = `<i class="fa-solid fa-check"></i> ${data.stock} unidades en Caraz`;
             document.getElementById('qvBtnFullDetail').href = data.detalle_url;
@@ -792,6 +835,322 @@
         // Si el click no fue ni dentro del buscador ni en el botón de la lupa, se cierra
         if (!box.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
             toggleMobileSearch(false);
+        }
+    });
+    </script>
+
+    <!-- POPUP MODAL DE ANUNCIO / OFERTA DESTACADA -->
+    {% if producto_destacado %}
+    <div id="promoAdModal" class="promo-ad-overlay">
+        <div class="promo-ad-card">
+            <button type="button" class="promo-ad-close" id="btnPromoAdClose" title="Cerrar anuncio">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="promo-ad-badge">
+                <i class="fa-solid fa-fire"></i> ¡OFERTA EXCLUSIVA DE HOY!
+            </div>
+            
+            <div class="promo-ad-content">
+                <div class="promo-ad-image-box">
+                    {% if producto_destacado.imagen_url %}
+                        <img src="{{ producto_destacado.imagen_url }}" alt="{{ producto_destacado.nombre }}" class="promo-ad-img">
+                    {% else %}
+                        <div class="promo-ad-placeholder"><i class="fa-solid fa-laptop"></i></div>
+                    {% endif %}
+                    <span class="promo-ad-tag-discount">-25% OFF</span>
+                </div>
+
+                <div class="promo-ad-info">
+                    <span class="promo-ad-subtitle">🔥 Caraz Delivery Especial</span>
+                    <h3 class="promo-ad-title">{{ producto_destacado.nombre }}</h3>
+                    <p class="promo-ad-desc">{{ producto_destacado.descripcion|truncatewords:18 }}</p>
+                    
+                    <div class="promo-ad-pricing">
+                        <span class="promo-ad-old-price">S/. {{ producto_destacado.precio|add:"450" }}</span>
+                        <span class="promo-ad-current-price">S/. {{ producto_destacado.precio }}</span>
+                    </div>
+
+                    <div class="promo-ad-countdown-bar">
+                        <span><i class="fa-regular fa-clock"></i> Expira en: <strong id="adCountdownTimer">02:45:10</strong></span>
+                    </div>
+
+                    <div class="promo-ad-actions">
+                        <a href="{% url 'detalle_producto' producto_destacado.id %}" class="promo-ad-btn-primary">
+                            <i class="fa-solid fa-bolt"></i> ¡Comprar Ahora con Descuento!
+                        </a>
+                        <button type="button" class="promo-ad-btn-secondary" id="btnPromoAdSkip">
+                            Continuar explorando tienda
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <style>
+    /* Estilos del Anuncio Modal Promocional */
+    .promo-ad-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(10, 15, 29, 0.78);
+        backdrop-filter: blur(6px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        padding: 16px;
+    }
+    .promo-ad-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .promo-ad-card {
+        background: #ffffff;
+        border-radius: 20px;
+        max-width: 620px;
+        width: 100%;
+        position: relative;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
+        border: 2px solid rgba(220, 38, 38, 0.15);
+        overflow: hidden;
+        animation: promoAdPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes promoAdPop {
+        0% { transform: scale(0.85); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .promo-ad-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: #f1f5f9;
+        border: none;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        font-size: 1.15rem;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        z-index: 10;
+    }
+    .promo-ad-close:hover {
+        background: #ef4444;
+        color: #ffffff;
+        transform: rotate(90deg);
+    }
+    .promo-ad-badge {
+        background: linear-gradient(90deg, #dc2626, #f97316);
+        color: #ffffff;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        padding: 8px 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-bottom-right-radius: 14px;
+    }
+    .promo-ad-content {
+        display: grid;
+        grid-template-columns: 1fr 1.25fr;
+        gap: 20px;
+        padding: 22px 26px 26px;
+        align-items: center;
+    }
+    @media (max-width: 620px) {
+        .promo-ad-content {
+            grid-template-columns: 1fr;
+            padding: 18px;
+            gap: 14px;
+        }
+    }
+    .promo-ad-image-box {
+        position: relative;
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+        min-height: 200px;
+    }
+    .promo-ad-img {
+        max-width: 100%;
+        max-height: 180px;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+    .promo-ad-card:hover .promo-ad-img {
+        transform: scale(1.05);
+    }
+    .promo-ad-placeholder {
+        font-size: 4rem;
+        color: #94a3b8;
+    }
+    .promo-ad-tag-discount {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background: #dc2626;
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.78rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+    .promo-ad-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .promo-ad-subtitle {
+        color: #f97316;
+        font-weight: 700;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .promo-ad-title {
+        font-size: 1.22rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 4px 0 8px;
+        line-height: 1.3;
+    }
+    .promo-ad-desc {
+        color: #64748b;
+        font-size: 0.85rem;
+        line-height: 1.45;
+        margin: 0 0 12px;
+    }
+    .promo-ad-pricing {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .promo-ad-old-price {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        text-decoration: line-through;
+        font-weight: 600;
+    }
+    .promo-ad-current-price {
+        color: #059669;
+        font-size: 1.6rem;
+        font-weight: 900;
+    }
+    .promo-ad-countdown-bar {
+        background: #fef2f2;
+        color: #dc2626;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+    }
+    .promo-ad-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .promo-ad-btn-primary {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-align: center;
+        font-size: 0.92rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+        transition: all 0.2s ease;
+    }
+    .promo-ad-btn-primary:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-2px);
+    }
+    .promo-ad-btn-secondary {
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px;
+        text-decoration: underline;
+        transition: color 0.2s ease;
+    }
+    .promo-ad-btn-secondary:hover {
+        color: #0f172a;
+    }
+    </style>
+
+    <script>
+    // Mostrar anuncio emergente cada vez que se ingresa a la página
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('promoAdModal');
+        const btnClose = document.getElementById('btnPromoAdClose');
+        const btnSkip = document.getElementById('btnPromoAdSkip');
+
+        if (!modal) return;
+
+        // Se muestra con un suave retraso de 600ms para llamar la atención del usuario
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 600);
+
+        function closeAd() {
+            modal.classList.remove('active');
+        }
+
+        if (btnClose) btnClose.addEventListener('click', closeAd);
+        if (btnSkip) btnSkip.addEventListener('click', closeAd);
+
+        // Cerrar si hace clic fuera del modal (en el fondo oscuro)
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeAd();
+            }
+        });
+
+        // Cerrar con la tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeAd();
+            }
+        });
+
+        // Pequeño temporizador dinámico del anuncio
+        let timeLeft = 2 * 3600 + 45 * 60 + 10;
+        const countdownEl = document.getElementById('adCountdownTimer');
+        if (countdownEl) {
+            setInterval(() => {
+                if (timeLeft <= 0) return;
+                timeLeft--;
+                const h = String(Math.floor(timeLeft / 3600)).padStart(2, '0');
+                const m = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0');
+                const s = String(timeLeft % 60).padStart(2, '0');
+                countdownEl.textContent = `${h}:${m}:${s}`;
+            }, 1000);
         }
     });
     </script>

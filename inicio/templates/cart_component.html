@@ -132,11 +132,11 @@
                 </div>
                 <div class="modal-form-group">
                     <label for="orderCustomerName">Nombre y Apellidos *</label>
-                    <input type="text" id="orderCustomerName" class="modal-input" placeholder="Ej: Juan Pérez" required>
+                    <input type="text" id="orderCustomerName" class="modal-input" placeholder="Ej: Juan Pérez" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.first_name }}{% endif %}" required>
                 </div>
                 <div class="modal-form-group">
                     <label for="orderCustomerPhone">Celular / WhatsApp para confirmación *</label>
-                    <input type="tel" id="orderCustomerPhone" class="modal-input" placeholder="Ej: 961 081 784" required>
+                    <input type="tel" id="orderCustomerPhone" class="modal-input" placeholder="Ej: 961 081 784" value="{% if user.is_authenticated %}{{ user.telefono|default:'' }}{% endif %}" required>
                 </div>
                 <div class="modal-form-group">
                     <label for="orderDeliveryType">Modalidad de Envío</label>
@@ -148,7 +148,7 @@
                 </div>
                 <div class="modal-form-group" id="addressInputGroup">
                     <label for="orderCustomerAddress">Dirección de Entrega / Referencia</label>
-                    <input type="text" id="orderCustomerAddress" class="modal-input" placeholder="Ej: Jr. San Martín #450 (Frente a la plaza)">
+                    <input type="text" id="orderCustomerAddress" class="modal-input" placeholder="Ej: Jr. Sucre 715 (frente a Pollería Mayli), Caraz" value="{% if user.is_authenticated %}{{ user.direccion }}{% if user.referencia %} (Ref: {{ user.referencia }}){% endif %}{% endif %}">
                 </div>
                 <div class="modal-form-group">
                     <label for="orderNotes">Nota adicional (opcional)</label>

@@ -1,13 +1,16 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib import messages
 from django.db.models import Q
 from .models import Categoria, Producto
+from .forms import RegistroClienteForm, LoginClienteForm, ProductoForm
 
 def inicio(request):
     query = request.GET.get('q', '').strip()
     categoria_slug = request.GET.get('categoria', '').strip()
 
-    # Filtro exclusivo de laptops activas
-    productos = Producto.objects.filter(disponible=True, categoria__slug='laptops-pc')
+    # Filtro de laptops activas optimizado con select_related
+    productos = Producto.objects.filter(disponible=True, categoria__slug='laptops-pc').select_related('categoria')
 
     if query:
         productos = productos.filter(
@@ -15,19 +18,21 @@ def inicio(request):
         )
 
     categorias = Categoria.objects.filter(slug='laptops-pc')
+    producto_destacado = productos.first() or Producto.objects.filter(disponible=True).select_related('categoria').first()
 
     return render(request, 'index.html', {
         'productos': productos,
         'categorias': categorias,
         'query': query,
         'categoria_seleccionada': categoria_slug,
+        'producto_destacado': producto_destacado,
     })
 
 def detalle_producto(request, producto_id):
-    producto = get_object_or_404(Producto, id=producto_id, disponible=True)
+    producto = get_object_or_404(Producto.objects.select_related('categoria'), id=producto_id, disponible=True)
     productos_relacionados = Producto.objects.filter(
         disponible=True
-    ).exclude(id=producto.id)
+    ).exclude(id=producto.id).select_related('categoria')
     if producto.categoria:
         productos_relacionados = productos_relacionados.filter(categoria=producto.categoria)
     productos_relacionados = productos_relacionados[:4]
@@ -41,7 +46,84 @@ def carrito(request):
     return render(request, 'carrito.html')
 
 def login_view(request):
-    return render(request, 'login.html')
+    active_tab = request.GET.get('tab', 'login')
+    login_form = LoginClienteForm()
+    register_form = RegistroClienteForm()
+    producto_form = ProductoForm() if request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin') else None
+    productos_recientes = Producto.objects.all().order_by('-id')[:5] if request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin') else []
+
+    # Si un usuario común ya está autenticado, va a inicio. Pero si es superusuario o admin, se le permite ver y gestionar
+    if request.user.is_authenticated and not (request.user.is_superuser or request.user.rol == 'admin'):
+        return redirect('inicio')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        # Acción 1: Registro de cliente
+        if action == 'register':
+            active_tab = 'register'
+            register_form = RegistroClienteForm(request.POST)
+            if register_form.is_valid():
+                user = register_form.save()
+                auth_login(request, user)
+                messages.success(request, f'¡Bienvenido a Full Piloto System, {user.first_name or user.email}!')
+                next_url = request.GET.get('next') or request.POST.get('next') or 'inicio'
+                return redirect(next_url)
+            else:
+                messages.error(request, 'Por favor corrige los errores señalados en el registro.')
+        
+        # Acción 2: Agregar producto (Solo Superusuario / Admin)
+        elif action == 'add_product':
+            active_tab = 'add_product'
+            if not request.user.is_authenticated or not (request.user.is_superuser or request.user.rol == 'admin'):
+                messages.error(request, '⛔ Solo el Administrador / Superusuario tiene permisos para agregar productos.')
+                return redirect('login')
+            
+            producto_form = ProductoForm(request.POST)
+            if producto_form.is_valid():
+                nuevo_prod = producto_form.save()
+                messages.success(request, f'✨ ¡Producto "{nuevo_prod.nombre}" registrado exitosamente en la tienda!')
+                return redirect('/login/?tab=add_product')
+            else:
+                messages.error(request, 'Por favor verifica los datos del producto. Revisa los campos en rojo.')
+
+        # Acción 3: Login estándar
+        else:
+            active_tab = 'login'
+            login_form = LoginClienteForm(request.POST)
+            if login_form.is_valid():
+                user = login_form.get_user()
+                remember = request.POST.get('remember')
+                if not remember:
+                    request.session.set_expiry(0) # Expira al cerrar navegador
+                else:
+                    request.session.set_expiry(1209600) # 2 semanas
+                auth_login(request, user)
+                messages.success(request, f'¡Hola de nuevo, {user.first_name or user.email}!')
+                
+                # Si es superusuario o admin, lo dejamos en la pestaña de agregar productos
+                if user.is_superuser or user.rol == 'admin':
+                    return redirect('/login/?tab=add_product')
+                
+                next_url = request.GET.get('next') or request.POST.get('next') or 'inicio'
+                return redirect(next_url)
+            else:
+                messages.error(request, 'Correo electrónico o contraseña incorrectos.')
+
+    return render(request, 'login.html', {
+        'login_form': login_form,
+        'register_form': register_form,
+        'producto_form': producto_form,
+        'productos_recientes': productos_recientes,
+        'active_tab': active_tab,
+        'next': request.GET.get('next', '')
+    })
+
+def logout_view(request):
+    if request.user.is_authenticated:
+        auth_logout(request)
+        messages.info(request, 'Has cerrado sesión con éxito.')
+    return redirect('inicio')
 
 def api_producto_detalle(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, disponible=True)
@@ -196,6 +278,8 @@ def api_producto_detalle(request, producto_id):
         'nombre': producto.nombre,
         'descripcion': producto.descripcion,
         'precio': float(producto.precio),
+        'precio_anterior': float(producto.precio_anterior),
+        'porcentaje_descuento': producto.porcentaje_descuento,
         'stock': producto.stock,
         'imagenes': imagenes,
         'specs': specs,
