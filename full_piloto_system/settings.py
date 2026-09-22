@@ -17,13 +17,20 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-z57#u95&_ur2%^ek96y$0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '*',
+    '.onrender.com',
+    'fullpilotosystem.com',
+    'www.fullpilotosystem.com',
+]
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
+    'https://fullpilotosystem.com',
+    'https://www.fullpilotosystem.com',
 ]
 if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
