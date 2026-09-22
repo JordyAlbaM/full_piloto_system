@@ -421,8 +421,63 @@ body {
     background: #ffffff;
 }
 
+/* Mensajes de feedback / alertas */
+.auth-alerts-container {
+    margin-bottom: 20px;
+}
+
+.auth-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.auth-alert-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.auth-alert-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+}
+
+.auth-alert-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #2563eb;
+}
+
+.auth-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.field-error-msg {
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
+    .auth-form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
     .login-card {
         padding: 26px 20px;
         border-radius: 16px;
@@ -442,4 +497,183 @@ body {
         padding: 6px 10px;
         font-size: 12px;
     }
+}
+
+/* ==========================================================================
+   ESTILOS PREMIUM PARA FORMULARIO DE AGREGAR PRODUCTOS (ADMIN / SUPERUSER)
+   ========================================================================== */
+.admin-badge-strip {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #1e40af;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.checkbox-switch-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 11px 14px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1e293b;
+    transition: all 0.2s ease;
+}
+
+.checkbox-switch-label:hover {
+    border-color: #3b82f6;
+    background: #f0fdf4;
+}
+
+.checkbox-switch-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #059669;
+}
+
+textarea.form-input-field {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.5;
+    font-family: inherit;
+    padding: 12px 14px;
+}
+
+.admin-recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-recent-header h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-view-all-link {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.admin-recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.admin-product-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    transition: all 0.2s ease;
+}
+
+.admin-product-row:hover {
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.admin-product-row-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #e2e8f0;
+}
+
+.admin-product-row-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.admin-product-row-img i {
+    color: #94a3b8;
+    font-size: 20px;
+}
+
+.admin-product-row-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-product-row-info .title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-product-row-info .meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 11.5px;
+    margin-top: 2px;
+}
+
+.badge-cat {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.admin-product-row-info .price {
+    font-weight: 800;
+    color: #059669;
+}
+
+.btn-row-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-row-action:hover {
+    background: #2563eb;
+    color: #ffffff;
 }

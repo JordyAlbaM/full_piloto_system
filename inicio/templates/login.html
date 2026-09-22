@@ -36,104 +36,425 @@
         <div class="login-card">
             
             <div class="login-card-header">
-                <div class="login-avatar-badge">
+                <div class="login-avatar-badge" id="authAvatar">
+                    {% if active_tab == 'add_product' %}
+                    <i class="fa-solid fa-laptop-code" style="color: #2563eb;"></i>
+                    {% else %}
                     <i class="fa-regular fa-user"></i>
+                    {% endif %}
                 </div>
-                <h1 class="login-card-title" id="authTitle">¡Hola! Para seguir, ingresa tu cuenta</h1>
-                <p class="login-card-desc" id="authDesc">Accede a tus pedidos, laptops cotizadas y seguimiento en Caraz.</p>
+                <h1 class="login-card-title" id="authTitle">
+                    {% if active_tab == 'add_product' %}
+                        Panel de Administración: Registrar Laptop / Producto
+                    {% elif active_tab == 'register' %}
+                        Crea tu cuenta en Full Piloto System
+                    {% else %}
+                        ¡Hola! Para seguir, ingresa tu cuenta
+                    {% endif %}
+                </h1>
+                <p class="login-card-desc" id="authDesc">
+                    {% if active_tab == 'add_product' %}
+                        Agrega nuevos equipos al catálogo y base de datos con todos sus datos y especificaciones.
+                    {% elif active_tab == 'register' %}
+                        Regístrate para comprar más rápido y recibir ofertas exclusivas en Caraz.
+                    {% else %}
+                        Accede a tus pedidos, laptops cotizadas y seguimiento en Caraz.
+                    {% endif %}
+                </p>
             </div>
 
-            <!-- Tabs visuales (Estático) -->
+            <!-- Tabs visuales -->
             <div class="auth-tabs-nav">
-                <button type="button" class="auth-tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">
+                {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
+                <button type="button" class="auth-tab-btn {% if active_tab == 'add_product' %}active{% endif %}" id="tabAddProduct" onclick="switchAuthTab('add_product')" style="color: #2563eb; font-weight: 800;">
+                    <i class="fa-solid fa-plus-circle"></i> Registrar Producto
+                </button>
+                <button type="button" class="auth-tab-btn {% if active_tab == 'recent_products' %}active{% endif %}" id="tabRecent" onclick="switchAuthTab('recent_products')">
+                    <i class="fa-solid fa-boxes-stacked"></i> Ver Recientes
+                </button>
+                {% else %}
+                <button type="button" class="auth-tab-btn {% if active_tab != 'register' %}active{% endif %}" id="tabLogin" onclick="switchAuthTab('login')">
                     Iniciar Sesión
                 </button>
-                <button type="button" class="auth-tab-btn" id="tabRegister" onclick="switchAuthTab('register')">
+                <button type="button" class="auth-tab-btn {% if active_tab == 'register' %}active{% endif %}" id="tabRegister" onclick="switchAuthTab('register')">
                     Crear Cuenta
                 </button>
+                {% endif %}
             </div>
 
-            <!-- Formulario Estático -->
-            <form id="authStaticForm" onsubmit="handleStaticSubmit(event)">
-                
-                <!-- Campo Nombre (solo visible en Registro) -->
-                <div class="form-group" id="groupFullName" style="display: none;">
-                    <div class="form-label-row">
-                        <label class="form-label" for="userFullName">Nombres y Apellidos</label>
-                    </div>
-                    <div class="form-input-container">
-                        <input type="text" id="userFullName" class="form-input-field" placeholder="Ej. Juan Pérez">
-                        <i class="fa-regular fa-id-card form-input-icon"></i>
-                    </div>
+            <!-- Alertas / Mensajes de Django -->
+            {% if messages %}
+            <div class="auth-alerts-container">
+                {% for message in messages %}
+                <div class="auth-alert auth-alert-{{ message.tags }}">
+                    {% if message.tags == 'error' %}
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    {% elif message.tags == 'success' %}
+                    <i class="fa-solid fa-circle-check"></i>
+                    {% else %}
+                    <i class="fa-solid fa-circle-info"></i>
+                    {% endif %}
+                    <span>{{ message }}</span>
                 </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
-                <!-- Campo Celular / DNI (solo visible en Registro) -->
-                <div class="form-group" id="groupPhone" style="display: none;">
-                    <div class="form-label-row">
-                        <label class="form-label" for="userPhone">Número de Celular</label>
-                    </div>
-                    <div class="form-input-container">
-                        <input type="tel" id="userPhone" class="form-input-field" placeholder="943 000 000">
-                        <i class="fa-solid fa-mobile-screen form-input-icon"></i>
-                    </div>
+            <!-- FORMULARIO 1: INICIAR SESIÓN -->
+            <form method="POST" action="{% url 'login' %}{% if next %}?next={{ next }}{% endif %}" id="formLogin" style="{% if active_tab == 'register' %}display: none;{% endif %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="login">
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+                {% if login_form.non_field_errors %}
+                <div class="auth-alert auth-alert-error" style="margin-bottom: 16px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ login_form.non_field_errors|striptags }}</span>
                 </div>
+                {% endif %}
 
-                <!-- Campo Correo / Usuario -->
+                <!-- Correo -->
                 <div class="form-group">
                     <div class="form-label-row">
-                        <label class="form-label" for="userEmail">Correo electrónico o Teléfono</label>
+                        <label class="form-label" for="login_email">Correo electrónico</label>
                     </div>
                     <div class="form-input-container">
-                        <input type="text" id="userEmail" class="form-input-field" placeholder="nombre@correo.com" required autocomplete="username">
+                        <input type="email" name="email" id="login_email" class="form-input-field" placeholder="tuemail@ejemplo.com" required autocomplete="username" value="{{ login_form.email.value|default:'' }}">
                         <i class="fa-regular fa-envelope form-input-icon"></i>
                     </div>
+                    {% if login_form.email.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ login_form.email.errors|striptags }}</div>
+                    {% endif %}
                 </div>
 
-                <!-- Campo Contraseña -->
+                <!-- Contraseña -->
                 <div class="form-group">
                     <div class="form-label-row">
-                        <label class="form-label" for="userPassword">Contraseña</label>
-                        <a href="javascript:void(0)" class="form-forgot-pass" id="linkForgotPass" onclick="showFeedback('Recuperación de contraseña próximamente')">¿Olvidaste tu contraseña?</a>
+                        <label class="form-label" for="login_password">Contraseña</label>
+                        <a href="https://wa.me/51961081784?text=Hola%20Full%20Piloto%20System!%20Olvid%C3%A9%20mi%20contrase%C3%B1a%20de%20acceso" target="_blank" class="form-forgot-pass">¿Olvidaste tu contraseña?</a>
                     </div>
                     <div class="form-input-container">
-                        <input type="password" id="userPassword" class="form-input-field" placeholder="••••••••" required autocomplete="current-password">
+                        <input type="password" name="password" id="login_password" class="form-input-field" placeholder="••••••••" required autocomplete="current-password">
                         <i class="fa-solid fa-lock form-input-icon"></i>
-                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()" aria-label="Mostrar/Ocultar contraseña">
-                            <i class="fa-regular fa-eye" id="iconEye"></i>
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('login_password', 'iconEyeLogin')" aria-label="Mostrar/Ocultar contraseña">
+                            <i class="fa-regular fa-eye" id="iconEyeLogin"></i>
                         </button>
                     </div>
+                    {% if login_form.password.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ login_form.password.errors|striptags }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- Recordarme -->
                 <div class="form-checkbox-row">
-                    <input type="checkbox" id="chkRemember" checked>
+                    <input type="checkbox" name="remember" id="chkRemember" checked>
                     <label for="chkRemember">Mantener mi sesión iniciada</label>
                 </div>
 
-                <!-- Botón Submit -->
-                <button type="submit" class="btn-auth-submit" id="btnSubmit">
+                <!-- Botón Submit Iniciar Sesión -->
+                <button type="submit" class="btn-auth-submit" id="btnSubmitLogin">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
                 </button>
             </form>
 
+            <!-- FORMULARIO 2: CREAR CUENTA / REGISTRO -->
+            <form method="POST" action="{% url 'login' %}{% if next %}?next={{ next }}{% endif %}" id="formRegister" style="{% if active_tab != 'register' %}display: none;{% endif %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="register">
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+                {% if register_form.non_field_errors %}
+                <div class="auth-alert auth-alert-error" style="margin-bottom: 16px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ register_form.non_field_errors|striptags }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Nombres y Apellidos -->
+                <div class="auth-form-row">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="reg_first_name">Nombres *</label>
+                        </div>
+                        <div class="form-input-container">
+                            <input type="text" name="first_name" id="reg_first_name" class="form-input-field" placeholder="Ej: Juan" required value="{{ register_form.first_name.value|default:'' }}">
+                            <i class="fa-regular fa-user form-input-icon"></i>
+                        </div>
+                        {% if register_form.first_name.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ register_form.first_name.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="reg_last_name">Apellidos *</label>
+                        </div>
+                        <div class="form-input-container">
+                            <input type="text" name="last_name" id="reg_last_name" class="form-input-field" placeholder="Ej: Pérez" required value="{{ register_form.last_name.value|default:'' }}">
+                            <i class="fa-regular fa-user form-input-icon"></i>
+                        </div>
+                        {% if register_form.last_name.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ register_form.last_name.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Correo Electrónico -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="reg_email">Correo electrónico *</label>
+                    </div>
+                    <div class="form-input-container">
+                        <input type="email" name="email" id="reg_email" class="form-input-field" placeholder="nombre@correo.com" required value="{{ register_form.email.value|default:'' }}">
+                        <i class="fa-regular fa-envelope form-input-icon"></i>
+                    </div>
+                    {% if register_form.email.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ register_form.email.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Celular -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="reg_telefono">Celular / WhatsApp *</label>
+                    </div>
+                    <div class="form-input-container">
+                        <input type="tel" name="telefono" id="reg_telefono" class="form-input-field" placeholder="943 000 000" required value="{{ register_form.telefono.value|default:'' }}">
+                        <i class="fa-solid fa-mobile-screen form-input-icon"></i>
+                    </div>
+                    {% if register_form.telefono.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ register_form.telefono.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Dirección y Referencia (Caraz) -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="reg_direccion">Dirección en Caraz</label>
+                    </div>
+                    <div class="form-input-container">
+                        <input type="text" name="direccion" id="reg_direccion" class="form-input-field" placeholder="Ej: Jr. Sucre 715" value="{{ register_form.direccion.value|default:'' }}">
+                        <i class="fa-solid fa-location-dot form-input-icon"></i>
+                    </div>
+                    {% if register_form.direccion.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ register_form.direccion.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Contraseñas -->
+                <div class="auth-form-row">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="reg_password">Contraseña *</label>
+                        </div>
+                        <div class="form-input-container">
+                            <input type="password" name="password" id="reg_password" class="form-input-field" placeholder="Mínimo 6 car." required autocomplete="new-password">
+                            <i class="fa-solid fa-lock form-input-icon"></i>
+                        </div>
+                        {% if register_form.password.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ register_form.password.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="reg_password_confirm">Confirmar *</label>
+                        </div>
+                        <div class="form-input-container">
+                            <input type="password" name="password_confirm" id="reg_password_confirm" class="form-input-field" placeholder="Repetir clave" required autocomplete="new-password">
+                            <i class="fa-solid fa-shield form-input-icon"></i>
+                        </div>
+                        {% if register_form.password_confirm.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ register_form.password_confirm.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Botón Submit Crear Cuenta -->
+                <button type="submit" class="btn-auth-submit" id="btnSubmitRegister" style="background:#00a650;">
+                    <i class="fa-solid fa-user-plus"></i> Registrarme y Empezar
+                </button>
+            </form>
+
+            {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
+            <!-- FORMULARIO 3: AGREGAR PRODUCTO A LA BASE DE DATOS (SOLO SUPERUSUARIO / ADMIN) -->
+            <form method="POST" action="{% url 'login' %}?tab=add_product" id="formAddProduct" style="{% if active_tab != 'add_product' %}display: none;{% endif %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_product">
+
+                <div class="admin-badge-strip">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Modo Administrador: <strong>{{ user.get_full_name|default:user.email }}</strong></span>
+                </div>
+
+                {% if producto_form.non_field_errors %}
+                <div class="auth-alert auth-alert-error" style="margin-bottom: 16px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ producto_form.non_field_errors|striptags }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Nombre del Producto / Laptop -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="id_nombre">Nombre o Modelo del Producto *</label>
+                    </div>
+                    <div class="form-input-container">
+                        {{ producto_form.nombre }}
+                        <i class="fa-solid fa-laptop form-input-icon"></i>
+                    </div>
+                    {% if producto_form.nombre.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.nombre.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Categoría y Stock -->
+                <div class="auth-form-row">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="id_categoria">Categoría *</label>
+                        </div>
+                        <div class="form-input-container">
+                            {{ producto_form.categoria }}
+                            <i class="fa-solid fa-layer-group form-input-icon"></i>
+                        </div>
+                        {% if producto_form.categoria.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.categoria.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="id_stock">Stock en Caraz *</label>
+                        </div>
+                        <div class="form-input-container">
+                            {{ producto_form.stock }}
+                            <i class="fa-solid fa-boxes-stacked form-input-icon"></i>
+                        </div>
+                        {% if producto_form.stock.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.stock.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Precio y Estado Disponible -->
+                <div class="auth-form-row">
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="id_precio">Precio de Venta (S/.) *</label>
+                        </div>
+                        <div class="form-input-container">
+                            {{ producto_form.precio }}
+                            <i class="fa-solid fa-tag form-input-icon"></i>
+                        </div>
+                        {% if producto_form.precio.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.precio.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" style="display: flex; flex-direction: column; justify-content: center;">
+                        <div class="form-label-row">
+                            <label class="form-label">Disponibilidad Inmediata</label>
+                        </div>
+                        <label class="checkbox-switch-label" for="id_disponible">
+                            {{ producto_form.disponible }}
+                            <span>Visible para compra en web</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- URL de Imagen -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="id_imagen_url">URL de Imagen (Foto del producto)</label>
+                        <span class="form-label-hint">Enlace https o ruta /static/...</span>
+                    </div>
+                    <div class="form-input-container">
+                        {{ producto_form.imagen_url }}
+                        <i class="fa-regular fa-image form-input-icon"></i>
+                    </div>
+                    {% if producto_form.imagen_url.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagen_url.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Descripción y Especificaciones Técnicas -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label class="form-label" for="id_descripcion">Descripción y Especificaciones Técnicas</label>
+                    </div>
+                    <div class="form-input-container">
+                        {{ producto_form.descripcion }}
+                    </div>
+                    {% if producto_form.descripcion.errors %}
+                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.descripcion.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Botón Submit Guardar Producto -->
+                <button type="submit" class="btn-auth-submit" id="btnSubmitAddProduct" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Guardar y Publicar en Tienda
+                </button>
+            </form>
+
+            <!-- VISTA DE PRODUCTOS RECIENTES AGREGADOS (SOLO ADMIN) -->
+            <div id="viewRecentProducts" style="{% if active_tab != 'recent_products' %}display: none;{% endif %} margin-top: 10px;">
+                <div class="admin-recent-header">
+                    <h3><i class="fa-solid fa-list-check"></i> Últimos productos en la base de datos:</h3>
+                    <a href="{% url 'inicio' %}" target="_blank" class="admin-view-all-link">Ir a la tienda <i class="fa-solid fa-external-link"></i></a>
+                </div>
+                
+                <div class="admin-recent-list">
+                    {% for p in productos_recientes %}
+                    <div class="admin-product-row">
+                        <div class="admin-product-row-img">
+                            {% if p.imagen_url %}
+                            <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}">
+                            {% else %}
+                            <i class="fa-solid fa-laptop"></i>
+                            {% endif %}
+                        </div>
+                        <div class="admin-product-row-info">
+                            <div class="title">{{ p.nombre }}</div>
+                            <div class="meta">
+                                <span class="badge-cat">{{ p.categoria.nombre|default:"General" }}</span>
+                                <span class="stock">Stock: <strong>{{ p.stock }}</strong></span>
+                                <span class="price">S/. {{ p.precio }}</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'detalle_producto' p.id %}" target="_blank" class="btn-row-action" title="Ver en tienda">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p style="text-align:center; padding: 20px; color:#64748b;">No hay productos registrados recientemente.</p>
+                    {% endfor %}
+                </div>
+                
+                <button type="button" class="btn-auth-submit" onclick="switchAuthTab('add_product')" style="margin-top: 18px; background: #2563eb;">
+                    <i class="fa-solid fa-plus"></i> Registrar otro producto
+                </button>
+            </div>
+            {% endif %}
+
             <div class="auth-divider">
                 <span class="auth-divider-line"></span>
-                <span class="auth-divider-text">o continúa con</span>
+                <span class="auth-divider-text">o contáctanos</span>
                 <span class="auth-divider-line"></span>
             </div>
 
-            <!-- Accesos Rápidos Estáticos -->
+            <!-- Accesos Rápidos -->
             <div class="auth-social-stack">
-                <a href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20hacer%20una%20consulta%20directa" target="_blank" class="btn-auth-social whatsapp">
+                <a href="https://wa.me/51961081784?text=Hola%20Full%20Piloto%20System!%20Deseo%20hacer%20una%20consulta%20directa" target="_blank" class="btn-auth-social whatsapp">
                     <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i>
                     <span>Consultar por WhatsApp</span>
                 </a>
             </div>
 
-            <!-- Notice informativo de modo estático -->
+            <!-- Notice informativo -->
             <div class="auth-notice-box">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>Tus datos de compra están protegidos por el sistema de seguridad de Full Piloto System Caraz.</span>
+                <span>Tus datos de compra y pedidos están protegidos por el sistema de seguridad de Full Piloto System Caraz.</span>
             </div>
 
         </div>
@@ -141,68 +462,79 @@
 
     <!-- Footer -->
     <footer class="login-footer">
-        <p>Full Piloto System &copy; 2026 • Jr. 28 de Julio, Caraz - Áncash</p>
+        <p>Full Piloto System &copy; 2026 • Jr. Sucre 715 (frente a Pollería Mayli), Caraz - Áncash</p>
     </footer>
 
-    <!-- Script de interacción estática de interfaz -->
+    <!-- Script de interacción de tabs y visibilidad -->
     <script>
-        let currentMode = 'login';
-
         function switchAuthTab(mode) {
-            currentMode = mode;
             const tabLogin = document.getElementById('tabLogin');
             const tabRegister = document.getElementById('tabRegister');
-            const groupFullName = document.getElementById('groupFullName');
-            const groupPhone = document.getElementById('groupPhone');
+            const tabAddProduct = document.getElementById('tabAddProduct');
+            const tabRecent = document.getElementById('tabRecent');
+
+            const formLogin = document.getElementById('formLogin');
+            const formRegister = document.getElementById('formRegister');
+            const formAddProduct = document.getElementById('formAddProduct');
+            const viewRecentProducts = document.getElementById('viewRecentProducts');
+
             const authTitle = document.getElementById('authTitle');
             const authDesc = document.getElementById('authDesc');
-            const btnSubmit = document.getElementById('btnSubmit');
-            const linkForgot = document.getElementById('linkForgotPass');
+            const authAvatar = document.getElementById('authAvatar');
 
-            if (mode === 'login') {
-                tabLogin.classList.add('active');
-                tabRegister.classList.remove('active');
-                groupFullName.style.display = 'none';
-                groupPhone.style.display = 'none';
-                authTitle.innerText = '¡Hola! Para seguir, ingresa tu cuenta';
-                authDesc.innerText = 'Accede a tus pedidos, laptops cotizadas y seguimiento en Caraz.';
-                btnSubmit.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión';
-                if (linkForgot) linkForgot.style.display = 'inline';
-            } else {
-                tabRegister.classList.add('active');
-                tabLogin.classList.remove('active');
-                groupFullName.style.display = 'block';
-                groupPhone.style.display = 'block';
-                authTitle.innerText = 'Crea tu cuenta en Full Piloto System';
-                authDesc.innerText = 'Regístrate para comprar más rápido y recibir ofertas exclusivas en Caraz.';
-                btnSubmit.innerHTML = '<i class="fa-solid fa-user-plus"></i> Registrarme';
-                if (linkForgot) linkForgot.style.display = 'none';
+            // Quitar clase active de todos los tabs que existan
+            [tabLogin, tabRegister, tabAddProduct, tabRecent].forEach(t => { if (t) t.classList.remove('active'); });
+            
+            // Ocultar todos los formularios/vistas
+            if (formLogin) formLogin.style.display = 'none';
+            if (formRegister) formRegister.style.display = 'none';
+            if (formAddProduct) formAddProduct.style.display = 'none';
+            if (viewRecentProducts) viewRecentProducts.style.display = 'none';
+
+            if (mode === 'add_product') {
+                if (tabAddProduct) tabAddProduct.classList.add('active');
+                if (formAddProduct) formAddProduct.style.display = 'block';
+                if (authTitle) authTitle.innerText = 'Panel de Administración: Registrar Laptop / Producto';
+                if (authDesc) authDesc.innerText = 'Agrega nuevos equipos al catálogo y base de datos con todos sus datos y especificaciones.';
+                if (authAvatar) authAvatar.innerHTML = '<i class="fa-solid fa-laptop-code" style="color: #2563eb;"></i>';
+            } else if (mode === 'recent_products') {
+                if (tabRecent) tabRecent.classList.add('active');
+                if (viewRecentProducts) viewRecentProducts.style.display = 'block';
+                if (authTitle) authTitle.innerText = 'Inventario Reciente de la Tienda';
+                if (authDesc) authDesc.innerText = 'Listado de los últimos productos registrados en la base de datos de Caraz.';
+                if (authAvatar) authAvatar.innerHTML = '<i class="fa-solid fa-boxes-stacked" style="color: #059669;"></i>';
+            } else if (mode === 'register') {
+                if (tabRegister) tabRegister.classList.add('active');
+                if (formRegister) formRegister.style.display = 'block';
+                if (authTitle) authTitle.innerText = 'Crea tu cuenta en Full Piloto System';
+                if (authDesc) authDesc.innerText = 'Regístrate para comprar más rápido y recibir ofertas exclusivas en Caraz.';
+                if (authAvatar) authAvatar.innerHTML = '<i class="fa-regular fa-user"></i>';
+            } else { // default 'login'
+                if (tabLogin) tabLogin.classList.add('active');
+                if (formLogin) formLogin.style.display = 'block';
+                if (authTitle) authTitle.innerText = '¡Hola! Para seguir, ingresa tu cuenta';
+                if (authDesc) authDesc.innerText = 'Accede a tus pedidos, laptops cotizadas y seguimiento en Caraz.';
+                if (authAvatar) authAvatar.innerHTML = '<i class="fa-regular fa-user"></i>';
             }
         }
 
-        function togglePasswordVisibility() {
-            const passInput = document.getElementById('userPassword');
-            const eyeIcon = document.getElementById('iconEye');
+        function togglePasswordVisibility(inputId, iconId) {
+            const passInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+            if (!passInput) return;
             if (passInput.type === 'password') {
                 passInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                }
             } else {
                 passInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                }
             }
-        }
-
-        function showFeedback(msg) {
-            alert(msg);
-        }
-
-        function handleStaticSubmit(e) {
-            e.preventDefault();
-            const email = document.getElementById('userEmail').value;
-            const action = currentMode === 'login' ? 'Inicio de sesión' : 'Registro de cuenta';
-            alert(`[Modo Estático / Prototipo UI]\n${action} simulado con éxito para:\n${email}`);
         }
     </script>
 

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: full-piloto-system
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn full_piloto_system.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false

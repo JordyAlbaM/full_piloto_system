@@ -19,7 +19,7 @@
     <div class="top-bar">
         <div class="container">
             <div class="top-bar-content">
-                <span><i class="fa-solid fa-location-dot"></i> Full Piloto System - Jr. 28 de Julio, Caraz</span>
+                <span><i class="fa-solid fa-location-dot"></i> Full Piloto System - Jr. Sucre 715 (frente a Pollería Mayli), Caraz</span>
                 <span><i class="fa-solid fa-clock"></i> Atención inmediata de 8:30 AM a 7:30 PM</span>
             </div>
         </div>
@@ -36,12 +36,24 @@
             </a>
 
             <div style="display: flex; align-items: center; gap: 10px;">
+                {% if user.is_authenticated %}
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <div class="action-button user-btn" style="display: flex; align-items: center; gap: 8px; background: #e0f2fe; padding: 8px 12px; border-radius: 10px; border: 1px solid #bfdbfe; color: #0284c7; cursor: default;" title="{{ user.email }}">
+                        <i class="fa-solid fa-user-check"></i>
+                        <span style="font-size: 12.5px; font-weight: 700; color: #0369a1;">{{ user.first_name|default:user.username|truncatechars:10 }}</span>
+                    </div>
+                    <a href="{% url 'logout' %}" title="Cerrar Sesión" style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; text-decoration: none;">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </a>
+                </div>
+                {% else %}
                 <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión" style="display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: inherit;">
                     <div style="color: #64748b; font-size: 16px;">
                         <i class="fa-regular fa-user"></i>
                     </div>
                     <span class="user-label-text" style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Ingresar</span>
                 </a>
+                {% endif %}
 
                 <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" style="display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-color); cursor: pointer;">
                     <div style="position: relative; color: var(--primary); font-size: 18px;">
@@ -84,7 +96,7 @@
                             <span class="glass-badge glass-badge-feature warranty"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
                         </div>
                         {% if producto.imagen_url %}
-                            <img id="detailMainImg" src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
+                            <img id="detailMainImg" src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" fetchpriority="high">
                         {% else %}
                             <div class="icon-placeholder">
                                 {% if "Laptop" in producto.nombre or "PC" in producto.nombre %}
@@ -182,8 +194,14 @@
                     </div>
 
                     <div class="price-section">
-                        <div class="price-label">Precio al por menor / Unidad</div>
-                        <div class="price-amount">S/. {{ producto.precio }}</div>
+                        <div class="price-label">Precio de Oferta / Unidad</div>
+                        <div style="display:flex; align-items:baseline; gap:12px; margin: 4px 0 6px;">
+                            <span style="font-size:16px; color:#94a3b8; text-decoration:line-through; font-weight:700;">S/. {{ producto.precio_anterior }}</span>
+                            <div class="price-amount" style="margin:0;">S/. {{ producto.precio }}</div>
+                            <span style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-weight:800; font-size:12px; padding:3px 8px; border-radius:6px;">
+                                <i class="fa-solid fa-arrow-down"></i> {{ producto.porcentaje_descuento }}% DCTO
+                            </span>
+                        </div>
                         <div class="price-note"><i class="fa-solid fa-check"></i> Incluye IGV, comprobante de pago e instalación básica</div>
                     </div>
 
@@ -224,7 +242,7 @@
                             <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
                         </button>
                         <a id="btnWhatsAppDirect"
-                           href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20comprar%20{{ producto.nombre|urlencode }}%20(x1%20unidad)%20al%20precio%20de%20S/.{{ producto.precio }}" 
+                           href="https://wa.me/51961081784?text=Hola%20Full%20Piloto%20System!%20Deseo%20comprar%20{{ producto.nombre|urlencode }}%20(x1%20unidad)%20al%20precio%20de%20S/.{{ producto.precio }}" 
                            target="_blank" 
                            class="btn-store-consult"
                            style="color: #00a650; border-color: #00a650; font-weight: 700;">
@@ -411,7 +429,7 @@
                             </tr>
                             <tr>
                                 <td>Entrega</td>
-                                <td>Inmediata en Jr. 28 de Julio, Caraz o delivery a domicilio</td>
+                                <td>Inmediata en Jr. Sucre 715 (frente a Pollería Mayli), Caraz o delivery a domicilio</td>
                             </tr>
                             {% endif %}
                         </table>
@@ -450,7 +468,7 @@
                     <div>
                         <div style="height:200px; background:#ffffff; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; margin-bottom:12px; border:1px solid #f1f5f9; padding: 12px;">
                             {% if item.imagen_url %}
-                                <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" style="max-width:95%; max-height:92%; width:auto; height:auto; object-fit:contain; margin:auto; display:block;">
+                                <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" loading="lazy" style="max-width:95%; max-height:92%; width:auto; height:auto; object-fit:contain; margin:auto; display:block;">
                             {% else %}
                                 <i class="fa-solid fa-laptop" style="font-size:55px; color:#cbd5e1;"></i>
                             {% endif %}
@@ -464,7 +482,7 @@
                     </div>
                     <div style="margin-top:14px; padding-top:12px; border-top:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between;">
                         <div>
-                            <span style="font-size:11px; color:#64748b; display:block;">Precio</span>
+                            <span style="font-size:11px; color:#94a3b8; text-decoration:line-through; font-weight:600; display:block;">S/. {{ item.precio_anterior }}</span>
                             <span style="font-size:17px; font-weight:900; color:#0f172a;">S/. {{ item.precio }}</span>
                         </div>
                         <a href="{% url 'detalle_producto' item.id %}" style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#1e293b; padding:7px 12px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700; transition:all 0.2s;">
@@ -485,7 +503,7 @@
                 <strong>Full Piloto System</strong> &copy; 2026 • Caraz, Áncash - Perú
             </div>
             <div class="footer-socials">
-                <a href="https://wa.me/51943000000" target="_blank" class="footer-social-link" title="WhatsApp">
+                <a href="https://wa.me/51961081784" target="_blank" class="footer-social-link" title="WhatsApp">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
                 <a href="#" class="footer-social-link" title="Facebook">
@@ -509,7 +527,7 @@
         </div>
         <div class="mobile-bar-buttons">
             <a id="btnMobileWhatsAppDirect" 
-               href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20comprar%20{{ producto.nombre|urlencode }}%20al%20precio%20de%20S/.{{ producto.precio }}" 
+               href="https://wa.me/51961081784?text=Hola%20Full%20Piloto%20System!%20Deseo%20comprar%20{{ producto.nombre|urlencode }}%20al%20precio%20de%20S/.{{ producto.precio }}" 
                target="_blank" 
                class="mobile-bar-btn-wa" 
                title="Pedir por WhatsApp"
@@ -526,7 +544,7 @@
     </div>
 
     <!-- BOTÓN FLOTANTE DE WHATSAPP RESPONSIVE -->
-    <a href="https://wa.me/51943000000?text=Hola%20Full%20Piloto%20System!%20Deseo%20consultar%20sobre%20este%20producto:%20{{ producto.nombre|urlencode }}" 
+    <a href="https://wa.me/51961081784?text=Hola%20Full%20Piloto%20System!%20Deseo%20consultar%20sobre%20este%20producto:%20{{ producto.nombre|urlencode }}" 
        target="_blank" 
        class="whatsapp-float-btn" 
        aria-label="Contactar por WhatsApp" 
@@ -600,8 +618,8 @@
                 if (mobileSubtotalEl) mobileSubtotalEl.innerText = `S/. ${subtotal}`;
 
                 const msg = encodeURIComponent(`Hola Full Piloto System! Deseo comprar ${this.productName} (x${this.currentQty} ${this.currentQty === 1 ? 'unidad' : 'unidades'}) al total de S/. ${subtotal}`);
-                if (waBtn) waBtn.href = `https://wa.me/51943000000?text=${msg}`;
-                if (mobileWaBtn) mobileWaBtn.href = `https://wa.me/51943000000?text=${msg}`;
+                if (waBtn) waBtn.href = `https://wa.me/51961081784?text=${msg}`;
+                if (mobileWaBtn) mobileWaBtn.href = `https://wa.me/51961081784?text=${msg}`;
             },
 
             addToCart(btn) {
