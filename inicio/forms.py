@@ -27,7 +27,7 @@ class RegistroClienteForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Ej: Juan'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Ej: Pérez'}),
             'email': forms.EmailInput(attrs={'class': 'form-input-field', 'placeholder': 'nombre@correo.com'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': '943 000 000'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': '961 081 784'}),
             'direccion': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Jr. Sucre 715, Caraz'}),
             'referencia': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Ej: Frente a Pollería Mayli'}),
         }
