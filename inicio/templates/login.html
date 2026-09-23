@@ -278,8 +278,10 @@
 
             {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
             <!-- FORMULARIO 3: AGREGAR O EDITAR PRODUCTO A LA BASE DE DATOS (SOLO SUPERUSUARIO / ADMIN) -->
-            <form method="POST" action="{% url 'login' %}?tab={% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}" id="formAddProduct" style="{% if active_tab != 'add_product' and active_tab != 'edit_product' %}display: none;{% endif %}">
+            <form method="POST" action="{% url 'login' %}?tab={% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}" id="formAddProduct" enctype="multipart/form-data" novalidate style="{% if active_tab != 'add_product' and active_tab != 'edit_product' %}display: none;{% endif %}">
                 {% csrf_token %}
+
+
                 <input type="hidden" name="action" id="formProductAction" value="{% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}">
                 {% if producto_a_editar %}
                 <input type="hidden" name="producto_id" value="{{ producto_a_editar.id }}">
@@ -297,27 +299,31 @@
                     {% endif %}
                 </div>
 
-                <!-- CAJA DE IMPORTACIÓN RÁPIDA DESDE INFOTEC -->
-                <div class="infotec-import-card" style="background: #eff6ff; border: 1.5px dashed #3b82f6; border-radius: 12px; padding: 14px 16px; margin: 16px 0;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <div style="font-weight: 800; font-size: 13px; color: #1e40af; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-bolt-lightning" style="color: #2563eb;"></i> Clonar / Importar desde Infotec
+                <!-- OPCIÓN DE CLONACIÓN DESDE INFOTEC (COLAPSABLE / OPCIONAL) -->
+                <details class="infotec-import-card" style="background: #f0fdf4; border: 1.5px dashed #86efac; border-radius: 12px; padding: 12px 16px; margin: 16px 0;">
+                    <summary style="font-weight: 800; font-size: 13px; color: #166534; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #16a34a;"></i> ¿Deseas autocompletar desde un link de Infotec? (Opcional)
+                        </span>
+                        <span style="font-size: 11px; color: #15803d; font-weight: 600;">Clic para abrir</span>
+                    </summary>
+                    <div style="margin-top: 10px;">
+                        <p style="font-size: 11.5px; color: #4b5563; margin-bottom: 8px;">Pega un enlace de producto de Infotec para autocompletar nombre, precio, fotos y descripción en segundos:</p>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="url" id="infotecUrlInput" placeholder="https://infotec.com.pe/..." style="flex: 1; padding: 9px 12px; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 13px; outline: none; background: #ffffff;">
+                            <button type="button" id="btnImportarInfotec" onclick="importarDeInfotec()" style="background: #16a34a; color: #fff; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> <span>Extraer Datos</span>
+                            </button>
                         </div>
-                        <span style="font-size: 11px; color: #64748b; font-weight: 600;">Autocompleta nombre, precio, fotos y descripción</span>
+                        <div id="importLoadingStatus" style="display: none; margin-top: 8px; font-size: 12px; color: #16a34a; font-weight: 600;">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Conectando con Infotec y obteniendo datos...
+                        </div>
+                        <div id="importSuccessBadge" style="display: none; margin-top: 8px; font-size: 12px; color: #15803d; font-weight: 700;">
+                            <i class="fa-solid fa-circle-check"></i> <span id="importSuccessText"></span>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="url" id="infotecUrlInput" placeholder="Pega el enlace aquí: https://infotec.com.pe/..." style="flex: 1; padding: 9px 12px; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 13px; outline: none; background: #ffffff;">
-                        <button type="button" id="btnImportarInfotec" onclick="importarDeInfotec()" style="background: #2563eb; color: #fff; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Importar</span>
-                        </button>
-                    </div>
-                    <div id="importLoadingStatus" style="display: none; margin-top: 8px; font-size: 12px; color: #2563eb; font-weight: 600;">
-                        <i class="fa-solid fa-spinner fa-spin"></i> Conectando con Infotec y descargando fotos...
-                    </div>
-                    <div id="importSuccessBadge" style="display: none; margin-top: 8px; font-size: 12px; color: #059669; font-weight: 700;">
-                        <i class="fa-solid fa-circle-check"></i> <span id="importSuccessText"></span>
-                    </div>
-                </div>
+                </details>
+
 
                 {% if producto_form.non_field_errors %}
                 <div class="auth-alert auth-alert-error" style="margin-bottom: 16px;">
@@ -407,34 +413,61 @@
                     </label>
                 </div>
 
-                <!-- URL de Imagen Principal -->
-                <div class="form-group">
-                    <div class="form-label-row">
-                        <label class="form-label" for="id_imagen_url">URL de Imagen Principal (Foto de portada)</label>
-                        <span class="form-label-hint">Enlace https o ruta /static/...</span>
+                <!-- SECCIÓN DE FOTOS: SUBIR ARCHIVOS LOCALES O USAR ENLACE EXTERNO -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                        <span style="font-weight: 800; font-size: 13.5px; color: #1e293b; display: flex; align-items: center; gap: 7px;">
+                            <i class="fa-solid fa-camera" style="color: #2563eb;"></i> Fotos del Producto
+                        </span>
+                        <span style="font-size: 11.5px; color: #64748b;">Puedes subir desde tu PC o usar enlaces</span>
                     </div>
-                    <div class="form-input-container">
-                        {{ producto_form.imagen_url }}
-                        <i class="fa-regular fa-image form-input-icon"></i>
+
+                    <!-- 1. Foto de Portada Principal -->
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <div class="form-label-row">
+                            <label class="form-label" for="id_imagen_archivo"><strong>Foto de Portada Principal:</strong></label>
+                            <span class="form-label-hint">Subir desde PC</span>
+                        </div>
+                        <div class="form-input-container">
+                            {{ producto_form.imagen_archivo }}
+                        </div>
+                        {% if producto_form.imagen_archivo.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagen_archivo.errors|striptags }}</div>
+                        {% endif %}
+
+                        <div style="margin-top: 8px;">
+                            <label class="form-label" for="id_imagen_url" style="font-size: 11.5px; color: #64748b; font-weight: 600;">O ruta / enlace web de portada:</label>
+                            <div class="form-input-container" style="margin-top: 4px;">
+                                {{ producto_form.imagen_url }}
+                                <i class="fa-regular fa-image form-input-icon"></i>
+                            </div>
+                        </div>
                     </div>
-                    {% if producto_form.imagen_url.errors %}
-                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagen_url.errors|striptags }}</div>
-                    {% endif %}
+
+                    <!-- 2. Fotos de Galería / Secundarias -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <div class="form-label-row">
+                            <label class="form-label" for="id_imagenes_secundarias_archivos"><strong>Fotos Secundarias / Galería:</strong></label>
+                            <span class="form-label-hint">Subir desde PC (varias)</span>
+                        </div>
+                        <div class="form-input-container">
+                            {{ producto_form.imagenes_secundarias_archivos }}
+                        </div>
+                        {% if producto_form.imagenes_secundarias_archivos.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagenes_secundarias_archivos.errors|striptags }}</div>
+                        {% endif %}
+
+                        <div style="margin-top: 8px;">
+                            <label class="form-label" for="id_imagenes_secundarias" style="font-size: 11.5px; color: #64748b; font-weight: 600;">O enlaces de fotos secundarias (uno por línea):</label>
+                            <div class="form-input-container" style="margin-top: 4px;">
+                                {{ producto_form.imagenes_secundarias }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- URLs de Imágenes Secundarias / Galería -->
-                <div class="form-group">
-                    <div class="form-label-row">
-                        <label class="form-label" for="id_imagenes_secundarias">Fotos Secundarias (Galería interactiva)</label>
-                        <span class="form-label-hint">Una URL por línea</span>
-                    </div>
-                    <div class="form-input-container">
-                        {{ producto_form.imagenes_secundarias }}
-                    </div>
-                    {% if producto_form.imagenes_secundarias.errors %}
-                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagenes_secundarias.errors|striptags }}</div>
-                    {% endif %}
-                </div>
+
+
 
                 <!-- Descripción y Especificaciones Técnicas -->
                 <div class="form-group">
@@ -689,7 +722,22 @@
                 }
             }
         }
+
+        // Asegurar que imagen_url nunca bloquee el envío en el navegador
+        document.addEventListener('DOMContentLoaded', function() {
+            const imgUrlInput = document.getElementById('id_imagen_url');
+            if (imgUrlInput) {
+                imgUrlInput.removeAttribute('required');
+                imgUrlInput.type = 'text';
+            }
+            const addForm = document.getElementById('formAddProduct');
+            if (addForm) {
+                addForm.setAttribute('novalidate', 'novalidate');
+                addForm.noValidate = true;
+            }
+        });
     </script>
+
 
 </body>
 </html>

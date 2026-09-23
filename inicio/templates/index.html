@@ -108,7 +108,6 @@
                     </button>
 
                     <!-- Icono / Botón de Usuario -->
-                    <!-- Icono / Botón de Usuario -->
                     {% if user.is_authenticated %}
                     <div style="display: flex; align-items: center; gap: 6px;">
                         {% if user.is_superuser or user.rol == 'admin' %}
@@ -116,6 +115,9 @@
                             <i class="fa-solid fa-plus-circle"></i> <span>+ Producto</span>
                         </a>
                         {% endif %}
+                        <a href="{% url 'pedidos' %}" class="action-button" title="{% if user.is_superuser %}Panel de Gestión de Pedidos{% else %}Mis Pedidos{% endif %}" style="padding: 7px 12px; background: #f0fdf4; border-color: #bbf7d0; color: #15803d; text-decoration: none; display: flex; align-items: center; gap: 6px; border-radius: 10px; font-weight: 700; font-size: 12px;">
+                            <i class="fa-solid fa-receipt"></i> <span>{% if user.is_superuser %}Pedidos{% else %}Mis Pedidos{% endif %}</span>
+                        </a>
                         <div class="action-button user-btn" style="cursor: default;" title="{{ user.email }}">
                             <div class="action-icon-circle user-icon-circle" style="background: #e0f2fe; color: #0284c7;">
                                 <i class="fa-solid fa-user-check"></i>

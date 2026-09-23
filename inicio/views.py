@@ -1,3 +1,5 @@
+import os
+import uuid
 import urllib.request
 import re
 import json
@@ -10,8 +12,10 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db import transaction
+from django.core.files.storage import default_storage
 from .models import Categoria, Producto
 from .forms import RegistroClienteForm, LoginClienteForm, ProductoForm
+
 
 def obtener_datos_infotec(url):
     """Extrae automáticamente nombre, precio, descripción e imágenes de una URL de Infotec"""
@@ -164,9 +168,36 @@ def login_view(request):
                 messages.error(request, '⛔ Solo el Administrador / Superusuario tiene permisos para agregar productos.')
                 return redirect('login')
             
-            producto_form = ProductoForm(request.POST)
+            producto_form = ProductoForm(request.POST, request.FILES)
             if producto_form.is_valid():
-                nuevo_prod = producto_form.save()
+                nuevo_prod = producto_form.save(commit=False)
+
+                # Si el usuario subió una imagen principal desde su equipo
+                if 'imagen_archivo' in request.FILES:
+                    img_file = request.FILES['imagen_archivo']
+                    file_ext = os.path.splitext(img_file.name)[1].lower() or '.jpg'
+                    safe_filename = f"prod_{uuid.uuid4().hex[:8]}{file_ext}"
+                    saved_path = default_storage.save(f"productos/{safe_filename}", img_file)
+                    nuevo_prod.imagen_url = default_storage.url(saved_path)
+
+                # Si el usuario subió fotos secundarias/galería desde su equipo
+                if 'imagenes_secundarias_archivos' in request.FILES:
+                    sec_files = request.FILES.getlist('imagenes_secundarias_archivos')
+                    urls_nuevas = []
+                    for f in sec_files:
+                        f_ext = os.path.splitext(f.name)[1].lower() or '.jpg'
+                        f_name = f"gallery_{uuid.uuid4().hex[:8]}{f_ext}"
+                        s_path = default_storage.save(f"productos/galeria/{f_name}", f)
+                        urls_nuevas.append(default_storage.url(s_path))
+                    
+                    if urls_nuevas:
+                        existentes = nuevo_prod.imagenes_secundarias.strip()
+                        if existentes:
+                            nuevo_prod.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
+                        else:
+                            nuevo_prod.imagenes_secundarias = "\n".join(urls_nuevas)
+
+                nuevo_prod.save()
                 messages.success(request, f'✨ ¡Producto "{nuevo_prod.nombre}" registrado exitosamente en la tienda!')
                 return redirect('/login/?tab=recent_products')
             else:
@@ -181,14 +212,44 @@ def login_view(request):
 
             p_id = request.POST.get('producto_id')
             prod_instance = get_object_or_404(Producto, id=p_id)
-            producto_form = ProductoForm(request.POST, instance=prod_instance)
+            producto_form = ProductoForm(request.POST, request.FILES, instance=prod_instance)
             if producto_form.is_valid():
-                prod_guardado = producto_form.save()
+                prod_guardado = producto_form.save(commit=False)
+
+                # Si sube nueva foto principal
+                if 'imagen_archivo' in request.FILES:
+                    img_file = request.FILES['imagen_archivo']
+                    file_ext = os.path.splitext(img_file.name)[1].lower() or '.jpg'
+                    safe_filename = f"prod_{uuid.uuid4().hex[:8]}{file_ext}"
+                    saved_path = default_storage.save(f"productos/{safe_filename}", img_file)
+                    prod_guardado.imagen_url = default_storage.url(saved_path)
+
+                # Si sube nuevas fotos de galería
+                if 'imagenes_secundarias_archivos' in request.FILES:
+                    sec_files = request.FILES.getlist('imagenes_secundarias_archivos')
+                    urls_nuevas = []
+                    for f in sec_files:
+                        f_ext = os.path.splitext(f.name)[1].lower() or '.jpg'
+                        f_name = f"gallery_{uuid.uuid4().hex[:8]}{f_ext}"
+                        s_path = default_storage.save(f"productos/galeria/{f_name}", f)
+                        urls_nuevas.append(default_storage.url(s_path))
+                    
+                    if urls_nuevas:
+                        existentes = prod_guardado.imagenes_secundarias.strip()
+                        if existentes:
+                            prod_guardado.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
+                        else:
+                            prod_guardado.imagenes_secundarias = "\n".join(urls_nuevas)
+
+                prod_guardado.save()
                 messages.success(request, f'✅ ¡Producto "{prod_guardado.nombre}" actualizado con éxito!')
                 return redirect('/login/?tab=recent_products')
             else:
                 producto_a_editar = prod_instance
-                messages.error(request, 'Error al actualizar el producto. Verifica los campos.')
+                err_list = [f"{field}: {', '.join(errs)}" for field, errs in producto_form.errors.items()]
+                messages.error(request, f"Error al actualizar el producto: {' | '.join(err_list)}")
+
+
 
         # Acción 3: Login estándar
         else:
@@ -515,3 +576,67 @@ def api_crear_pedido(request):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Error al procesar el pedido: {str(e)}'}, status=500)
+
+
+def pedidos_view(request):
+    """
+    Vista de 'Mis Pedidos':
+    - Si es Superusuario: puede ver todos los pedidos del sistema y cambiar sus estados.
+    - Si es Cliente autenticado: ve únicamente los pedidos asociados a su cuenta o teléfono.
+    - Si no está autenticado: redirige a iniciar sesión.
+    """
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Inicia sesión para ver el historial y estado de tus pedidos.')
+        return redirect('/login/?next=/pedidos/')
+
+    from .models import Pedido
+    es_superuser = request.user.is_superuser or request.user.rol == 'admin'
+
+    if es_superuser:
+        pedidos_qs = Pedido.objects.all().prefetch_related('items').order_by('-creado')
+    else:
+        pedidos_qs = Pedido.objects.filter(
+            Q(usuario=request.user) | (Q(telefono=request.user.telefono) & ~Q(telefono=''))
+        ).prefetch_related('items').order_by('-creado')
+
+    total_pedidos = pedidos_qs.count()
+    pendientes_count = pedidos_qs.filter(estado='PENDIENTE').count()
+    en_camino_count = pedidos_qs.filter(estado='EN_CAMINO').count()
+    entregados_count = pedidos_qs.filter(estado='ENTREGADO').count()
+
+    return render(request, 'pedidos.html', {
+        'pedidos': pedidos_qs,
+        'es_superuser': es_superuser,
+        'total_pedidos': total_pedidos,
+        'pendientes_count': pendientes_count,
+        'en_camino_count': en_camino_count,
+        'entregados_count': entregados_count,
+    })
+
+
+@require_POST
+def actualizar_estado_pedido(request):
+    """
+    Actualiza el estado de entrega/pago de un pedido.
+    RESTRICCIÓN ESTRICTA: Solo permitido para superusuarios.
+    """
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        messages.error(request, '⛔ Acción denegada: Solo el Superusuario tiene autorización para modificar pedidos.')
+        return redirect('pedidos')
+
+    from .models import Pedido
+    pedido_id = request.POST.get('pedido_id')
+    nuevo_estado = request.POST.get('nuevo_estado', '').strip()
+
+    estados_validos = dict(Pedido.ESTADOS_CHOICES).keys()
+    if nuevo_estado not in estados_validos:
+        messages.error(request, 'Estado de pedido no válido.')
+        return redirect('pedidos')
+
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    estado_anterior = pedido.get_estado_display()
+    pedido.estado = nuevo_estado
+    pedido.save()
+
+    messages.success(request, f'✅ Pedido #{pedido.id} actualizado exitosamente: {estado_anterior} ➔ {pedido.get_estado_display()}')
+    return redirect('pedidos')

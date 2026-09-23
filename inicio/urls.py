@@ -10,4 +10,7 @@ urlpatterns = [
     path('api/producto/<int:producto_id>/', views.api_producto_detalle, name='api_producto_detalle'),
     path('api/crear-pedido/', views.api_crear_pedido, name='api_crear_pedido'),
     path('api/importar-infotec/', views.api_importar_infotec, name='api_importar_infotec'),
+    path('pedidos/', views.pedidos_view, name='pedidos'),
+    path('pedidos/actualizar-estado/', views.actualizar_estado_pedido, name='actualizar_estado_pedido'),
 ]
+

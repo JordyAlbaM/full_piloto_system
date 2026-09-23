@@ -69,6 +69,29 @@
   }
 },
 {
+  "model": "inicio.usuario",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$l2CZvCreadFFaqrevxRXtV$8VU7FKlMMW+6uoFiCdInbo7Kiuq++mhIVgFFuwzaans=",
+    "last_login": "2026-09-22T22:32:03.411Z",
+    "is_superuser": true,
+    "first_name": "Jordy",
+    "last_name": "Alba",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-09-22T22:30:49.421Z",
+    "email": "jordy123@gmail.com",
+    "username": "jordy123@gmail.com",
+    "telefono": "",
+    "dni": "",
+    "direccion": "",
+    "referencia": "",
+    "rol": "admin",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
   "model": "inicio.categoria",
   "pk": 1,
   "fields": {
@@ -116,8 +139,10 @@
     "nombre": "Laptop Lenovo IdeaPad 3 15.6\"",
     "descripcion": "Ryzen 5 5500U, 16GB RAM, 512GB SSD NVMe. Ideal para trabajo y oficina.",
     "precio": "1899.00",
+    "precio_tachado": null,
     "stock": 5,
     "imagen_url": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-07T19:59:10.557Z"
   }
@@ -130,8 +155,10 @@
     "nombre": "Mouse Logitech G203 Lightsync",
     "descripcion": "Sensor 8000 DPI, iluminación RGB Lightsync, 6 botones programables.",
     "precio": "89.00",
+    "precio_tachado": null,
     "stock": 14,
     "imagen_url": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-07T19:59:10.565Z"
   }
@@ -144,8 +171,10 @@
     "nombre": "Teclado Mecánico Redragon Kumara K552",
     "descripcion": "Switches Blue, retroiluminación LED roja, estructura metálica duradera.",
     "precio": "145.00",
+    "precio_tachado": null,
     "stock": 8,
     "imagen_url": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-07T19:59:10.573Z"
   }
@@ -158,8 +187,10 @@
     "nombre": "SSD Kingston NV2 1TB M.2 NVMe",
     "descripcion": "Velocidades de lectura hasta 3500 MB/s, interfaz PCIe 4.0 x4.",
     "precio": "249.00",
+    "precio_tachado": null,
     "stock": 12,
     "imagen_url": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-07T19:59:10.579Z"
   }
@@ -172,8 +203,10 @@
     "nombre": "Audífonos Gamer HyperX Cloud Stinger 2",
     "descripcion": "Drivers de 50mm, micrófono con cancelación de ruido y giro para silenciar.",
     "precio": "179.00",
+    "precio_tachado": null,
     "stock": 7,
     "imagen_url": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-07T19:59:10.585Z"
   }
@@ -186,8 +219,10 @@
     "nombre": "Disco Duro Externo Seagate 2TB USB 3.0",
     "descripcion": "Respaldo rápido para PC y laptop, formato compacto y resistente.",
     "precio": "260.00",
+    "precio_tachado": null,
     "stock": 4,
     "imagen_url": "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-07T19:59:10.595Z"
   }
@@ -200,8 +235,10 @@
     "nombre": "Laptop ASUS Vivobook 15 Pro OLED Intel Core i7",
     "descripcion": "Intel Core i7-13700H (14 núcleos hasta 5.0 GHz), 16GB RAM DDR5, 1TB SSD NVMe M.2 Gen4, Pantalla 15.6\" FHD NanoEdge, Gráficos Intel Iris Xe, Teclado Retroiluminado con sensor de huella, Batería de larga duración con carga rápida. Garantía oficial 1 año en tienda Caraz.",
     "precio": "3299.00",
+    "precio_tachado": null,
     "stock": 6,
     "imagen_url": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=700&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-08T23:45:30.341Z"
   }
@@ -214,8 +251,10 @@
     "nombre": "Laptop HP Pavilion 15-EG Intel Core i5",
     "descripcion": "Intel Core i5-1235U (10 núcleos hasta 4.4 GHz), 16GB RAM DDR4 3200MHz, 512GB SSD NVMe ultrarrápido, Pantalla 15.6\" Full HD IPS antirreflejo, Audio by B&O, Wi-Fi 6 + Bluetooth 5.2, Diseño ultrafino en aluminio plateado. Garantía local en tienda Caraz.",
     "precio": "2499.00",
+    "precio_tachado": null,
     "stock": 8,
     "imagen_url": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=700&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-08T23:45:30.356Z"
   }
@@ -228,8 +267,10 @@
     "nombre": "Laptop Gamer ASUS TUF Gaming F15 Core i7 RTX 4060",
     "descripcion": "Potencia gaming extrema, pantalla 144Hz FHD, 16GB DDR5, 512GB SSD NVMe Gen4.",
     "precio": "4199.00",
+    "precio_tachado": null,
     "stock": 8,
     "imagen_url": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-09T20:21:32.498Z"
   }
@@ -242,8 +283,10 @@
     "nombre": "Combo Gamer Teclado Mecánico RGB + Mouse 7200DPI",
     "descripcion": "Kit completo gamer retroiluminado anti-ghosting con switches táctiles y mouse ergonómico.",
     "precio": "189.00",
+    "precio_tachado": null,
     "stock": 8,
     "imagen_url": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-09T20:21:32.518Z"
   }
@@ -256,8 +299,10 @@
     "nombre": "Auriculares Gamer Redragon Zeus H510 7.1 Surround",
     "descripcion": "Sonido envolvente 7.1 con almohadillas viscoelásticas, micrófono desmontable con cancelación.",
     "precio": "219.00",
+    "precio_tachado": null,
     "stock": 8,
     "imagen_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-09T20:21:32.526Z"
   }
@@ -270,8 +315,10 @@
     "nombre": "Memoria RAM Kingston Fury Beast 16GB DDR4 3200MHz",
     "descripcion": "Módulo de alto rendimiento con disipador térmico de perfil bajo para gaming y renderizado.",
     "precio": "169.00",
+    "precio_tachado": null,
     "stock": 8,
     "imagen_url": "https://images.unsplash.com/photo-1562976540-1502c2145186?w=500&q=80",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-09T20:21:32.540Z"
   }
@@ -284,8 +331,10 @@
     "nombre": "Laptop Lenovo V15 G4 AMN Ryzen 3 7320U 8GB LPDDR5 512GB SSD 15.6\" FHD",
     "descripcion": "Laptop Lenovo V15 G4 AMN (82YU017LLM) con procesador AMD Ryzen 3 7320U (4 núcleos / 8 hilos hasta 4.1GHz), 8GB Memoria RAM LPDDR5 5500MHz ultra rápida y almacenamiento masivo de 512GB SSD M.2 PCIe NVMe. Pantalla 15.6\" Full HD (1920x1080) antirreflejo, gráficos AMD Radeon 610M integrados, teclado en español completo con teclado numérico y garantía de 1 año en Caraz.",
     "precio": "2149.00",
+    "precio_tachado": null,
     "stock": 8,
     "imagen_url": "/static/inicio/images/lenovo_v15/lenovo_v15_1.png",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-09T21:06:34.188Z"
   }
@@ -298,8 +347,10 @@
     "nombre": "Laptop Lenovo V15 G4 AMN AMD Ryzen 5 7520U 8GB LPDDR5 256GB SSD 15.6\" FHD",
     "descripcion": "Procesador AMD Ryzen 5 7520U (4 núcleos / 8 hilos hasta 4.3GHz), 8GB LPDDR5 5500MHz, 256GB SSD M.2 PCIe NVMe. Pantalla 15.6\" FHD antirreflejo y gráficos AMD Radeon 610M.",
     "precio": "2699.00",
+    "precio_tachado": null,
     "stock": 4,
     "imagen_url": "/static/inicio/images/nuevas_laptops/101_v15_r3.jpg",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-09T21:06:34.206Z"
   }
@@ -312,8 +363,10 @@
     "nombre": "Laptop Lenovo V15 G5 IRL Intel Core i3-1315U 8GB DDR5 512GB SSD 15.6\" FHD",
     "descripcion": "Procesador Intel Core i3-1315U 13va Gen (6 núcleos hasta 4.5GHz), 8GB DDR5 5200MHz ultrarrápida, 512GB SSD M.2 PCIe Gen4 NVMe. Pantalla 15.6\" FHD antirreflejo y teclado numérico en español.",
     "precio": "2399.00",
+    "precio_tachado": null,
     "stock": 5,
     "imagen_url": "/static/inicio/images/nuevas_laptops/103_v15_g5_i3.jpg",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-09T21:06:34.217Z"
   }
@@ -326,8 +379,10 @@
     "nombre": "Laptop Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5-13420H 16GB DDR5 512GB SSD 15.3\" WUXGA",
     "descripcion": "Máxima potencia para productividad y multitarea pesada: Lenovo IdeaPad Slim 3 15IRH10 (83K1016CLM) con potente procesador de alto rendimiento Intel Core i5-13420H (8 núcleos / 12 hilos hasta 4.60GHz), 16GB Memoria RAM DDR5, 512GB SSD M.2 PCIe Gen4 NVMe. Pantalla prémium 15.3\" WUXGA (1920x1200) formato 16:10, chasis ultradelgado Slim, teclado en español y garantía oficial de 1 año en Caraz.",
     "precio": "3299.00",
+    "precio_tachado": null,
     "stock": 7,
     "imagen_url": "/static/inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-09T21:06:34.239Z"
   }
@@ -340,8 +395,10 @@
     "nombre": "Antivirus ESET NOD32 (1 Año)",
     "descripcion": "Licencia oficial original ESET NOD32 Antivirus por 1 año para 1 PC. Protección proactiva y legendaria contra virus, malware, ransomware y phishing sin ralentizar tu equipo. Activación inmediata con clave digital y soporte de instalación en tienda Caraz.",
     "precio": "75.00",
+    "precio_tachado": null,
     "stock": 25,
     "imagen_url": "/static/inicio/images/eset_nod32.jpg",
+    "imagenes_secundarias": "",
     "disponible": false,
     "creado": "2026-09-10T20:47:19.387Z"
   }
@@ -354,8 +411,10 @@
     "nombre": "Laptop HP 15-FC0225DX AMD Ryzen 7 7730U 16GB 512GB SSD 15.6\" FHD Touchscreen",
     "descripcion": "Procesador AMD Ryzen 7 7730U (8 núcleos / 16 hilos hasta 4.5GHz), 16GB RAM DDR4 multitarea, 512GB SSD M.2 PCIe NVMe ultra veloz. Pantalla 15.6\" Full HD Touchscreen (Táctil), gráficos AMD Radeon Graphics y Windows 11 Home original.",
     "precio": "3399.00",
+    "precio_tachado": null,
     "stock": 5,
     "imagen_url": "/static/inicio/images/nuevas_laptops/106_hp_r7.jpg",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-14T14:05:17.308Z"
   }
@@ -368,8 +427,10 @@
     "nombre": "Laptop HP 15-FD0127DX Intel Core 7 150U 16GB DDR5 512GB SSD 15.6\" FHD Touchscreen",
     "descripcion": "Procesador Intel Core 7 150U de Nueva Generación (10 núcleos / 12 hilos hasta 5.40GHz con Intel Turbo Boost), 16GB RAM DDR5 ultrarrápida, 512GB SSD M.2 PCIe Gen4 NVMe. Pantalla 15.6\" Full HD IPS Touchscreen táctil antirreflejo y Windows 11 Home.",
     "precio": "3649.00",
+    "precio_tachado": null,
     "stock": 4,
     "imagen_url": "/static/inicio/images/nuevas_laptops/107_hp_core7.jpg",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-14T14:05:17.320Z"
   }
@@ -382,8 +443,10 @@
     "nombre": "Laptop 2 en 1 Lenovo IdeaPad 5 16AHP9 AMD Ryzen 7 8845HS 16GB 1TB SSD 16\" WUXGA Touch 360°",
     "descripcion": "Equipo convertible 360° Prémium con procesador AMD Ryzen 7 8845HS con Inteligencia Artificial AMD Ryzen AI (8 núcleos / 16 hilos hasta 5.1GHz), 16GB LPDDR5X ultrarrápida, 1TB SSD NVMe Gen4. Pantalla 16\" WUXGA IPS Táctil formato 16:10, chasis metálico y Windows 11.",
     "precio": "4099.00",
+    "precio_tachado": null,
     "stock": 3,
     "imagen_url": "/static/inicio/images/nuevas_laptops/108_lenovo_yoga_r7.jpg",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-14T14:05:17.328Z"
   }
@@ -396,8 +459,10 @@
     "nombre": "Laptop HP OmniBook 3 16-by0205dx AMD Ryzen 5 16GB 256GB SSD 16\" WUXGA Touchscreen",
     "descripcion": "Línea ejecutiva ultraliviana HP OmniBook 3 con procesador AMD Ryzen 5, 16GB RAM multitarea, 256GB SSD PCIe NVMe. Pantalla de 16 pulgadas WUXGA IPS táctil (Touchscreen) proporción 16:10 y Windows 11 Home original.",
     "precio": "2999.00",
+    "precio_tachado": null,
     "stock": 4,
     "imagen_url": "/static/inicio/images/nuevas_laptops/109_hp_omnibook.jpg",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-14T15:12:10.319Z"
   }
@@ -410,10 +475,60 @@
     "nombre": "Laptop Gamer Lenovo LOQ 15ARP10E Ryzen 7 7735HS 16GB 512GB SSD RTX 3050 6GB 15.6\" FHD 144Hz",
     "descripcion": "Potencia Gamer con procesador AMD Ryzen 7 7735HS (8 núcleos / 16 hilos hasta 4.75GHz), 16GB RAM DDR5, 512GB SSD NVMe Gen4 y tarjeta gráfica dedicada NVIDIA GeForce RTX 3050 de 6GB GDDR6. Pantalla 15.6\" FHD de 144Hz fluida para esports y diseño 3D.",
     "precio": "4149.00",
+    "precio_tachado": null,
     "stock": 3,
     "imagen_url": "/static/inicio/images/nuevas_laptops/110_lenovo_loq.jpg",
+    "imagenes_secundarias": "",
     "disponible": true,
     "creado": "2026-09-14T15:12:10.337Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 111,
+  "fields": {
+    "categoria": 3,
+    "nombre": "DISCO SOLIDO SSD PNY CS900 250GB ( SSD7CS900-250-RB ) 2.5\" SATA",
+    "descripcion": "Mejora el rendimiento de tu PC con el PNY CS900 250GB SSD SATA III. Ofrece velocidades de hasta 535 MB/s, memoria 3D TLC NAND, formato 2.5 pulgadas y mayor rapidez para iniciar Windows, ejecutar programas y transferir archivos.",
+    "precio": "224.00",
+    "precio_tachado": "280.00",
+    "stock": 10,
+    "imagen_url": "https://infotec.com.pe/39159-home_default/disco-solido-ssd-pny-cs900-250gb-ssd7cs900-250-rb-25-sata.jpg",
+    "imagenes_secundarias": "https://infotec.com.pe/39159-thickbox_default/disco-solido-ssd-pny-cs900-250gb-ssd7cs900-250-rb-25-sata.jpg\r\nhttps://infotec.com.pe/39160-thickbox_default/disco-solido-ssd-pny-cs900-250gb-ssd7cs900-250-rb-25-sata.jpg\r\nhttps://infotec.com.pe/39161-thickbox_default/disco-solido-ssd-pny-cs900-250gb-ssd7cs900-250-rb-25-sata.jpg\r\nhttps://infotec.com.pe/39162-thickbox_default/disco-solido-ssd-pny-cs900-250gb-ssd7cs900-250-rb-25-sata.jpg",
+    "disponible": true,
+    "creado": "2026-09-22T22:33:04.595Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 112,
+  "fields": {
+    "categoria": 3,
+    "nombre": "DISCO SOLIDO SSD HIKSEMI 512GB WAVE ( HS-SSD-WAVE(S) 512GB ) BLISTER",
+    "descripcion": "DISCO SOLIDO SSD HIKSEMI 512GB WAVE BLISTER en Infotec | Siempre Precios Bajos, Alta Calidad y Garantía Total. Oferta Online...",
+    "precio": "427.00",
+    "precio_tachado": "696.60",
+    "stock": 10,
+    "imagen_url": "https://infotec.com.pe/92411-home_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-waves-512gb-blister.jpg",
+    "imagenes_secundarias": "https://infotec.com.pe/92411-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-waves-512gb-blister.jpg\r\nhttps://infotec.com.pe/92410-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-waves-512gb-blister.jpg\r\nhttps://infotec.com.pe/92409-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-waves-512gb-blister.jpg",
+    "disponible": true,
+    "creado": "2026-09-22T23:02:56.559Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 113,
+  "fields": {
+    "categoria": 3,
+    "nombre": "DISCO SOLIDO SSD HIKSEMI 512GB WAVE (HS-SSD-WAVE(P) 512G) PCIE 3.0| NVME M.2",
+    "descripcion": "Compra el Hiksemi Wave P SSD en Perú. Unidad 2.5” SATA con alta velocidad ideal para mejorar el rendimiento de laptops y PCs.",
+    "precio": "424.00",
+    "precio_tachado": "712.00",
+    "stock": 10,
+    "imagen_url": "https://infotec.com.pe/109720-home_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg",
+    "imagenes_secundarias": "https://infotec.com.pe/109720-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg\r\nhttps://infotec.com.pe/107792-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg\r\nhttps://infotec.com.pe/107793-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg\r\nhttps://infotec.com.pe/107791-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg",
+    "disponible": true,
+    "creado": "2026-09-22T23:10:36.792Z"
   }
 }
 ]

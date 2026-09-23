@@ -93,12 +93,48 @@ class LoginClienteForm(forms.Form):
 
 from .models import Producto, Categoria
 
+class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput(attrs={'class': 'form-input-field', 'accept': 'image/*'}))
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
 class ProductoForm(forms.ModelForm):
     categoria = forms.ModelChoiceField(
         queryset=Categoria.objects.all(),
         required=True,
         empty_label="-- Seleccionar Categoría --",
         widget=forms.Select(attrs={'class': 'form-input-field'})
+    )
+    imagen_archivo = forms.ImageField(
+        required=False,
+        label='Subir Foto de Portada desde tu equipo',
+        widget=forms.FileInput(attrs={'class': 'form-input-field', 'accept': 'image/*'})
+    )
+    imagenes_secundarias_archivos = MultipleFileField(
+        required=False,
+        label='Subir Fotos de Galería (puedes seleccionar varias)'
+    )
+
+
+
+    imagen_url = forms.CharField(
+        required=False,
+        label='O pegar URL externa de Imagen Principal',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input-field',
+            'placeholder': 'https://... o /media/... o /static/...'
+        })
     )
 
     class Meta:
@@ -110,11 +146,13 @@ class ProductoForm(forms.ModelForm):
             'precio': 'Precio de Oferta / Venta (S/.)',
             'precio_tachado': 'Precio Normal Tachado (S/.) (Opcional)',
             'stock': 'Stock Disponible en Caraz',
-            'imagen_url': 'URL de Imagen Principal',
-            'imagenes_secundarias': 'Fotos Secundarias (Galería - una URL por línea)',
+            'imagen_url': 'O pegar URL externa de Imagen Principal',
+            'imagenes_secundarias': 'O pegar URLs Secundarias (una por línea)',
             'disponible': '¿Producto Activo para la Venta?',
             'descripcion': 'Descripción y Especificaciones Técnicas',
         }
+
+
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-input-field',
@@ -137,10 +175,11 @@ class ProductoForm(forms.ModelForm):
                 'placeholder': 'Ej: 8',
                 'min': '0'
             }),
-            'imagen_url': forms.URLInput(attrs={
+            'imagen_url': forms.TextInput(attrs={
                 'class': 'form-input-field',
-                'placeholder': 'https://infotec.com.pe/... o /static/inicio/images/...'
+                'placeholder': 'https://infotec.com.pe/... o /media/... o /static/...'
             }),
+
             'imagenes_secundarias': forms.Textarea(attrs={
                 'class': 'form-input-field',
                 'placeholder': 'https://infotec.com.pe/foto2.jpg\nhttps://infotec.com.pe/foto3.jpg\n(Una URL por línea)',

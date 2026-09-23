@@ -77,8 +77,9 @@ class Producto(models.Model):
     precio = models.DecimalField('Precio de Oferta (S/.)', max_digits=10, decimal_places=2)
     precio_tachado = models.DecimalField('Precio Normal Tachado (S/.)', max_digits=10, decimal_places=2, null=True, blank=True, help_text="Precio anterior antes del descuento")
     stock = models.IntegerField(default=10)
-    imagen_url = models.URLField(blank=True, help_text="URL de imagen externa o placeholder")
+    imagen_url = models.CharField(max_length=500, blank=True, help_text="URL de imagen externa, ruta /media/... o /static/...")
     imagenes_secundarias = models.TextField(blank=True, help_text="URLs de imágenes secundarias/galería separadas por salto de línea")
+
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
 
