@@ -302,6 +302,47 @@ def api_importar_infotec(request):
     data = obtener_datos_infotec(url)
     return JsonResponse(data)
 
+def api_buscar_productos(request):
+    """Endpoint AJAX con fetch para autocompletar buscador en tiempo real (muestra hasta 3 productos)."""
+    q = request.GET.get('q', '').strip()
+    if not q or len(q) < 2:
+        return JsonResponse({'productos': [], 'total_coincidencias': 0, 'query': q})
+
+    # Buscar por nombre o descripción en productos disponibles
+    qs = Producto.objects.filter(
+        disponible=True
+    ).filter(
+        Q(nombre__icontains=q) | Q(descripcion__icontains=q) | Q(categoria__nombre__icontains=q)
+    ).select_related('categoria').order_by('-creado')
+
+    total_coincidencias = qs.count()
+    primeros_3 = qs[:3]
+
+    resultados = []
+    for prod in primeros_3:
+        # Obtener imagen principal
+        img = prod.imagen_url.strip() if prod.imagen_url else ''
+        if not img:
+            galeria = prod.get_galeria_imagenes()
+            img = galeria[0] if galeria else '/static/inicio/images/placeholder.png'
+
+        resultados.append({
+            'id': prod.id,
+            'nombre': prod.nombre,
+            'precio': f"{float(prod.precio):.2f}",
+            'precio_anterior': f"{float(prod.precio_anterior):.2f}" if prod.precio_anterior else None,
+            'porcentaje_descuento': prod.porcentaje_descuento,
+            'categoria': prod.categoria.nombre if prod.categoria else 'General',
+            'imagen': img,
+            'url': f"/producto/{prod.id}/"
+        })
+
+    return JsonResponse({
+        'productos': resultados,
+        'total_coincidencias': total_coincidencias,
+        'query': q
+    })
+
 def api_producto_detalle(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, disponible=True)
 

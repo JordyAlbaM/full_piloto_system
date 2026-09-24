@@ -92,6 +92,52 @@
   }
 },
 {
+  "model": "inicio.usuario",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$srDRSqZPYR4VgYbq3WsTY1$bxZusAc8SSHNc7UO12InnbR5MmdjHB1cFFkOiwp6D5c=",
+    "last_login": "2026-09-23T17:20:31.636Z",
+    "is_superuser": false,
+    "first_name": "Oliver",
+    "last_name": "xddd",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-09-23T14:29:08.307Z",
+    "email": "jordy@gmail.com",
+    "username": "jordy@gmail.com",
+    "telefono": "987654321",
+    "dni": "",
+    "direccion": "La Rinconada",
+    "referencia": "",
+    "rol": "cliente",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "inicio.usuario",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$1500000$Dy8Q94sXDVBXfOEM7VyZj4$BSrTkdanIXn6IuhwitRlbnAb+aFcDfQ96GKQtjeiuSM=",
+    "last_login": "2026-09-23T20:09:51.371Z",
+    "is_superuser": true,
+    "first_name": "oliver",
+    "last_name": "alba",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-09-23T17:23:48.393Z",
+    "email": "jordyalba@gmail.com",
+    "username": "jordyalba@gmail.com",
+    "telefono": "",
+    "dni": "",
+    "direccion": "",
+    "referencia": "",
+    "rol": "admin",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
   "model": "inicio.categoria",
   "pk": 1,
   "fields": {
@@ -129,6 +175,30 @@
   "fields": {
     "nombre": "Software & Antivirus",
     "slug": "software-antivirus"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 6,
+  "fields": {
+    "nombre": "Partes de PC",
+    "slug": "partes-pc"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 7,
+  "fields": {
+    "nombre": "Zona Gamer",
+    "slug": "zona-gamer"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 8,
+  "fields": {
+    "nombre": "Monitores",
+    "slug": "monitores"
   }
 },
 {
@@ -529,6 +599,38 @@
     "imagenes_secundarias": "https://infotec.com.pe/109720-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg\r\nhttps://infotec.com.pe/107792-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg\r\nhttps://infotec.com.pe/107793-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg\r\nhttps://infotec.com.pe/107791-thickbox_default/disco-solido-ssd-hiksemi-512gb-wave-hs-ssd-wavep-512g-pcie-30-nvme-m2.jpg",
     "disponible": true,
     "creado": "2026-09-22T23:10:36.792Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 114,
+  "fields": {
+    "categoria": 3,
+    "nombre": "Memoria ram Samsung de 4 GB de ram DDR4",
+    "descripcion": "Capacidad total: 4 GB\r\nFormato: SODIMM\r\nVelocidad: 1.6 GHz",
+    "precio": "250.00",
+    "precio_tachado": "310.00",
+    "stock": 10,
+    "imagen_url": "/media/productos/prod_1a730413.jpeg",
+    "imagenes_secundarias": "/media/productos/galeria/gallery_96b71a81.jpeg\r\n/media/productos/galeria/gallery_3b0e2d30.jpeg\r\n/media/productos/galeria/gallery_39406a1a.jpeg\r\n/media/productos/galeria/gallery_83ce8c96.jpeg",
+    "disponible": true,
+    "creado": "2026-09-23T17:33:57.813Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 115,
+  "fields": {
+    "categoria": 3,
+    "nombre": "Memoria ram Samsung de 8 GB de ram DDR4",
+    "descripcion": "Cantidad de módulos de RAM: 1\r\nOptimizá el rendimiento de tu máquina con la tecnología DDR4.\r\nMemoria con formato SODIMM.\r\nAlcanza una velocidad de 3.2 GHz.",
+    "precio": "350.00",
+    "precio_tachado": "430.00",
+    "stock": 10,
+    "imagen_url": "/media/productos/prod_cd13cab2.jpeg",
+    "imagenes_secundarias": "/media/productos/galeria/gallery_6fe14a6d.jpeg\n/media/productos/galeria/gallery_8b43631e.jpeg\n/media/productos/galeria/gallery_3549da5d.jpeg\n/media/productos/galeria/gallery_c8352000.jpeg",
+    "disponible": true,
+    "creado": "2026-09-23T20:20:45.503Z"
   }
 }
 ]
