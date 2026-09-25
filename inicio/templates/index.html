@@ -12,8 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=5.3">
-    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.3">
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=5.7">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.7">
 </head>
 <body>
 
@@ -97,10 +97,6 @@
                             </button>
                             <button type="submit" class="search-btn">
                                 <i class="fa-solid fa-magnifying-glass"></i> Buscar
-                            </button>
-                            <!-- Botón cerrar para móvil -->
-                            <button type="button" class="mobile-search-close-btn" onclick="toggleMobileSearch(false)" title="Cerrar búsqueda">
-                                <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
                     </form>
@@ -1107,7 +1103,7 @@
         }
     });
 
-    // Control del buscador desplegable inteligente en móvil (Expansión inline)
+    // Control del buscador desplegable inteligente en móvil (Abrir y cerrar con el mismo botón)
     function toggleMobileSearch(forceState) {
         const box = document.getElementById('headerSearchBox');
         const trigger = document.getElementById('mobileSearchTrigger');
@@ -1120,7 +1116,12 @@
         if (willOpen) {
             box.classList.add('active-mobile');
             if (headerBar) headerBar.classList.add('search-expanded');
-            if (trigger) trigger.classList.add('active');
+            if (trigger) {
+                trigger.classList.add('active');
+                trigger.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                trigger.setAttribute('title', 'Cerrar buscador');
+                trigger.setAttribute('aria-label', 'Cerrar buscador');
+            }
             setTimeout(() => { 
                 if (input) {
                     input.focus();
@@ -1130,7 +1131,12 @@
         } else {
             box.classList.remove('active-mobile');
             if (headerBar) headerBar.classList.remove('search-expanded');
-            if (trigger) trigger.classList.remove('active');
+            if (trigger) {
+                trigger.classList.remove('active');
+                trigger.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
+                trigger.setAttribute('title', 'Buscar productos');
+                trigger.setAttribute('aria-label', 'Buscar productos');
+            }
             if (input) input.blur();
             closeLiveSearch();
         }

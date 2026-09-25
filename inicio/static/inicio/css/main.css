@@ -1336,6 +1336,8 @@
            ======================================================== */
         .hero-banner-section {
             padding: 24px 0 16px 0;
+            position: relative;
+            z-index: 1;
         }
         .hero-slider-wrap {
             position: relative;
@@ -2319,37 +2321,15 @@
                 font-weight: 500;
             }
             .search-btn {
-                padding: 7px 14px;
-                font-size: 12px;
+                padding: 7px 15px;
+                font-size: 13px;
                 font-weight: 700;
-                border-radius: 9px;
+                border-radius: 10px;
                 white-space: nowrap;
                 display: inline-flex;
                 align-items: center;
                 gap: 5px;
-            }
-            .mobile-search-close-btn {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 30px;
-                height: 30px;
-                border: none;
-                background: #f1f5f9;
-                color: #64748b;
-                border-radius: 8px;
-                font-size: 13px;
-                cursor: pointer;
                 flex-shrink: 0;
-                transition: all 0.2s ease;
-            }
-            .mobile-search-close-btn:hover {
-                background: #fee2e2;
-                color: #ef4444;
-            }
-            .mobile-search-close-btn:active {
-                background: #fecaca;
-                transform: scale(0.9);
             }
 
             /* Resultados desplegables en vivo debajo del buscador en móvil */
@@ -2876,17 +2856,33 @@
             border-bottom: 1px solid #e5e7eb;
             padding: 14px 0 16px 0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            position: relative;
+            z-index: 1000;
+        }
+        .category-bubbles-section .container {
+            position: relative;
+            overflow: visible;
         }
         .category-bubbles-list {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
             gap: 20px;
-            overflow-x: auto;
+            overflow: visible;
             padding: 4px 6px;
-            scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 transparent;
-            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+        @media (max-width: 991px) {
+            .category-bubbles-list {
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: visible;
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 transparent;
+                -webkit-overflow-scrolling: touch;
+            }
         }
         .category-bubbles-list::-webkit-scrollbar {
             height: 4px;
@@ -2966,24 +2962,42 @@
         .category-bubble-item-wrapper {
             position: relative;
             flex: 0 0 auto;
+            z-index: 10;
+            padding-bottom: 12px;
+            margin-bottom: -12px;
+        }
+        .category-bubble-item-wrapper:hover {
+            z-index: 9999;
         }
 
         .category-subpopover {
             position: absolute;
-            top: calc(100% + 14px);
+            top: 100%;
             left: 50%;
-            transform: translateX(-50%) translateY(8px);
+            transform: translateX(-50%) translateY(4px);
             background: #ffffff;
             border: 1.5px solid #ffe600;
             border-radius: 14px;
-            box-shadow: 0 16px 36px rgba(45, 50, 119, 0.14), 0 4px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22), 0 4px 16px rgba(0, 0, 0, 0.08);
             width: 440px;
             padding: 18px 20px;
-            z-index: 1005;
+            z-index: 99999;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             pointer-events: none;
+            transition: opacity 0.25s ease 0.15s, visibility 0.25s ease 0.15s, transform 0.25s ease 0.15s;
+        }
+
+        /* Puente invisible superior para evitar que se cierre al mover el cursor hacia el menú */
+        .category-subpopover::after {
+            content: '';
+            position: absolute;
+            top: -24px;
+            left: -20px;
+            right: -20px;
+            height: 24px;
+            background: transparent;
+            pointer-events: auto;
         }
 
         /* Flechita superior */
@@ -2998,26 +3012,30 @@
             background: #ffffff;
             border-left: 1.5px solid #ffe600;
             border-top: 1.5px solid #ffe600;
+            z-index: 100000;
         }
 
-        /* Mostrar al pasar cursor por el ítem */
-        .category-bubble-item-wrapper:hover .category-subpopover {
+        /* Mostrar al pasar cursor por el ítem o subpopover */
+        .category-bubble-item-wrapper:hover .category-subpopover,
+        .category-subpopover:hover {
             opacity: 1;
             visibility: visible;
             transform: translateX(-50%) translateY(0);
             pointer-events: auto;
+            transition: opacity 0.18s ease 0s, visibility 0.18s ease 0s, transform 0.18s ease 0s;
         }
 
         /* Si queda muy a la izquierda o derecha en la pantalla */
         .category-bubble-item-wrapper:first-child .category-subpopover,
         .category-bubble-item-wrapper[data-cat="laptops-pc"] .category-subpopover {
             left: 0;
-            transform: translateX(0) translateY(8px);
+            transform: translateX(0) translateY(4px);
         }
         .category-bubble-item-wrapper:first-child .category-subpopover::before,
         .category-bubble-item-wrapper[data-cat="laptops-pc"] .category-subpopover::before {
             left: 36px;
         }
+        .category-bubble-item-wrapper:first-child:hover .category-subpopover,
         .category-bubble-item-wrapper[data-cat="laptops-pc"]:hover .category-subpopover {
             transform: translateX(0) translateY(0);
         }
@@ -3025,7 +3043,7 @@
         .category-bubble-item-wrapper[data-cat="software-antivirus"] .category-subpopover {
             left: auto;
             right: 0;
-            transform: translateX(0) translateY(8px);
+            transform: translateX(0) translateY(4px);
         }
         .category-bubble-item-wrapper[data-cat="software-antivirus"] .category-subpopover::before {
             left: auto;
