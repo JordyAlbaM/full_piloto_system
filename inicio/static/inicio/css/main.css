@@ -2126,18 +2126,19 @@
             }
             .header-content { 
                 display: flex;
-                flex-wrap: nowrap; 
+                flex-wrap: wrap; 
                 align-items: center;
                 justify-content: space-between;
-                gap: 8px; 
+                gap: 0; 
                 padding: 10px 0;
                 position: relative;
             }
             .brand-logo {
+                display: flex;
+                align-items: center;
                 gap: 8px;
                 flex-shrink: 0;
                 min-width: 0;
-                transition: opacity 0.3s ease, transform 0.3s ease;
             }
             .brand-icon {
                 width: 38px;
@@ -2149,7 +2150,6 @@
             .brand-name {
                 font-size: 16px;
                 white-space: nowrap;
-                transition: all 0.3s ease;
             }
             .brand-sub {
                 font-size: 9px;
@@ -2162,22 +2162,6 @@
                 gap: 8px;
                 flex-shrink: 0;
                 margin-left: auto;
-                order: 3;
-                transition: gap 0.3s ease;
-            }
-
-            /* MODO BÚSQUEDA EXPANDIDA EN MÓVIL */
-            /* En pantallas muy compactas, adaptamos el texto del logo para dejar espacio al buscador que crece hacia la izquierda */
-            @media (max-width: 480px) {
-                .header-content.search-expanded .brand-name span,
-                .header-content.search-expanded .brand-sub {
-                    display: none;
-                }
-            }
-            @media (max-width: 360px) {
-                .header-content.search-expanded .brand-info {
-                    display: none;
-                }
             }
 
             .mobile-search-trigger-btn {
@@ -2193,9 +2177,10 @@
                 font-size: 16px;
                 cursor: pointer;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            .mobile-search-trigger-btn:hover, .mobile-search-trigger-btn.active {
+            .mobile-search-trigger-btn:hover, 
+            .mobile-search-trigger-btn.active {
                 background: #2d3277;
                 border-color: #2d3277;
                 color: #ffe600;
@@ -2203,9 +2188,6 @@
             }
             .mobile-search-trigger-btn:active {
                 transform: scale(0.92);
-            }
-            .header-content.search-expanded .mobile-search-trigger-btn {
-                display: none !important;
             }
 
             .action-button.user-btn {
@@ -2219,7 +2201,6 @@
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-                transition: transform 0.2s ease;
             }
             .action-button.user-btn .action-icon-circle {
                 width: 100%;
@@ -2247,7 +2228,6 @@
                 justify-content: center;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
                 position: relative;
-                transition: transform 0.2s ease;
             }
             .action-button.cart-trigger-btn .action-icon-circle {
                 width: 100%;
@@ -2279,56 +2259,52 @@
                 box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
             }
 
-            /* Buscador móvil inline con expansión suave hacia la izquierda */
+            /* Buscador móvil desplegable hacia abajo (Slide Down suave) */
             .header-search { 
-                display: flex;
-                align-items: center;
-                order: 2;
-                margin-left: auto;
-                margin-right: 0;
-                width: 0;
-                max-width: 0;
+                width: 100%; 
+                max-width: 100%;
+                order: 3;
+                margin: 0;
+                max-height: 0;
                 opacity: 0;
                 overflow: hidden;
                 pointer-events: none;
-                transform-origin: right center;
-                transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                            max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                            opacity 0.25s ease;
+                transition: max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                            opacity 0.22s ease,
+                            margin-top 0.25s ease,
+                            padding-bottom 0.25s ease;
             }
-            .header-content.search-expanded .header-search,
             .header-search.active-mobile {
-                width: 100%;
-                max-width: 360px;
+                max-height: 80px;
                 opacity: 1;
-                overflow: visible;
                 pointer-events: auto;
-                margin-left: 8px;
-                margin-right: 2px;
+                overflow: visible;
+                margin-top: 10px;
+                padding-bottom: 4px;
             }
             .header-search form {
                 width: 100%;
             }
             .search-container {
-                height: 38px;
+                height: 42px;
                 width: 100%;
-                padding: 0 6px 0 12px;
+                padding: 0 10px 0 14px;
                 background: #ffffff;
                 border: 2px solid #2d3277;
-                box-shadow: 0 4px 14px rgba(45, 50, 119, 0.16);
-                border-radius: 20px;
+                box-shadow: 0 6px 20px rgba(45, 50, 119, 0.14);
+                border-radius: 14px;
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 8px;
                 box-sizing: border-box;
             }
             .search-icon-left {
                 color: #2d3277;
-                font-size: 13px;
+                font-size: 15px;
                 flex-shrink: 0;
             }
             .search-input {
-                font-size: 13.5px;
+                font-size: 14px;
                 font-weight: 600;
                 flex: 1;
                 min-width: 0;
@@ -2339,22 +2315,30 @@
             }
             .search-input::placeholder {
                 color: #94a3b8;
-                font-size: 12.5px;
+                font-size: 13px;
+                font-weight: 500;
             }
             .search-btn {
-                display: none;
+                padding: 7px 14px;
+                font-size: 12px;
+                font-weight: 700;
+                border-radius: 9px;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
             }
             .mobile-search-close-btn {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 26px;
-                height: 26px;
+                width: 30px;
+                height: 30px;
                 border: none;
                 background: #f1f5f9;
                 color: #64748b;
-                border-radius: 50%;
-                font-size: 12px;
+                border-radius: 8px;
+                font-size: 13px;
                 cursor: pointer;
                 flex-shrink: 0;
                 transition: all 0.2s ease;
@@ -2366,6 +2350,15 @@
             .mobile-search-close-btn:active {
                 background: #fecaca;
                 transform: scale(0.9);
+            }
+
+            /* Resultados desplegables en vivo debajo del buscador en móvil */
+            .header-search .live-search-dropdown {
+                top: calc(100% + 4px);
+                max-height: 70vh;
+                overflow-y: auto;
+                border-radius: 14px;
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.08);
             }
 
             /* Barra de categorías horizontal táctil suave (Smooth touch scroll) */
