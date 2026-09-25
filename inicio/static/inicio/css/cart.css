@@ -74,7 +74,7 @@
     align-items: center;
     gap: 14px;
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
-    z-index: 100005;
+    z-index: 1000050;
     font-size: 13.5px;
     font-weight: 600;
     border: 1px solid rgba(255, 255, 255, 0.18);
@@ -177,7 +177,7 @@
     background: rgba(11, 17, 32, 0.62);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    z-index: 99990;
+    z-index: 1000010;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -196,7 +196,7 @@
     width: 100%;
     max-width: 440px;
     background: #ffffff;
-    z-index: 99995;
+    z-index: 1000020;
     box-shadow: -12px 0 40px rgba(11, 17, 32, 0.22);
     display: flex;
     flex-direction: column;
@@ -450,6 +450,15 @@
     font-size: 20px;
     color: #2563eb;
     flex-shrink: 0;
+    overflow: hidden;
+    padding: 2px;
+}
+.cart-item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #ffffff;
 }
 .cart-item-info {
     flex: 1;

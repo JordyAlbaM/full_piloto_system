@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.core.files.storage import default_storage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Categoria, Producto
 from .forms import RegistroClienteForm, LoginClienteForm, ProductoForm
 
@@ -79,7 +80,7 @@ def inicio(request):
     categoria_slug = request.GET.get('categoria', '').strip()
 
     # Si hay filtro de categoría, se aplica; si no, se muestran todos los productos disponibles
-    productos = Producto.objects.filter(disponible=True).select_related('categoria')
+    productos = Producto.objects.filter(disponible=True).select_related('categoria').order_by('-id')
     if categoria_slug:
         productos = productos.filter(categoria__slug=categoria_slug)
 
@@ -91,8 +92,19 @@ def inicio(request):
     categorias = Categoria.objects.all()
     producto_destacado = productos.first() or Producto.objects.filter(disponible=True).select_related('categoria').first()
 
+    # Paginación sincrónica (8 productos por página para navegación limpia y fluida)
+    paginator = Paginator(productos, 8)
+    page_number = request.GET.get('page', 1)
+    try:
+        productos_paginados = paginator.page(page_number)
+    except PageNotAnInteger:
+        productos_paginados = paginator.page(1)
+    except EmptyPage:
+        productos_paginados = paginator.page(paginator.num_pages)
+
     return render(request, 'index.html', {
-        'productos': productos,
+        'productos': productos_paginados,
+        'total_productos': paginator.count,
         'categorias': categorias,
         'query': query,
         'categoria_seleccionada': categoria_slug,

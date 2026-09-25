@@ -91,15 +91,15 @@ const CartManager = {
     },
 
     getMaxStock(productId, fallbackStock = null) {
+        if (fallbackStock !== null && fallbackStock !== undefined && !isNaN(fallbackStock) && parseInt(fallbackStock) > 0) {
+            return parseInt(fallbackStock);
+        }
         if (this.stockCatalog[productId] !== undefined) {
             return this.stockCatalog[productId];
         }
         const cleanId = String(productId).replace('prod_', '');
         if (this.stockCatalog[cleanId] !== undefined) {
             return this.stockCatalog[cleanId];
-        }
-        if (fallbackStock !== null && fallbackStock !== undefined && !isNaN(fallbackStock)) {
-            return parseInt(fallbackStock);
         }
         return 8; // Stock estático estándar por defecto
     },
@@ -117,11 +117,25 @@ const CartManager = {
         this.updateUI();
     },
 
-    addItem(product) {
+    addItem(product, triggerBtn = null) {
         let items = this.getItems();
-        const maxStock = this.getMaxStock(product.id, product.maxStock || product.stock);
+        
+        // Limpieza y parseo ultra robusto de precio
+        let rawPrice = product.price;
+        if (typeof rawPrice === 'string') {
+            rawPrice = rawPrice.replace(/[^\d.,]/g, '').replace(',', '.');
+        }
+        const parsedPrice = parseFloat(rawPrice) || 0;
+
+        // Limpieza y parseo ultra robusto de stock
+        let rawStock = product.maxStock !== undefined ? product.maxStock : product.stock;
+        if (typeof rawStock === 'string') {
+            rawStock = rawStock.replace(/[^\d]/g, '');
+        }
+        const maxStock = this.getMaxStock(product.id, rawStock);
+
         const existingIndex = items.findIndex(item => item.id === product.id);
-        const addQty = product.qty || 1;
+        const addQty = parseInt(product.qty, 10) || 1;
         let currentItemQty = 1;
 
         if (existingIndex > -1) {
@@ -136,6 +150,10 @@ const CartManager = {
             }
             items[existingIndex].qty = desiredQty;
             items[existingIndex].maxStock = maxStock;
+            items[existingIndex].price = parsedPrice || items[existingIndex].price;
+            if (product.image || product.imagen_url) {
+                items[existingIndex].image = product.image || product.imagen_url;
+            }
             currentItemQty = items[existingIndex].qty;
         } else {
             if (addQty > maxStock) {
@@ -149,8 +167,9 @@ const CartManager = {
             items.push({
                 id: product.id,
                 name: product.name,
-                price: parseFloat(product.price),
-                icon: product.icon || 'fa-solid fa-box',
+                price: parsedPrice,
+                image: product.image || product.imagen_url || '',
+                icon: product.icon || 'fa-solid fa-laptop',
                 qty: addQty,
                 maxStock: maxStock
             });
@@ -159,12 +178,28 @@ const CartManager = {
 
         this.saveItems(items);
         this.animateHeaderBadge();
+
+        // Feedback visual en el botón de origen si fue suministrado
+        if (triggerBtn) {
+            const origHtml = triggerBtn.innerHTML;
+            triggerBtn.classList.add('btn-added-success');
+            triggerBtn.innerHTML = `<i class="fa-solid fa-check"></i> ¡Agregado! (x${currentItemQty})`;
+            setTimeout(() => {
+                triggerBtn.classList.remove('btn-added-success');
+                triggerBtn.innerHTML = origHtml;
+            }, 1400);
+        }
+
         this.showToast({
             title: `¡${product.name} agregado!`,
             qty: currentItemQty,
             maxStock: maxStock,
-            totalPrice: product.price * currentItemQty
+            totalPrice: parsedPrice * currentItemQty
         });
+
+        // Abrir el drawer del carrito para que el usuario vea inmediatamente su producto añadido
+        this.openCart();
+
         return true;
     },
 
@@ -518,7 +553,7 @@ const CartManager = {
         const container = document.getElementById('cartItemsList');
         const countBadges = document.querySelectorAll('.cart-badge');
         const headerCount = document.getElementById('cartHeaderCount');
-        const subtotalDisplays = document.querySelectorAll('.main-value, #cartSubtotal');
+        const subtotalDisplays = document.querySelectorAll('.cart-trigger-btn .main-value, #cartSubtotal');
         const cartTotalDisplay = document.getElementById('cartTotal');
         const shippingProgressFill = document.getElementById('shippingProgressFill');
         const shippingMeterText = document.getElementById('shippingMeterText');
@@ -623,10 +658,14 @@ const CartManager = {
             const itemSubtotal = (item.price * item.qty).toFixed(2);
             const maxStock = this.getMaxStock(item.id, item.maxStock);
             const isMaxReached = item.qty >= maxStock;
+            const itemMediaHtml = item.image 
+                ? `<img src="${item.image}" alt="${item.name}" class="cart-item-img" onerror="this.outerHTML='<i class=\\'${item.icon || 'fa-solid fa-laptop'}\\'></i>'">`
+                : `<i class="${item.icon || 'fa-solid fa-laptop'}"></i>`;
+
             html += `
                 <div class="cart-item" data-id="${item.id}">
                     <div class="cart-item-icon">
-                        <i class="${item.icon}"></i>
+                        ${itemMediaHtml}
                     </div>
                     <div class="cart-item-info">
                         <div class="cart-item-title" title="${item.name}">${item.name}</div>

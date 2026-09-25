@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     {% load static %}
+    {% load l10n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ producto.nombre }} - Full Piloto System Caraz</title>
@@ -11,8 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/detalle.css' %}?v=3.0">
-    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=3.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/detalle.css' %}?v=5.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.0">
 </head>
 <body>
 
@@ -35,28 +36,72 @@
                 <div class="brand-name">Full Piloto <span>System</span></div>
             </a>
 
-            <div style="display: flex; align-items: center; gap: 10px;">
-                {% if user.is_authenticated %}
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <a href="{% url 'pedidos' %}" title="{% if user.is_superuser %}Panel de Pedidos{% else %}Mis Pedidos{% endif %}" style="display: flex; align-items: center; gap: 6px; padding: 7px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #15803d; text-decoration: none; font-size: 12px; font-weight: 700;">
-                        <i class="fa-solid fa-receipt"></i> <span>{% if user.is_superuser %}Pedidos{% else %}Mis Pedidos{% endif %}</span>
-                    </a>
-                    <div class="action-button user-btn" style="display: flex; align-items: center; gap: 8px; background: #e0f2fe; padding: 8px 12px; border-radius: 10px; border: 1px solid #bfdbfe; color: #0284c7; cursor: default;" title="{{ user.email }}">
-                        <i class="fa-solid fa-user-check"></i>
-                        <span style="font-size: 12.5px; font-weight: 700; color: #0369a1;">{{ user.first_name|default:user.username|truncatechars:10 }}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <!-- Icono / Botón de Usuario con Menú Desplegable -->
+                <div class="header-user-wrapper" id="headerUserWrapper" style="position: relative;">
+                    {% if user.is_authenticated %}
+                    <button type="button" class="action-button user-btn auth-user-btn" id="userMenuTrigger" onclick="toggleUserDropdown()" title="Mi cuenta ({{ user.email }})">
+                        <div class="action-icon-circle user-icon-circle auth-avatar">
+                            <i class="fa-solid fa-user-check"></i>
+                        </div>
+                        <div class="action-label-box user-label-box">
+                            <span class="small-title">Hola, {{ user.first_name|default:user.username|truncatechars:10 }}</span>
+                            <span class="main-value" style="color: #059669; font-size: 11px;">{% if user.is_superuser %}Admin{% else %}Mi cuenta{% endif %} <i class="fa-solid fa-chevron-down" style="font-size: 9px; margin-left: 2px;"></i></span>
+                        </div>
+                    </button>
+
+                    <!-- Menú desplegable flotante de usuario -->
+                    <div class="user-dropdown-menu" id="userDropdownMenu">
+                        <div class="user-dropdown-header">
+                            <div class="user-dropdown-avatar">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div class="user-dropdown-info">
+                                <strong class="user-dropdown-name">{{ user.get_full_name|default:user.username }}</strong>
+                                <span class="user-dropdown-email">{{ user.email|default:"Cliente Caraz" }}</span>
+                                <span class="user-dropdown-badge {% if user.is_superuser %}badge-admin{% else %}badge-client{% endif %}">
+                                    {% if user.is_superuser %}Administrador{% elif user.rol == 'admin' %}Gestor Tienda{% else %}Cliente Registrado{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="user-dropdown-body">
+                            {% if user.is_superuser or user.rol == 'admin' %}
+                            <a href="{% url 'login' %}?tab=add_product" class="user-dropdown-item admin-item">
+                                <i class="fa-solid fa-circle-plus"></i>
+                                <div>
+                                    <span>Registrar Producto</span>
+                                    <small>Agregar stock al catálogo</small>
+                                </div>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'pedidos' %}" class="user-dropdown-item">
+                                <i class="fa-solid fa-receipt"></i>
+                                <div>
+                                    <span>{% if user.is_superuser %}Panel de Pedidos{% else %}Mis Pedidos{% endif %}</span>
+                                    <small>Historial y comprobantes</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="user-dropdown-footer">
+                            <a href="{% url 'logout' %}" class="user-dropdown-logout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                <span>Cerrar Sesión</span>
+                            </a>
+                        </div>
                     </div>
-                    <a href="{% url 'logout' %}" title="Cerrar Sesión" style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; text-decoration: none;">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                    {% else %}
+                    <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Registrarse">
+                        <div class="action-icon-circle user-icon-circle">
+                            <i class="fa-regular fa-user"></i>
+                        </div>
+                        <div class="action-label-box user-label-box">
+                            <span class="small-title">Bienvenido</span>
+                            <span class="main-value">Ingresar</span>
+                        </div>
                     </a>
+                    {% endif %}
                 </div>
-                {% else %}
-                <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión" style="display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); text-decoration: none; color: inherit;">
-                    <div style="color: #64748b; font-size: 16px;">
-                        <i class="fa-regular fa-user"></i>
-                    </div>
-                    <span class="user-label-text" style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Ingresar</span>
-                </a>
-                {% endif %}
 
                 <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" style="display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-color); cursor: pointer;">
                     <div style="position: relative; color: var(--primary); font-size: 18px;">
@@ -172,7 +217,7 @@
                                 <button type="button" id="btnQtyMinus" onclick="DetailProductPage.changeQty(-1)" style="width:36px; height:36px; border:none; background:#f1f5f9; border-radius:8px; cursor:pointer; font-size:14px; color:#1e293b; transition:all 0.2s;">
                                     <i class="fa-solid fa-minus"></i>
                                 </button>
-                                <input type="number" id="detailQtyInput" value="1" min="1" max="{{ producto.stock }}" readonly style="width:50px; text-align:center; border:none; font-weight:900; font-size:16px; color:#0f172a; outline:none; background:transparent;">
+                                <input type="number" id="detailQtyInput" value="1" min="1" max="{{ producto.stock|unlocalize }}" readonly style="width:50px; text-align:center; border:none; font-weight:900; font-size:16px; color:#0f172a; outline:none; background:transparent;">
                                 <button type="button" id="btnQtyPlus" onclick="DetailProductPage.changeQty(1)" style="width:36px; height:36px; border:none; background:#f1f5f9; border-radius:8px; cursor:pointer; font-size:14px; color:#1e293b; transition:all 0.2s;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -192,6 +237,11 @@
                                 id="btnAddToCartDetail"
                                 class="btn-whatsapp-buy" 
                                 style="background: #3483fa; color: #ffffff; box-shadow: 0 4px 14px rgba(52, 131, 250, 0.35); border: none; cursor: pointer;"
+                                data-product-id="prod_{{ producto.id }}"
+                                data-product-name="{{ producto.nombre }}"
+                                data-product-price="{{ producto.precio|unlocalize }}"
+                                data-product-image="{{ producto.imagen_url|default:'' }}"
+                                data-product-stock="{{ producto.stock|unlocalize }}"
                                 onclick="DetailProductPage.addToCart(this)">
                             <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
                         </button>
@@ -491,6 +541,11 @@
             <button type="button" 
                     id="btnMobileAddToCart" 
                     class="mobile-bar-btn-cart" 
+                    data-product-id="prod_{{ producto.id }}"
+                    data-product-name="{{ producto.nombre }}"
+                    data-product-price="{{ producto.precio|unlocalize }}"
+                    data-product-image="{{ producto.imagen_url|default:'' }}"
+                    data-product-stock="{{ producto.stock|unlocalize }}"
                     onclick="DetailProductPage.addToCart(this)">
                 <i class="fa-solid fa-cart-plus"></i> Comprar
             </button>
@@ -514,12 +569,31 @@
         const DetailProductPage = {
             productId: 'prod_{{ producto.id }}',
             productName: '{{ producto.nombre|escapejs }}',
-            unitPrice: parseFloat('{{ producto.precio }}'),
-            maxStock: parseInt('{{ producto.stock }}') || 8,
+            productImage: '{{ producto.imagen_url|default:''|escapejs }}',
+            unitPrice: parseFloat('{{ producto.precio|unlocalize }}') || 0,
+            maxStock: parseInt('{{ producto.stock|unlocalize }}', 10) || 8,
             currentQty: 1,
 
             init() {
                 this.updateDisplay();
+                this.attachEventListeners();
+            },
+
+            attachEventListeners() {
+                const btnDetail = document.getElementById('btnAddToCartDetail');
+                if (btnDetail) {
+                    btnDetail.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.addToCart(btnDetail);
+                    });
+                }
+                const btnMobile = document.getElementById('btnMobileAddToCart');
+                if (btnMobile) {
+                    btnMobile.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.addToCart(btnMobile);
+                    });
+                }
             },
 
             changeQty(delta) {
@@ -577,21 +651,33 @@
             },
 
             addToCart(btn) {
-                if (!window.CartManager) return;
+                if (!window.CartManager) {
+                    console.error('CartManager no está disponible en la página.');
+                    return;
+                }
+
+                // Obtener datos prioritarios de las propiedades o atributos del botón
+                const pId = (btn && btn.dataset && btn.dataset.productId) ? btn.dataset.productId : this.productId;
+                const pName = (btn && btn.dataset && btn.dataset.productName) ? btn.dataset.productName : this.productName;
+                const pPrice = (btn && btn.dataset && btn.dataset.productPrice) ? parseFloat(btn.dataset.productPrice) : this.unitPrice;
+                const pImage = (btn && btn.dataset && btn.dataset.productImage) ? btn.dataset.productImage : this.productImage;
+                const pStock = (btn && btn.dataset && btn.dataset.productStock) ? parseInt(btn.dataset.productStock, 10) : this.maxStock;
+                const qtyToAdd = Math.max(1, parseInt(this.currentQty, 10) || 1);
                 
                 const success = CartManager.addItem({
-                    id: this.productId,
-                    name: this.productName,
-                    price: this.unitPrice,
+                    id: pId,
+                    name: pName,
+                    price: pPrice,
+                    image: pImage,
                     icon: 'fa-solid fa-laptop',
-                    qty: this.currentQty,
-                    maxStock: this.maxStock
-                });
+                    qty: qtyToAdd,
+                    maxStock: pStock
+                }, btn);
 
-                if (success) {
+                if (success && btn) {
                     const prevText = btn.innerHTML;
-                    const cur = CartManager.getItems().find(i => i.id === this.productId);
-                    const q = cur ? cur.qty : this.currentQty;
+                    const cur = CartManager.getItems().find(i => i.id === pId);
+                    const q = cur ? cur.qty : qtyToAdd;
 
                     btn.classList.add('btn-added-success');
                     btn.innerHTML = `<i class="fa-solid fa-check"></i> ¡Agregado! (x${q})`;
@@ -600,12 +686,37 @@
                         btn.classList.remove('btn-added-success');
                         btn.innerHTML = prevText;
                     }, 1400);
+                } else if (!success) {
+                    // Si ya estaba en el máximo o hubo tope de stock, de todos modos abrir el carrito para que el cliente lo vea
+                    CartManager.openCart();
                 }
             }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             DetailProductPage.init();
+        });
+
+        // Control del menú de usuario desplegable
+        function toggleUserDropdown(forceState) {
+            const menu = document.getElementById('userDropdownMenu');
+            const trigger = document.getElementById('userMenuTrigger');
+            if (!menu) return;
+            const willOpen = typeof forceState === 'boolean' ? forceState : !menu.classList.contains('active');
+            if (willOpen) {
+                menu.classList.add('active');
+                if (trigger) trigger.classList.add('menu-open');
+            } else {
+                menu.classList.remove('active');
+                if (trigger) trigger.classList.remove('menu-open');
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const userWrapper = document.getElementById('headerUserWrapper');
+            if (userWrapper && !userWrapper.contains(e.target)) {
+                toggleUserDropdown(false);
+            }
         });
     </script>
 

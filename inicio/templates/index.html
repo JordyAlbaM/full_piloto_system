@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     {% load static %}
+    {% load l10n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full Piloto System - Caraz</title>
@@ -11,11 +12,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=4.1">
-    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=4.1">
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=5.2">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.2">
 </head>
 <body>
 
+    {% if not query %}
     <!-- BARRA SUPERIOR DE OFERTAS & PROMOCIONES (ESTILO INFOTEC) -->
     <div class="top-promo-bar">
         <div class="container">
@@ -66,11 +68,12 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- HEADER PRINCIPAL -->
     <header class="main-header">
         <div class="container">
-            <div class="header-content">
+            <div class="header-content" id="headerContentBar">
                 
                 <!-- Logo & Branding -->
                 <a href="{% url 'inicio' %}" class="brand-logo">
@@ -108,48 +111,78 @@
                 <!-- Botones de Acción -->
                 <div class="header-actions">
                     <!-- Botón disparador de búsqueda para móvil (Lupa táctil) -->
-                    <button type="button" class="mobile-search-trigger-btn" id="mobileSearchTrigger" onclick="toggleMobileSearch()" title="Buscar productos">
+                    <button type="button" class="mobile-search-trigger-btn" id="mobileSearchTrigger" onclick="toggleMobileSearch()" title="Buscar productos" aria-label="Buscar productos">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
 
-                    <!-- Icono / Botón de Usuario -->
-                    {% if user.is_authenticated %}
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        {% if user.is_superuser or user.rol == 'admin' %}
-                        <a href="{% url 'login' %}?tab=add_product" class="action-button" title="Panel Administrador: Registrar Producto" style="padding: 7px 12px; background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; text-decoration: none; display: flex; align-items: center; gap: 6px; border-radius: 10px; font-weight: 700; font-size: 12px;">
-                            <i class="fa-solid fa-plus-circle"></i> <span>+ Producto</span>
-                        </a>
-                        {% endif %}
-                        <a href="{% url 'pedidos' %}" class="action-button" title="{% if user.is_superuser %}Panel de Gestión de Pedidos{% else %}Mis Pedidos{% endif %}" style="padding: 7px 12px; background: #f0fdf4; border-color: #bbf7d0; color: #15803d; text-decoration: none; display: flex; align-items: center; gap: 6px; border-radius: 10px; font-weight: 700; font-size: 12px;">
-                            <i class="fa-solid fa-receipt"></i> <span>{% if user.is_superuser %}Pedidos{% else %}Mis Pedidos{% endif %}</span>
-                        </a>
-                        <div class="action-button user-btn" style="cursor: default;" title="{{ user.email }}">
-                            <div class="action-icon-circle user-icon-circle" style="background: #e0f2fe; color: #0284c7;">
+                    <!-- Icono / Botón de Usuario con Menú Desplegable -->
+                    <div class="header-user-wrapper" id="headerUserWrapper" style="position: relative;">
+                        {% if user.is_authenticated %}
+                        <button type="button" class="action-button user-btn auth-user-btn" id="userMenuTrigger" onclick="toggleUserDropdown()" title="Mi cuenta ({{ user.email }})">
+                            <div class="action-icon-circle user-icon-circle auth-avatar">
                                 <i class="fa-solid fa-user-check"></i>
                             </div>
                             <div class="action-label-box user-label-box">
                                 <span class="small-title">Hola, {{ user.first_name|default:user.username|truncatechars:10 }}</span>
-                                <span class="main-value" style="color: #059669; font-size: 11px;">{% if user.is_superuser %}Admin{% else %}En línea{% endif %}</span>
+                                <span class="main-value" style="color: #059669; font-size: 11px;">{% if user.is_superuser %}Admin{% else %}Mi cuenta{% endif %} <i class="fa-solid fa-chevron-down" style="font-size: 9px; margin-left: 2px;"></i></span>
+                            </div>
+                        </button>
+
+                        <!-- Menú desplegable flotante de usuario -->
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="user-dropdown-header">
+                                <div class="user-dropdown-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="user-dropdown-info">
+                                    <strong class="user-dropdown-name">{{ user.get_full_name|default:user.username }}</strong>
+                                    <span class="user-dropdown-email">{{ user.email|default:"Cliente Caraz" }}</span>
+                                    <span class="user-dropdown-badge {% if user.is_superuser %}badge-admin{% else %}badge-client{% endif %}">
+                                        {% if user.is_superuser %}Administrador{% elif user.rol == 'admin' %}Gestor Tienda{% else %}Cliente Registrado{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="user-dropdown-body">
+                                {% if user.is_superuser or user.rol == 'admin' %}
+                                <a href="{% url 'login' %}?tab=add_product" class="user-dropdown-item admin-item">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                    <div>
+                                        <span>Registrar Producto</span>
+                                        <small>Agregar stock al catálogo</small>
+                                    </div>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'pedidos' %}" class="user-dropdown-item">
+                                    <i class="fa-solid fa-receipt"></i>
+                                    <div>
+                                        <span>{% if user.is_superuser %}Panel de Pedidos{% else %}Mis Pedidos{% endif %}</span>
+                                        <small>Historial y comprobantes</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="user-dropdown-footer">
+                                <a href="{% url 'logout' %}" class="user-dropdown-logout">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                    <span>Cerrar Sesión</span>
+                                </a>
                             </div>
                         </div>
-                        <a href="{% url 'logout' %}" class="action-button" title="Cerrar Sesión" style="padding: 6px 10px; background: #fee2e2; border-color: #fca5a5; color: #dc2626;">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                        {% else %}
+                        <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Registrarse">
+                            <div class="action-icon-circle user-icon-circle">
+                                <i class="fa-regular fa-user"></i>
+                            </div>
+                            <div class="action-label-box user-label-box">
+                                <span class="small-title">Bienvenido</span>
+                                <span class="main-value">Ingresar</span>
+                            </div>
                         </a>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Registrarse">
-                        <div class="action-icon-circle user-icon-circle">
-                            <i class="fa-regular fa-user"></i>
-                        </div>
-                        <div class="action-label-box user-label-box">
-                            <span class="small-title">Bienvenido</span>
-                            <span class="main-value">Ingresar</span>
-                        </div>
-                    </a>
-                    {% endif %}
 
                     <!-- Carrito de Compras -->
-                    <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()">
+                    <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" role="button" tabindex="0" title="Ver Carrito de Compras">
                         <div class="action-icon-circle">
                             <i class="fa-solid fa-cart-shopping"></i>
                             <span class="cart-badge">0</span>
@@ -422,7 +455,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_101', name:'Laptop Lenovo V15 G4 AMN Ryzen 3 7320U 8GB LPDDR5 512GB SSD 15.6\" FHD', price:2149.00, icon:'fa-solid fa-laptop', qty:1, maxStock:8})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_101', name:'Laptop Lenovo V15 G4 AMN Ryzen 3 7320U 8GB LPDDR5 512GB SSD 15.6\" FHD', price:2149.00, image:'{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}', icon:'fa-solid fa-laptop', qty:1, maxStock:8}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 2,149.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 101 %}" class="btn-hero-secondary">
@@ -479,7 +512,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_104', name:'Laptop Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5-13420H 16GB DDR5 512GB SSD 15.3\" WUXGA', price:3299.00, icon:'fa-solid fa-laptop', qty:1, maxStock:4})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_104', name:'Laptop Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5-13420H 16GB DDR5 512GB SSD 15.3\" WUXGA', price:3299.00, image:'{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}', icon:'fa-solid fa-laptop', qty:1, maxStock:4}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 3,299.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 104 %}" class="btn-hero-secondary">
@@ -536,7 +569,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_106', name:'Laptop HP 15-FC0225DX AMD Ryzen 7 7730U 16GB 512GB SSD 15.6\" FHD Touchscreen', price:3399.00, icon:'fa-solid fa-laptop', qty:1, maxStock:5})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_106', name:'Laptop HP 15-FC0225DX AMD Ryzen 7 7730U 16GB 512GB SSD 15.6\" FHD Touchscreen', price:3399.00, image:'/static/inicio/images/nuevas_laptops/106_hp_r7.jpg', icon:'fa-solid fa-laptop', qty:1, maxStock:5}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 3,399.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 106 %}" class="btn-hero-secondary">
@@ -581,7 +614,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_108', name:'Laptop 2 en 1 Lenovo IdeaPad 5 16AHP9 AMD Ryzen 7 8845HS 16GB 1TB SSD 16\" WUXGA Touch 360°', price:4099.00, icon:'fa-solid fa-laptop', qty:1, maxStock:3})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_108', name:'Laptop 2 en 1 Lenovo IdeaPad 5 16AHP9 AMD Ryzen 7 8845HS 16GB 1TB SSD 16\" WUXGA Touch 360°', price:4099.00, image:'/static/inicio/images/nuevas_laptops/108_lenovo_360.jpg', icon:'fa-solid fa-laptop', qty:1, maxStock:3}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 4,099.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 108 %}" class="btn-hero-secondary">
@@ -693,7 +726,7 @@
                         <i class="fa-solid fa-magnifying-glass" style="color:#3483fa;"></i>
                         {% if query %}Resultados para: "{{ query }}"{% else %}Categoría: {{ categoria_seleccionada|title }}{% endif %}
                     </h2>
-                    <span style="font-size:13px; color:#666666;">Se encontraron {{ productos|length }} productos disponibles</span>
+                    <span style="font-size:13px; color:#666666;">Se encontraron {{ total_productos|default:productos|length }} productos disponibles</span>
                 </div>
                 <a href="{% url 'inicio' %}" style="display:inline-flex; align-items:center; gap:6px; background:#fffbe6; color:#2d3277; border:1px solid #ffe600; padding:8px 16px; border-radius:8px; font-weight:700; text-decoration:none; font-size:13px; transition:all 0.2s;">
                     <i class="fa-solid fa-xmark"></i> Ver catálogo completo
@@ -755,7 +788,7 @@
                         </div>
 
                         <div class="promo-card-actions-group">
-                            <button type="button" class="btn-promo-action" onclick="event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio }}, icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock }} })">
+                            <button type="button" class="btn-promo-action" onclick="event.preventDefault(); event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio|unlocalize }}, image:'{{ prod.imagen_url|default:''|escapejs }}', icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock|unlocalize }} }, this);">
                                 <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
                             </button>
                         </div>
@@ -769,6 +802,62 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <!-- PAGINACIÓN SINCRÓNICA ESTILO MERCADO LIBRE / TIENDA PROFESIONAL -->
+            {% if productos.has_other_pages %}
+            <nav class="pagination-container" aria-label="Páginas de productos">
+                <ul class="pagination-list">
+                    <!-- Botón Anterior -->
+                    {% if productos.has_previous %}
+                    <li class="page-item">
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ productos.previous_page_number }}#promosCatalog" 
+                           class="page-link page-prev-next" 
+                           title="Página anterior">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link page-prev-next"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
+                    </li>
+                    {% endif %}
+
+                    <!-- Números de Página -->
+                    {% for num in productos.paginator.page_range %}
+                        {% if productos.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link current-page">{{ num }}</span>
+                        </li>
+                        {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
+                        <li class="page-item">
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ num }}#promosCatalog" 
+                               class="page-link">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Botón Siguiente -->
+                    {% if productos.has_next %}
+                    <li class="page-item">
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ productos.next_page_number }}#promosCatalog" 
+                           class="page-link page-prev-next" 
+                           title="Página siguiente">
+                            Siguiente <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link page-prev-next">Siguiente <i class="fa-solid fa-chevron-right"></i></span>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="pagination-info-text">
+                    Página {{ productos.number }} de {{ productos.paginator.num_pages }} • Mostrando {{ productos|length }} de {{ total_productos }} productos
+                </div>
+            </nav>
+            {% endif %}
 
         </div>
     </main>
@@ -935,6 +1024,7 @@
                     id: `prod_${data.id}`,
                     name: data.nombre,
                     price: data.precio,
+                    image: data.imagen_url || (data.fotos && data.fotos.length ? data.fotos[0] : ''),
                     icon: 'fa-solid fa-laptop',
                     qty: 1,
                     maxStock: data.stock
@@ -1017,21 +1107,29 @@
         }
     });
 
-    // Control del buscador desplegable inteligente en móvil
+    // Control del buscador desplegable inteligente en móvil (Expansión inline)
     function toggleMobileSearch(forceState) {
         const box = document.getElementById('headerSearchBox');
         const trigger = document.getElementById('mobileSearchTrigger');
         const input = document.getElementById('headerSearchInput');
+        const headerBar = document.getElementById('headerContentBar');
         if (!box) return;
 
         const willOpen = typeof forceState === 'boolean' ? forceState : !box.classList.contains('active-mobile');
         
         if (willOpen) {
             box.classList.add('active-mobile');
+            if (headerBar) headerBar.classList.add('search-expanded');
             if (trigger) trigger.classList.add('active');
-            setTimeout(() => { if (input) input.focus(); }, 100);
+            setTimeout(() => { 
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 120);
         } else {
             box.classList.remove('active-mobile');
+            if (headerBar) headerBar.classList.remove('search-expanded');
             if (trigger) trigger.classList.remove('active');
             if (input) input.blur();
             closeLiveSearch();
@@ -1250,10 +1348,26 @@
         }
     }
 
-    // Cerrar el buscador y dropdown al hacer click fuera
+    // Control del menú de usuario desplegable
+    function toggleUserDropdown(forceState) {
+        const menu = document.getElementById('userDropdownMenu');
+        const trigger = document.getElementById('userMenuTrigger');
+        if (!menu) return;
+        const willOpen = typeof forceState === 'boolean' ? forceState : !menu.classList.contains('active');
+        if (willOpen) {
+            menu.classList.add('active');
+            if (trigger) trigger.classList.add('menu-open');
+        } else {
+            menu.classList.remove('active');
+            if (trigger) trigger.classList.remove('menu-open');
+        }
+    }
+
+    // Cerrar buscador, user dropdown y live search al hacer click fuera
     document.addEventListener('click', (e) => {
         const box = document.getElementById('headerSearchBox');
         const trigger = document.getElementById('mobileSearchTrigger');
+        const userWrapper = document.getElementById('headerUserWrapper');
 
         if (box && !box.contains(e.target)) {
             closeLiveSearch();
@@ -1263,6 +1377,10 @@
             if (!box.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
                 toggleMobileSearch(false);
             }
+        }
+
+        if (userWrapper && !userWrapper.contains(e.target)) {
+            toggleUserDropdown(false);
         }
     });
     </script>
@@ -1529,6 +1647,120 @@
     }
     .promo-ad-btn-secondary:hover {
         color: #0f172a;
+    }
+
+    /* ESTILOS DE PAGINACIÓN SINCRÓNICA ARMONIZADOS CON LA IDENTIDAD DE LA PÁGINA (AZUL TECH + AMARILLO FULL PILOTO) */
+    .pagination-container {
+        margin-top: 45px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+    .pagination-list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        list-style: none;
+        padding: 6px 10px;
+        margin: 0;
+        gap: 8px;
+        flex-wrap: wrap;
+        background: #ffffff;
+        border: 1.5px solid rgba(45, 50, 119, 0.12);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+    .pagination-list .page-item {
+        margin: 0;
+    }
+    .pagination-list .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 14px;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #2d3277;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        border: 1px solid #e2e8f0;
+        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    .pagination-list .page-link:hover {
+        background: #fffbe6;
+        border-color: #ffe600;
+        color: #2d3277;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 230, 0, 0.35);
+    }
+    /* Página Activa: Amarillo distintivo Full Piloto / Mercado Libre con texto azul marino de contraste */
+    .pagination-list .page-item.active .page-link,
+    .pagination-list .page-link.current-page {
+        background: #ffe600;
+        color: #2d3277 !important;
+        font-weight: 900;
+        border-color: #ffd100;
+        box-shadow: 0 4px 14px rgba(255, 230, 0, 0.55), inset 0 0 0 1px #e6cf00;
+        cursor: default;
+        transform: scale(1.05);
+    }
+    .pagination-list .page-item.disabled .page-link {
+        background: #f1f5f9;
+        color: #cbd5e1;
+        border-color: #f1f5f9;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+    .pagination-list .page-prev-next {
+        font-weight: 800;
+        padding: 0 16px;
+        color: #2d3277;
+    }
+    .pagination-list .page-prev-next i {
+        color: #3483fa;
+        transition: transform 0.2s ease;
+    }
+    .pagination-list .page-link:hover .fa-chevron-left {
+        transform: translateX(-3px);
+    }
+    .pagination-list .page-link:hover .fa-chevron-right {
+        transform: translateX(3px);
+    }
+    .pagination-info-text {
+        font-size: 13px;
+        font-weight: 700;
+        color: #2d3277;
+        background: #fffbe6;
+        padding: 7px 18px;
+        border-radius: 20px;
+        border: 1px solid #ffe600;
+        box-shadow: 0 2px 6px rgba(255, 230, 0, 0.15);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    @media (max-width: 576px) {
+        .pagination-list {
+            padding: 4px 6px;
+            gap: 5px;
+        }
+        .pagination-list .page-link {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+            font-size: 13px;
+        }
+        .pagination-list .page-prev-next {
+            padding: 0 10px;
+        }
     }
     </style>
 
