@@ -1458,6 +1458,7 @@
         visibility: hidden;
         transition: opacity 0.3s ease, visibility 0.3s ease;
         padding: 16px;
+        overflow-y: auto;
     }
     .promo-ad-overlay.active {
         opacity: 1;
@@ -1468,6 +1469,9 @@
         border-radius: 20px;
         max-width: 620px;
         width: 100%;
+        max-height: min(90vh, 650px);
+        display: flex;
+        flex-direction: column;
         position: relative;
         box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
         border: 2px solid rgba(220, 38, 38, 0.15);
@@ -1480,21 +1484,22 @@
     }
     .promo-ad-close {
         position: absolute;
-        top: 14px;
-        right: 14px;
-        background: #f1f5f9;
-        border: none;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         width: 38px;
         height: 38px;
         border-radius: 50%;
-        font-size: 1.15rem;
-        color: #475569;
+        font-size: 1.2rem;
+        color: #1e293b;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all 0.2s ease;
-        z-index: 10;
+        z-index: 30;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     }
     .promo-ad-close:hover {
         background: #ef4444;
@@ -1513,6 +1518,8 @@
         align-items: center;
         gap: 6px;
         border-bottom-right-radius: 14px;
+        align-self: flex-start;
+        z-index: 5;
     }
     .promo-ad-content {
         display: grid;
@@ -1520,13 +1527,7 @@
         gap: 20px;
         padding: 22px 26px 26px;
         align-items: center;
-    }
-    @media (max-width: 620px) {
-        .promo-ad-content {
-            grid-template-columns: 1fr;
-            padding: 18px;
-            gap: 14px;
-        }
+        overflow-y: auto;
     }
     .promo-ad-image-box {
         position: relative;
@@ -1653,6 +1654,73 @@
     }
     .promo-ad-btn-secondary:hover {
         color: #0f172a;
+    }
+
+    /* Optimización específica para móviles */
+    @media (max-width: 620px) {
+        .promo-ad-overlay {
+            padding: 12px;
+            align-items: center;
+        }
+        .promo-ad-card {
+            max-height: 86vh;
+            border-radius: 16px;
+        }
+        .promo-ad-badge {
+            font-size: 0.72rem;
+            padding: 6px 14px;
+            padding-right: 48px; /* Evitar que el texto choque con el botón cerrar */
+        }
+        .promo-ad-close {
+            top: 8px;
+            right: 8px;
+            width: 34px;
+            height: 34px;
+            font-size: 1.1rem;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+        .promo-ad-content {
+            grid-template-columns: 1fr;
+            padding: 14px 16px 16px;
+            gap: 12px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .promo-ad-image-box {
+            min-height: 120px;
+            padding: 8px;
+        }
+        .promo-ad-img {
+            max-height: 120px;
+        }
+        .promo-ad-title {
+            font-size: 1.05rem;
+            margin: 2px 0 4px;
+        }
+        .promo-ad-desc {
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .promo-ad-pricing {
+            margin-bottom: 6px;
+        }
+        .promo-ad-current-price {
+            font-size: 1.35rem;
+        }
+        .promo-ad-countdown-bar {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+        }
+        .promo-ad-btn-primary {
+            padding: 10px 14px;
+            font-size: 0.85rem;
+        }
     }
 
     /* ESTILOS DE PAGINACIÓN SINCRÓNICA ARMONIZADOS CON LA IDENTIDAD DE LA PÁGINA (AZUL TECH + AMARILLO FULL PILOTO) */
