@@ -1,27 +1,110 @@
+import os
+import uuid
+import urllib.request
+import re
+import json
+import html
+from decimal import Decimal
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib import messages
 from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.core.files.storage import default_storage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Categoria, Producto
 from .forms import RegistroClienteForm, LoginClienteForm, ProductoForm
+
+
+def obtener_datos_infotec(url):
+    """Extrae automáticamente nombre, precio, descripción e imágenes de una URL de Infotec"""
+    try:
+        req = urllib.request.Request(
+            url.strip(),
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        )
+        content = urllib.request.urlopen(req, timeout=12).read().decode('utf-8', errors='ignore')
+        
+        # 1. Extraer JSON-LD de Producto
+        product_info = {}
+        matches = re.findall(r'<script type=\"application/ld\+json\">(.*?)</script>', content, re.DOTALL)
+        for m in matches:
+            try:
+                data = json.loads(m.strip())
+                if data.get('@type') == 'Product':
+                    product_info = data
+                    break
+            except Exception:
+                pass
+        
+        nombre = html.unescape(product_info.get('name', '')).strip()
+        precio = str(product_info.get('offers', {}).get('price', '')).strip()
+        desc = html.unescape(product_info.get('description', '')).strip()
+        main_img = product_info.get('image', '').strip()
+        
+        # 2. Extraer todas las imágenes del carrusel/galería
+        imgs = re.findall(r'data-image-large-src=\"([^\"]+)\"', content)
+        if not imgs:
+            imgs = re.findall(r'src=\"(https://infotec\.com\.pe/\d+-large_default/[^\"]+\.jpg)\"', content)
+        
+        gallery = []
+        seen = set()
+        for im in imgs:
+            im_clean = im.strip()
+            if im_clean and im_clean not in seen:
+                seen.add(im_clean)
+                gallery.append(im_clean)
+                
+        if not main_img and gallery:
+            main_img = gallery[0]
+            gallery = gallery[1:]
+        elif main_img and main_img in gallery:
+            gallery.remove(main_img)
+            
+        return {
+            'success': True,
+            'nombre': nombre,
+            'precio': precio,
+            'descripcion': desc,
+            'imagen_url': main_img,
+            'imagenes_secundarias': "\n".join(gallery),
+            'total_fotos': (1 if main_img else 0) + len(gallery)
+        }
+    except Exception as e:
+        return {'success': False, 'error': f'No se pudo extraer la información del enlace: {str(e)}'}
 
 def inicio(request):
     query = request.GET.get('q', '').strip()
     categoria_slug = request.GET.get('categoria', '').strip()
 
-    # Filtro de laptops activas optimizado con select_related
-    productos = Producto.objects.filter(disponible=True, categoria__slug='laptops-pc').select_related('categoria')
+    # Si hay filtro de categoría, se aplica; si no, se muestran todos los productos disponibles
+    productos = Producto.objects.filter(disponible=True).select_related('categoria').order_by('-id')
+    if categoria_slug:
+        productos = productos.filter(categoria__slug=categoria_slug)
 
     if query:
         productos = productos.filter(
             Q(nombre__icontains=query) | Q(descripcion__icontains=query)
         )
 
-    categorias = Categoria.objects.filter(slug='laptops-pc')
+    categorias = Categoria.objects.all()
     producto_destacado = productos.first() or Producto.objects.filter(disponible=True).select_related('categoria').first()
 
+    # Paginación sincrónica (8 productos por página para navegación limpia y fluida)
+    paginator = Paginator(productos, 8)
+    page_number = request.GET.get('page', 1)
+    try:
+        productos_paginados = paginator.page(page_number)
+    except PageNotAnInteger:
+        productos_paginados = paginator.page(1)
+    except EmptyPage:
+        productos_paginados = paginator.page(paginator.num_pages)
+
     return render(request, 'index.html', {
-        'productos': productos,
+        'productos': productos_paginados,
+        'total_productos': paginator.count,
         'categorias': categorias,
         'query': query,
         'categoria_seleccionada': categoria_slug,
@@ -37,9 +120,13 @@ def detalle_producto(request, producto_id):
         productos_relacionados = productos_relacionados.filter(categoria=producto.categoria)
     productos_relacionados = productos_relacionados[:4]
     
+    # Galería dinámica para el producto
+    galeria_fotos = producto.get_galeria_imagenes()
+    
     return render(request, 'detalle.html', {
         'producto': producto,
         'productos_relacionados': productos_relacionados,
+        'galeria_fotos': galeria_fotos,
     })
 
 def carrito(request):
@@ -47,10 +134,24 @@ def carrito(request):
 
 def login_view(request):
     active_tab = request.GET.get('tab', 'login')
+    edit_id = request.GET.get('edit')
+    producto_a_editar = None
+    if edit_id and request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin'):
+        producto_a_editar = Producto.objects.filter(id=edit_id).first()
+        if producto_a_editar:
+            active_tab = 'edit_product'
+
     login_form = LoginClienteForm()
     register_form = RegistroClienteForm()
-    producto_form = ProductoForm() if request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin') else None
-    productos_recientes = Producto.objects.all().order_by('-id')[:5] if request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin') else []
+    
+    producto_form = None
+    if request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin'):
+        if producto_a_editar:
+            producto_form = ProductoForm(instance=producto_a_editar)
+        else:
+            producto_form = ProductoForm()
+
+    productos_admin = Producto.objects.all().order_by('-id') if request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin') else []
 
     # Si un usuario común ya está autenticado, va a inicio. Pero si es superusuario o admin, se le permite ver y gestionar
     if request.user.is_authenticated and not (request.user.is_superuser or request.user.rol == 'admin'):
@@ -79,13 +180,88 @@ def login_view(request):
                 messages.error(request, '⛔ Solo el Administrador / Superusuario tiene permisos para agregar productos.')
                 return redirect('login')
             
-            producto_form = ProductoForm(request.POST)
+            producto_form = ProductoForm(request.POST, request.FILES)
             if producto_form.is_valid():
-                nuevo_prod = producto_form.save()
+                nuevo_prod = producto_form.save(commit=False)
+
+                # Si el usuario subió una imagen principal desde su equipo
+                if 'imagen_archivo' in request.FILES:
+                    img_file = request.FILES['imagen_archivo']
+                    file_ext = os.path.splitext(img_file.name)[1].lower() or '.jpg'
+                    safe_filename = f"prod_{uuid.uuid4().hex[:8]}{file_ext}"
+                    saved_path = default_storage.save(f"productos/{safe_filename}", img_file)
+                    nuevo_prod.imagen_url = default_storage.url(saved_path)
+
+                # Si el usuario subió fotos secundarias/galería desde su equipo
+                if 'imagenes_secundarias_archivos' in request.FILES:
+                    sec_files = request.FILES.getlist('imagenes_secundarias_archivos')
+                    urls_nuevas = []
+                    for f in sec_files:
+                        f_ext = os.path.splitext(f.name)[1].lower() or '.jpg'
+                        f_name = f"gallery_{uuid.uuid4().hex[:8]}{f_ext}"
+                        s_path = default_storage.save(f"productos/galeria/{f_name}", f)
+                        urls_nuevas.append(default_storage.url(s_path))
+                    
+                    if urls_nuevas:
+                        existentes = nuevo_prod.imagenes_secundarias.strip()
+                        if existentes:
+                            nuevo_prod.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
+                        else:
+                            nuevo_prod.imagenes_secundarias = "\n".join(urls_nuevas)
+
+                nuevo_prod.save()
                 messages.success(request, f'✨ ¡Producto "{nuevo_prod.nombre}" registrado exitosamente en la tienda!')
-                return redirect('/login/?tab=add_product')
+                return redirect('/login/?tab=recent_products')
             else:
                 messages.error(request, 'Por favor verifica los datos del producto. Revisa los campos en rojo.')
+
+        # Acción 2.1: Editar producto existente (Solo Superusuario / Admin)
+        elif action == 'edit_product':
+            active_tab = 'edit_product'
+            if not request.user.is_authenticated or not (request.user.is_superuser or request.user.rol == 'admin'):
+                messages.error(request, '⛔ Solo el Administrador / Superusuario tiene permisos para editar productos.')
+                return redirect('login')
+
+            p_id = request.POST.get('producto_id')
+            prod_instance = get_object_or_404(Producto, id=p_id)
+            producto_form = ProductoForm(request.POST, request.FILES, instance=prod_instance)
+            if producto_form.is_valid():
+                prod_guardado = producto_form.save(commit=False)
+
+                # Si sube nueva foto principal
+                if 'imagen_archivo' in request.FILES:
+                    img_file = request.FILES['imagen_archivo']
+                    file_ext = os.path.splitext(img_file.name)[1].lower() or '.jpg'
+                    safe_filename = f"prod_{uuid.uuid4().hex[:8]}{file_ext}"
+                    saved_path = default_storage.save(f"productos/{safe_filename}", img_file)
+                    prod_guardado.imagen_url = default_storage.url(saved_path)
+
+                # Si sube nuevas fotos de galería
+                if 'imagenes_secundarias_archivos' in request.FILES:
+                    sec_files = request.FILES.getlist('imagenes_secundarias_archivos')
+                    urls_nuevas = []
+                    for f in sec_files:
+                        f_ext = os.path.splitext(f.name)[1].lower() or '.jpg'
+                        f_name = f"gallery_{uuid.uuid4().hex[:8]}{f_ext}"
+                        s_path = default_storage.save(f"productos/galeria/{f_name}", f)
+                        urls_nuevas.append(default_storage.url(s_path))
+                    
+                    if urls_nuevas:
+                        existentes = prod_guardado.imagenes_secundarias.strip()
+                        if existentes:
+                            prod_guardado.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
+                        else:
+                            prod_guardado.imagenes_secundarias = "\n".join(urls_nuevas)
+
+                prod_guardado.save()
+                messages.success(request, f'✅ ¡Producto "{prod_guardado.nombre}" actualizado con éxito!')
+                return redirect('/login/?tab=recent_products')
+            else:
+                producto_a_editar = prod_instance
+                err_list = [f"{field}: {', '.join(errs)}" for field, errs in producto_form.errors.items()]
+                messages.error(request, f"Error al actualizar el producto: {' | '.join(err_list)}")
+
+
 
         # Acción 3: Login estándar
         else:
@@ -114,7 +290,8 @@ def login_view(request):
         'login_form': login_form,
         'register_form': register_form,
         'producto_form': producto_form,
-        'productos_recientes': productos_recientes,
+        'productos_recientes': productos_admin,
+        'producto_a_editar': producto_a_editar,
         'active_tab': active_tab,
         'next': request.GET.get('next', '')
     })
@@ -124,6 +301,59 @@ def logout_view(request):
         auth_logout(request)
         messages.info(request, 'Has cerrado sesión con éxito.')
     return redirect('inicio')
+
+def api_importar_infotec(request):
+    """Endpoint AJAX para extraer datos de Infotec y autocompletar el formulario"""
+    if not request.user.is_authenticated or not (request.user.is_superuser or request.user.rol == 'admin'):
+        return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
+    
+    url = request.GET.get('url', '').strip()
+    if not url:
+        return JsonResponse({'success': False, 'error': 'Debes ingresar una URL válida de Infotec.'}, status=400)
+    
+    data = obtener_datos_infotec(url)
+    return JsonResponse(data)
+
+def api_buscar_productos(request):
+    """Endpoint AJAX con fetch para autocompletar buscador en tiempo real (muestra hasta 3 productos)."""
+    q = request.GET.get('q', '').strip()
+    if not q or len(q) < 2:
+        return JsonResponse({'productos': [], 'total_coincidencias': 0, 'query': q})
+
+    # Buscar por nombre o descripción en productos disponibles
+    qs = Producto.objects.filter(
+        disponible=True
+    ).filter(
+        Q(nombre__icontains=q) | Q(descripcion__icontains=q) | Q(categoria__nombre__icontains=q)
+    ).select_related('categoria').order_by('-creado')
+
+    total_coincidencias = qs.count()
+    primeros_3 = qs[:3]
+
+    resultados = []
+    for prod in primeros_3:
+        # Obtener imagen principal
+        img = prod.imagen_url.strip() if prod.imagen_url else ''
+        if not img:
+            galeria = prod.get_galeria_imagenes()
+            img = galeria[0] if galeria else '/static/inicio/images/placeholder.png'
+
+        resultados.append({
+            'id': prod.id,
+            'nombre': prod.nombre,
+            'precio': f"{float(prod.precio):.2f}",
+            'precio_anterior': f"{float(prod.precio_anterior):.2f}" if prod.precio_anterior else None,
+            'porcentaje_descuento': prod.porcentaje_descuento,
+            'categoria': prod.categoria.nombre if prod.categoria else 'General',
+            'imagen': img,
+            'url': f"/producto/{prod.id}/"
+        })
+
+    return JsonResponse({
+        'productos': resultados,
+        'total_coincidencias': total_coincidencias,
+        'query': q
+    })
 
 def api_producto_detalle(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id, disponible=True)
@@ -265,7 +495,8 @@ def api_producto_detalle(request, producto_id):
         ],
     }
 
-    imagenes = galerias.get(producto.id, [producto.imagen_url] if producto.imagen_url else [])
+    # Si tiene galería registrada en el modelo o en galerias hardcoded
+    imagenes = galerias.get(producto.id, producto.get_galeria_imagenes())
     specs = specs_map.get(producto.id, [
         ("Marca / Modelo", producto.nombre),
         ("Categoría", producto.categoria.nombre if producto.categoria else "Laptops & Cómputo"),
@@ -398,3 +629,67 @@ def api_crear_pedido(request):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Error al procesar el pedido: {str(e)}'}, status=500)
+
+
+def pedidos_view(request):
+    """
+    Vista de 'Mis Pedidos':
+    - Si es Superusuario: puede ver todos los pedidos del sistema y cambiar sus estados.
+    - Si es Cliente autenticado: ve únicamente los pedidos asociados a su cuenta o teléfono.
+    - Si no está autenticado: redirige a iniciar sesión.
+    """
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Inicia sesión para ver el historial y estado de tus pedidos.')
+        return redirect('/login/?next=/pedidos/')
+
+    from .models import Pedido
+    es_superuser = request.user.is_superuser or request.user.rol == 'admin'
+
+    if es_superuser:
+        pedidos_qs = Pedido.objects.all().prefetch_related('items').order_by('-creado')
+    else:
+        pedidos_qs = Pedido.objects.filter(
+            Q(usuario=request.user) | (Q(telefono=request.user.telefono) & ~Q(telefono=''))
+        ).prefetch_related('items').order_by('-creado')
+
+    total_pedidos = pedidos_qs.count()
+    pendientes_count = pedidos_qs.filter(estado='PENDIENTE').count()
+    en_camino_count = pedidos_qs.filter(estado='EN_CAMINO').count()
+    entregados_count = pedidos_qs.filter(estado='ENTREGADO').count()
+
+    return render(request, 'pedidos.html', {
+        'pedidos': pedidos_qs,
+        'es_superuser': es_superuser,
+        'total_pedidos': total_pedidos,
+        'pendientes_count': pendientes_count,
+        'en_camino_count': en_camino_count,
+        'entregados_count': entregados_count,
+    })
+
+
+@require_POST
+def actualizar_estado_pedido(request):
+    """
+    Actualiza el estado de entrega/pago de un pedido.
+    RESTRICCIÓN ESTRICTA: Solo permitido para superusuarios.
+    """
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        messages.error(request, '⛔ Acción denegada: Solo el Superusuario tiene autorización para modificar pedidos.')
+        return redirect('pedidos')
+
+    from .models import Pedido
+    pedido_id = request.POST.get('pedido_id')
+    nuevo_estado = request.POST.get('nuevo_estado', '').strip()
+
+    estados_validos = dict(Pedido.ESTADOS_CHOICES).keys()
+    if nuevo_estado not in estados_validos:
+        messages.error(request, 'Estado de pedido no válido.')
+        return redirect('pedidos')
+
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    estado_anterior = pedido.get_estado_display()
+    pedido.estado = nuevo_estado
+    pedido.save()
+
+    messages.success(request, f'✅ Pedido #{pedido.id} actualizado exitosamente: {estado_anterior} ➔ {pedido.get_estado_display()}')
+    return redirect('pedidos')
