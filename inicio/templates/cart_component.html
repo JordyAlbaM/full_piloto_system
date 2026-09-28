@@ -1,5 +1,5 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=4.6">
+<link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=4.7">
 
 <!-- Overlay Oscuro del Drawer -->
 <div class="cart-drawer-overlay" id="cartOverlay" onclick="CartManager.closeCart()"></div>
@@ -64,9 +64,14 @@
             <span class="pay-pill cash"><i class="fa-solid fa-hand-holding-dollar"></i> Efectivo</span>
         </div>
 
-        <button type="button" class="cart-action-btn btn-proceed-checkout" onclick="CartManager.openCheckoutModal()">
-            <i class="fa-solid fa-credit-card"></i> Pagar Pedido Ahora
-        </button>
+        <div class="cart-actions-wrapper">
+            <button type="button" class="cart-action-btn btn-proceed-checkout" onclick="CartManager.openCheckoutModal()">
+                <i class="fa-solid fa-credit-card"></i> Pagar Pedido Ahora
+            </button>
+            <button type="button" class="cart-action-btn btn-whatsapp-checkout" onclick="CartManager.buyViaWhatsApp()">
+                <i class="fa-brands fa-whatsapp"></i> Comprar por WhatsApp
+            </button>
+        </div>
         <button type="button" class="cart-action-btn btn-clear-cart" onclick="CartManager.clearCart()">
             <i class="fa-regular fa-trash-can"></i> Vaciar Carrito
         </button>
@@ -197,4 +202,4 @@
 </div>
 
 <!-- Script del Motor de Carrito y Pagos -->
-<script src="{% static 'inicio/js/cart.js' %}?v=4.6"></script>
+<script src="{% static 'inicio/js/cart.js' %}?v=4.7"></script>

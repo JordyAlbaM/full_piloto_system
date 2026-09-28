@@ -538,6 +538,74 @@ const CartManager = {
         }
     },
 
+    buyViaWhatsApp() {
+        const items = this.getItems();
+        if (items.length === 0) {
+            this.showToast({
+                title: '⚠️ Carrito vacío',
+                subtitle: 'Agrega productos al carrito para comprar por WhatsApp',
+                isWarning: true
+            });
+            return;
+        }
+
+        let subtotal = 0;
+        let itemsText = '';
+
+        items.forEach((item, index) => {
+            const sub = item.price * item.qty;
+            subtotal += sub;
+            itemsText += `  ${index + 1}. *${item.name}*\n     x${item.qty} un. — S/. ${sub.toFixed(2)} (S/. ${item.price.toFixed(2)} c/u)\n`;
+        });
+
+        const isFree = subtotal >= this.freeShippingThreshold;
+        const shippingCost = isFree ? 0 : this.standardShippingFee;
+        const total = subtotal + shippingCost;
+
+        let message = `🛒 *PEDIDO POR WHATSAPP - FULL PILOTO SYSTEM*\n`;
+        message += `==============================\n`;
+        message += `¡Hola Full Piloto System! 👋 Deseo realizar la compra de los siguientes productos de mi carrito:\n\n`;
+        message += `📦 *PRODUCTOS SELECCIONADOS:*\n`;
+        message += itemsText;
+        message += `==============================\n`;
+        message += `Subtotal: S/. ${subtotal.toFixed(2)}\n`;
+        message += `Envío Caraz: ${isFree ? '¡GRATIS! 🎉' : 'S/. ' + shippingCost.toFixed(2)}\n`;
+        message += `💰 *TOTAL A PAGAR:* *S/. ${total.toFixed(2)}*\n\n`;
+        message += `📍 Por favor, confírmenme el stock y los datos para coordinar el pago (Yape/Plin, Tarjeta o Efectivo) y la entrega en Caraz. ¡Muchas gracias!`;
+
+        const encoded = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${this.whatsappNumber}?text=${encoded}`;
+
+        window.open(whatsappUrl, '_blank');
+
+        this.showToast({
+            title: '📲 Abriendo WhatsApp...',
+            subtitle: 'Conectando con asesor para confirmar tu compra',
+            isWarning: false
+        });
+    },
+
+    buyItemViaWhatsApp(productId) {
+        const items = this.getItems();
+        const item = items.find(i => i.id === productId);
+        if (!item) return;
+
+        const subtotal = item.price * item.qty;
+        let message = `👋 *CONSULTA / COMPRA - FULL PILOTO SYSTEM*\n`;
+        message += `==============================\n`;
+        message += `¡Hola Full Piloto System! Deseo comprar este producto de mi carrito:\n\n`;
+        message += `💻 *${item.name}*\n`;
+        message += `🔢 Cantidad: *${item.qty} unidad${item.qty > 1 ? 'es' : ''}*\n`;
+        message += `💰 Precio total: *S/. ${subtotal.toFixed(2)}* (S/. ${item.price.toFixed(2)} c/u)\n`;
+        message += `==============================\n`;
+        message += `📍 ¿Tienen disponibilidad para entrega o recojo en Caraz?`;
+
+        const encoded = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${this.whatsappNumber}?text=${encoded}`;
+
+        window.open(whatsappUrl, '_blank');
+    },
+
     getCsrfToken() {
         const cookies = document.cookie.split(';');
         for (let cookie of cookies) {
@@ -611,7 +679,7 @@ const CartManager = {
                 if (meterContainer) meterContainer.classList.add('unlocked-celebrate');
 
                 shippingMeterStatus.innerHTML = `<span class="free-shipping-celebration-badge"><i class="fa-solid fa-gift"></i> ¡GRATIS!</span>`;
-                shippingMeterText.innerHTML = `🎉 <strong>¡Felicidades! Desbloqueaste Envío Gratis</strong> (Ahorras S/. ${this.standardShippingFee.toFixed(2)})`;
+                shippingMeterText.innerHTML = `🎉 <strong>¡Felicidades! Desbloqueaste Envío Gratis</strong> <small class="cart-discount-savings" style="font-size:10px; font-weight:700; opacity:0.85;">(Ahorras S/. ${this.standardShippingFee.toFixed(2)})</small>`;
             } else {
                 this.hasCelebratedFreeShipping = false;
                 if (meterContainer) meterContainer.classList.remove('unlocked-celebrate');
@@ -621,7 +689,7 @@ const CartManager = {
                 const diff = (this.freeShippingThreshold - subtotal).toFixed(2);
                 shippingProgressFill.style.width = `${percent}%`;
                 shippingMeterStatus.innerText = `${percent}%`;
-                shippingMeterText.innerHTML = `<i class="fa-solid fa-truck-fast"></i> Agrega <strong>S/. ${diff}</strong> más para <strong>Envío Gratis</strong>`;
+                shippingMeterText.innerHTML = `<i class="fa-solid fa-truck-fast"></i> Agrega <strong>S/. ${diff}</strong> más para <span class="cart-discount-text" style="font-size:10px; font-weight:800; color:#059669;">Envío Gratis</span>`;
             }
         }
 
@@ -683,9 +751,14 @@ const CartManager = {
                         </div>
                     </div>
                     <div class="cart-item-subtotal">
-                        <button type="button" class="item-delete-btn" onclick="CartManager.removeItem('${item.id}')" title="Eliminar producto">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                        <div class="item-actions-row">
+                            <button type="button" class="item-whatsapp-btn" onclick="CartManager.buyItemViaWhatsApp('${item.id}')" title="Pedir este producto por WhatsApp" aria-label="Pedir por WhatsApp">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </button>
+                            <button type="button" class="item-delete-btn" onclick="CartManager.removeItem('${item.id}')" title="Eliminar producto" aria-label="Eliminar producto">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
                         <span class="item-total-price">S/. ${itemSubtotal}</span>
                     </div>
                 </div>
@@ -706,6 +779,8 @@ const CartManager = {
         }
     }
 };
+
+window.CartManager = CartManager;
 
 document.addEventListener('DOMContentLoaded', () => {
     CartManager.updateUI();
