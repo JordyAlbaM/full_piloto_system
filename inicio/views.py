@@ -21,11 +21,23 @@ from .forms import RegistroClienteForm, LoginClienteForm, ProductoForm
 def obtener_datos_infotec(url):
     """Extrae automáticamente nombre, precio, descripción e imágenes de una URL de Infotec"""
     try:
+        url_limpia = (url or '').strip().strip('\'"<> \t\n\r')
+        if not url_limpia:
+            return {'success': False, 'error': 'No se proporcionó un enlace válido.'}
+
+        # Si el usuario pegó el enlace sin https:// (ej: infotec.com.pe/...)
+        if not url_limpia.startswith('http://') and not url_limpia.startswith('https://'):
+            url_limpia = 'https://' + url_limpia
+
+        # Validar que sea del dominio infotec
+        if 'infotec.com.pe' not in url_limpia:
+            return {'success': False, 'error': 'El enlace ingresado no corresponde a infotec.com.pe.'}
+
         req = urllib.request.Request(
-            url.strip(),
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+            url_limpia,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'}
         )
-        content = urllib.request.urlopen(req, timeout=12).read().decode('utf-8', errors='ignore')
+        content = urllib.request.urlopen(req, timeout=14).read().decode('utf-8', errors='ignore')
         
         # 1. Extraer JSON-LD de Producto
         product_info = {}
@@ -62,7 +74,103 @@ def obtener_datos_infotec(url):
             gallery = gallery[1:]
         elif main_img and main_img in gallery:
             gallery.remove(main_img)
-            
+
+        # 3. Extraer especificaciones y características de la ficha técnica de Infotec
+        features = {}
+        # A) Infotec suele tener <dl class="data-sheet"><dt class="name">...</dt><dd class="value">...</dd></dl>
+        dt_matches = re.findall(r'<dt[^>]*class=[\'"][^\'"]*name[^\'"]*[\'"][^>]*>(.*?)</dt>\s*<dd[^>]*class=[\'"][^\'"]*value[^\'"]*[\'"][^>]*>(.*?)</dd>', content, re.DOTALL | re.IGNORECASE)
+        for dt, dd in dt_matches:
+            k = re.sub(r'<[^>]+>', '', dt).strip()
+            v = re.sub(r'<[^>]+>', '', dd).strip()
+            if k and v:
+                features[k.lower()] = v
+
+        # B) Extraer de la ficha técnica rápida / lista de componentes de PCs y laptops (<ul class="ficha-tecnica"> o product-description-short)
+        short_match = re.search(r'product-description-short[^>]*>(.*?)</div>', content, re.DOTALL | re.IGNORECASE)
+        if short_match:
+            short_html = short_match.group(1)
+            li_matches = re.findall(r'<li[^>]*>(.*?)</li>', short_html, re.DOTALL | re.IGNORECASE)
+            for li in li_matches:
+                txt = html.unescape(re.sub(r'<[^>]+>', '', li)).strip()
+                txt = re.sub(r'\s+', ' ', txt)
+                if ':' in txt:
+                    parts = txt.split(':', 1)
+                    k = parts[0].strip().lower()
+                    v = parts[1].strip()
+                    if k and v and 'importante' not in k:
+                        # Si ya existía pero esta versión es más detallada (ej: procesador con núcleos), se prioriza
+                        features[k] = v
+
+        # C) Si no hubo en data-sheet ni lista, buscar en tablas tradicionales
+        if not features:
+            tr_matches = re.findall(r'<tr[^>]*>\s*<t[dh][^>]*>(.*?)</t[dh]>\s*<td[^>]*>(.*?)</td>\s*</tr>', content, re.DOTALL | re.IGNORECASE)
+            for td1, td2 in tr_matches:
+                k = re.sub(r'<[^>]+>', '', td1).strip()
+                v = re.sub(r'<[^>]+>', '', td2).strip()
+                if k and v and len(k) < 50:
+                    features[k.lower()] = v
+
+        marca = features.get('marca', '')
+        if not marca:
+            # En setups armados o PCs, la marca puede ser la línea o ensamblado gamer
+            if 'linea' in features:
+                marca = features['linea']
+            elif 'setup' in nombre.lower() or 'pc' in nombre.lower():
+                marca = 'Custom PC / Ensamblado'
+
+        modelo = features.get('modelo', '') or features.get('skup', '') or features.get('linea', '')
+        procesador = features.get('procesador', '')
+        ram = features.get('memoria ram', '') or features.get('ram', '')
+        disco = features.get('almacenamiento', '') or features.get('disco duro', '') or features.get('ssd', '')
+        pantalla = features.get('pantalla', '')
+        if not pantalla and ('pc' in nombre.lower() or 'setup' in nombre.lower()):
+            # Detectar si incluye monitor en el nombre (ej: '+ 27 FHD 144HZ' o 'Monitor 24...')
+            mon_combo_match = re.search(r'(?:monitor\s*[:\+]?|(?:\+\s*))(\d+(?:\.\d+)?[\'\"\s]*(?:fhd|qhd|ips|hz|[0-9]{2,3}hz)[^\+]*)', nombre, re.IGNORECASE)
+            if mon_combo_match:
+                pantalla = f"Incluye Monitor {mon_combo_match.group(1).strip()}"
+            elif 'monitor' in nombre.lower():
+                pantalla = "Incluye Monitor (Revisar modelo en título)"
+            else:
+                pantalla = "No incluye monitor (Solo Torre / Case)"
+
+        grafica = features.get('tarjeta de video', '') or features.get('gráficos', '') or features.get('grafica', '')
+        garantia = features.get('garantia', '') or features.get('garantía', '') or '12 Meses Oficial en tienda Caraz'
+        
+        # Generar texto de especificaciones adicionales estructuradas
+        extras_lines = []
+        # Campos que ya van en sus inputs dedicados
+        campos_principales = {
+            'marca', 'modelo', 'skup', 'linea', 'procesador', 'memoria ram', 'ram',
+            'almacenamiento', 'disco duro', 'ssd', 'pantalla', 'tarjeta de video',
+            'gráficos', 'grafica', 'garantia', 'garantía'
+        }
+
+        # Dar formato visual ordenado si existen componentes de hardware específicos
+        orden_componentes_pc = [
+            ('mainboard', 'Placa Madre (Mainboard)'),
+            ('placa madre', 'Placa Madre'),
+            ('cooler', 'Refrigeración / Cooler'),
+            ('enfriamiento liquido', 'Refrigeración Líquida'),
+            ('case', 'Case / Gabinete'),
+            ('fuente de poder', 'Fuente de Poder'),
+            ('fuente', 'Fuente de Poder'),
+            ('producto', 'Tipo de Producto'),
+        ]
+
+        componentes_agregados = set()
+        etiquetas_agregadas = set()
+        for key_cand, label_custom in orden_componentes_pc:
+            if key_cand in features and label_custom not in etiquetas_agregadas:
+                extras_lines.append(f"{label_custom}: {features[key_cand]}")
+                etiquetas_agregadas.add(label_custom)
+                componentes_agregados.add(key_cand)
+
+        # Cualquier otra especificación técnica no contemplada arriba (conectividad, peso, batería, etc.)
+        for k_raw, v_raw in features.items():
+            if k_raw not in campos_principales and k_raw not in componentes_agregados:
+                k_title = k_raw.capitalize()
+                extras_lines.append(f"{k_title}: {v_raw}")
+
         return {
             'success': True,
             'nombre': nombre,
@@ -70,7 +178,16 @@ def obtener_datos_infotec(url):
             'descripcion': desc,
             'imagen_url': main_img,
             'imagenes_secundarias': "\n".join(gallery),
-            'total_fotos': (1 if main_img else 0) + len(gallery)
+            'total_fotos': (1 if main_img else 0) + len(gallery),
+            'marca': marca,
+            'modelo_codigo': modelo,
+            'procesador': procesador,
+            'ram': ram,
+            'almacenamiento': disco,
+            'pantalla': pantalla,
+            'grafica': grafica,
+            'garantia': garantia,
+            'especificaciones_adicionales': "\n".join(extras_lines)
         }
     except Exception as e:
         return {'success': False, 'error': f'No se pudo extraer la información del enlace: {str(e)}'}
@@ -123,20 +240,28 @@ def detalle_producto(request, producto_id):
     # Galería dinámica para el producto
     galeria_fotos = producto.get_galeria_imagenes()
     
+    # Lista estructurada de especificaciones técnicas
+    specs_list = producto.get_lista_especificaciones()
+
     return render(request, 'detalle.html', {
         'producto': producto,
         'productos_relacionados': productos_relacionados,
         'galeria_fotos': galeria_fotos,
+        'specs_list': specs_list,
     })
 
 def carrito(request):
     return render(request, 'carrito.html')
 
 def login_view(request):
-    active_tab = request.GET.get('tab', 'login')
+    # Si el usuario es administrador/superuser, por defecto su pestaña es 'add_product'
+    es_admin = request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin')
+    default_tab = 'add_product' if es_admin else 'login'
+    active_tab = request.GET.get('tab', default_tab)
     edit_id = request.GET.get('edit')
+    return_url = request.GET.get('return_url', '')
     producto_a_editar = None
-    if edit_id and request.user.is_authenticated and (request.user.is_superuser or request.user.rol == 'admin'):
+    if edit_id and es_admin:
         producto_a_editar = Producto.objects.filter(id=edit_id).first()
         if producto_a_editar:
             active_tab = 'edit_product'
@@ -159,6 +284,7 @@ def login_view(request):
 
     if request.method == 'POST':
         action = request.POST.get('action')
+        post_return_url = request.POST.get('return_url', '').strip()
         
         # Acción 1: Registro de cliente
         if action == 'register':
@@ -255,13 +381,25 @@ def login_view(request):
 
                 prod_guardado.save()
                 messages.success(request, f'✅ ¡Producto "{prod_guardado.nombre}" actualizado con éxito!')
-                return redirect('/login/?tab=recent_products')
+                if post_return_url:
+                    return redirect(post_return_url)
+                return redirect(f'/producto/{prod_guardado.id}/')
             else:
                 producto_a_editar = prod_instance
                 err_list = [f"{field}: {', '.join(errs)}" for field, errs in producto_form.errors.items()]
                 messages.error(request, f"Error al actualizar el producto: {' | '.join(err_list)}")
 
-
+        # Acción 2.2: Eliminar producto (Solo Superusuario / Admin)
+        elif action == 'delete_product':
+            if not request.user.is_authenticated or not (request.user.is_superuser or request.user.rol == 'admin'):
+                messages.error(request, '⛔ No tienes permisos para eliminar productos.')
+                return redirect('login')
+            p_id = request.POST.get('producto_id')
+            prod_instance = get_object_or_404(Producto, id=p_id)
+            nombre_del = prod_instance.nombre
+            prod_instance.delete()
+            messages.info(request, f'🗑️ El producto "{nombre_del}" ha sido eliminado del catálogo.')
+            return redirect('/login/?tab=recent_products')
 
         # Acción 3: Login estándar
         else:
@@ -293,7 +431,8 @@ def login_view(request):
         'productos_recientes': productos_admin,
         'producto_a_editar': producto_a_editar,
         'active_tab': active_tab,
-        'next': request.GET.get('next', '')
+        'next': request.GET.get('next', ''),
+        'return_url': return_url
     })
 
 def logout_view(request):
@@ -497,12 +636,11 @@ def api_producto_detalle(request, producto_id):
 
     # Si tiene galería registrada en el modelo o en galerias hardcoded
     imagenes = galerias.get(producto.id, producto.get_galeria_imagenes())
-    specs = specs_map.get(producto.id, [
-        ("Marca / Modelo", producto.nombre),
-        ("Categoría", producto.categoria.nombre if producto.categoria else "Laptops & Cómputo"),
-        ("Stock", f"{producto.stock} unidades en Caraz"),
-        ("Garantía", "12 Meses en tienda Full Piloto System"),
-    ])
+    
+    # Prioridad: Si el modelo tiene especificaciones configuradas directamente, usarlas; sino usar specs_map o fallback
+    specs = producto.get_lista_especificaciones()
+    if not specs or len(specs) <= 2:
+        specs = specs_map.get(producto.id, specs)
 
     return JsonResponse({
         'id': producto.id,

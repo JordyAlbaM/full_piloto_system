@@ -139,19 +139,34 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['nombre', 'categoria', 'precio', 'precio_tachado', 'stock', 'imagen_url', 'imagenes_secundarias', 'disponible', 'descripcion']
+        fields = [
+            'nombre', 'categoria', 'precio', 'precio_tachado', 'stock',
+            'marca', 'modelo_codigo', 'procesador', 'ram', 'almacenamiento',
+            'pantalla', 'grafica', 'garantia', 'estado_producto',
+            'especificaciones_adicionales', 'descripcion',
+            'imagen_url', 'imagenes_secundarias', 'disponible'
+        ]
         labels = {
-            'nombre': 'Nombre / Modelo de la Laptop o Producto',
+            'nombre': 'Nombre / Título del Producto',
             'categoria': 'Categoría',
             'precio': 'Precio de Oferta / Venta (S/.)',
             'precio_tachado': 'Precio Normal Tachado (S/.) (Opcional)',
             'stock': 'Stock Disponible en Caraz',
+            'marca': 'Marca del Fabricante',
+            'modelo_codigo': 'Modelo / Código de Parte (SKU)',
+            'procesador': 'Procesador (CPU)',
+            'ram': 'Memoria RAM',
+            'almacenamiento': 'Disco / Almacenamiento (SSD / HDD)',
+            'pantalla': 'Pantalla / Display',
+            'grafica': 'Tarjeta de Video / Gráficos (GPU)',
+            'garantia': 'Garantía Técnica',
+            'estado_producto': 'Condición del Equipo',
+            'especificaciones_adicionales': 'Especificaciones Técnicas Adicionales',
+            'descripcion': 'Descripción General / Reseña Comercial',
             'imagen_url': 'O pegar URL externa de Imagen Principal',
             'imagenes_secundarias': 'O pegar URLs Secundarias (una por línea)',
             'disponible': '¿Producto Activo para la Venta?',
-            'descripcion': 'Descripción y Especificaciones Técnicas',
         }
-
 
         widgets = {
             'nombre': forms.TextInput(attrs={
@@ -175,11 +190,51 @@ class ProductoForm(forms.ModelForm):
                 'placeholder': 'Ej: 8',
                 'min': '0'
             }),
+            'marca': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: Lenovo, HP, ASUS, Kingston, Logitech'
+            }),
+            'modelo_codigo': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: 83K1016CLM / 15-fc0225dx'
+            }),
+            'procesador': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: Intel Core i5-13420H (hasta 4.60GHz, 8 núcleos) / AMD Ryzen 5 7520U'
+            }),
+            'ram': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: 16GB DDR5 5200MHz / 8GB LPDDR5'
+            }),
+            'almacenamiento': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: 512GB SSD M.2 PCIe 4.0 NVMe ultrarrápido'
+            }),
+            'pantalla': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: 15.6" Full HD (1920x1080) Antirreflejo IPS / Táctil'
+            }),
+            'grafica': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: Intel UHD Graphics / NVIDIA GeForce RTX 3050 6GB'
+            }),
+            'garantia': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: 12 Meses Oficial con respaldo técnico en tienda Caraz'
+            }),
+            'estado_producto': forms.TextInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: Nuevo Sellado en Caja / Reacondicionado Certificado'
+            }),
+            'especificaciones_adicionales': forms.Textarea(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Formato Característica: Detalle (una por línea):\nTeclado: Español con pad numérico ergonómico\nConectividad: Wi-Fi 6 + Bluetooth 5.1 + RJ-45 Gigabit\nPuertos: 1x USB-C, 2x USB 3.2, 1x HDMI 1.4b\nCámara: HD 720p con obturador de privacidad\nBatería: 47Wh con carga rápida',
+                'rows': 4
+            }),
             'imagen_url': forms.TextInput(attrs={
                 'class': 'form-input-field',
                 'placeholder': 'https://infotec.com.pe/... o /media/... o /static/...'
             }),
-
             'imagenes_secundarias': forms.Textarea(attrs={
                 'class': 'form-input-field',
                 'placeholder': 'https://infotec.com.pe/foto2.jpg\nhttps://infotec.com.pe/foto3.jpg\n(Una URL por línea)',
@@ -190,8 +245,8 @@ class ProductoForm(forms.ModelForm):
             }),
             'descripcion': forms.Textarea(attrs={
                 'class': 'form-input-field',
-                'placeholder': 'Especificaciones detalladas:\n• Procesador: Intel Core i5 13va Gen\n• Memoria RAM: 16GB DDR5\n• Almacenamiento: 512GB SSD NVMe\n• Pantalla: 15.6" Full HD IPS\n• Garantía: 12 Meses en Jr. Sucre 715, Caraz',
-                'rows': 5
+                'placeholder': 'Descripción atractiva y beneficios del equipo para el cliente...',
+                'rows': 4
             }),
         }
 

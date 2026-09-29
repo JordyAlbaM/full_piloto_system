@@ -33,19 +33,27 @@
 
     <!-- Contenido Principal Centrado -->
     <main class="login-main-wrapper">
-        <div class="login-card">
+        <div class="login-card {% if active_tab == 'add_product' or active_tab == 'edit_product' or active_tab == 'recent_products' %}admin-mode-card{% endif %}" id="loginCard">
             
             <div class="login-card-header">
                 <div class="login-avatar-badge" id="authAvatar">
                     {% if active_tab == 'add_product' %}
                     <i class="fa-solid fa-laptop-code" style="color: #2563eb;"></i>
+                    {% elif active_tab == 'edit_product' %}
+                    <i class="fa-solid fa-pen-to-square" style="color: #f59e0b;"></i>
+                    {% elif active_tab == 'recent_products' %}
+                    <i class="fa-solid fa-boxes-stacked" style="color: #059669;"></i>
                     {% else %}
                     <i class="fa-regular fa-user"></i>
                     {% endif %}
                 </div>
                 <h1 class="login-card-title" id="authTitle">
                     {% if active_tab == 'add_product' %}
-                        Panel de Administración: Registrar Laptop / Producto
+                        Panel de Administración: Registrar Producto
+                    {% elif active_tab == 'edit_product' %}
+                        Panel de Administración: Editar Producto
+                    {% elif active_tab == 'recent_products' %}
+                        Inventario Reciente de la Tienda
                     {% elif active_tab == 'register' %}
                         Crea tu cuenta en Full Piloto System
                     {% else %}
@@ -55,6 +63,10 @@
                 <p class="login-card-desc" id="authDesc">
                     {% if active_tab == 'add_product' %}
                         Agrega nuevos equipos al catálogo y base de datos con todos sus datos y especificaciones.
+                    {% elif active_tab == 'edit_product' %}
+                        Modifica precios, stock, fotos o descripción del producto seleccionado.
+                    {% elif active_tab == 'recent_products' %}
+                        Listado de los productos registrados en la base de datos de Caraz.
                     {% elif active_tab == 'register' %}
                         Regístrate para comprar más rápido y recibir ofertas exclusivas en Caraz.
                     {% else %}
@@ -100,6 +112,7 @@
             </div>
             {% endif %}
 
+            {% if not user.is_authenticated %}
             <!-- FORMULARIO 1: INICIAR SESIÓN -->
             <form method="POST" action="{% url 'login' %}{% if next %}?next={{ next }}{% endif %}" id="formLogin" style="{% if active_tab == 'register' %}display: none;{% endif %}">
                 {% csrf_token %}
@@ -275,223 +288,394 @@
                     <i class="fa-solid fa-user-plus"></i> Registrarme y Empezar
                 </button>
             </form>
+            {% endif %}
 
             {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
             <!-- FORMULARIO 3: AGREGAR O EDITAR PRODUCTO A LA BASE DE DATOS (SOLO SUPERUSUARIO / ADMIN) -->
             <form method="POST" action="{% url 'login' %}?tab={% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}" id="formAddProduct" enctype="multipart/form-data" novalidate style="{% if active_tab != 'add_product' and active_tab != 'edit_product' %}display: none;{% endif %}">
                 {% csrf_token %}
 
-
                 <input type="hidden" name="action" id="formProductAction" value="{% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}">
                 {% if producto_a_editar %}
                 <input type="hidden" name="producto_id" value="{{ producto_a_editar.id }}">
                 {% endif %}
 
-                <div class="admin-badge-strip" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <i class="fa-solid fa-user-shield"></i>
-                        <span>Modo Administrador: <strong>{{ user.get_full_name|default:user.email }}</strong></span>
+                <!-- BANNER DE ENCABEZADO ADMIN -->
+                <div class="admin-header-banner">
+                    <div class="title-group">
+                        <h2>
+                            {% if active_tab == 'edit_product' %}
+                            <i class="fa-solid fa-pen-to-square" style="color: #fbbf24;"></i> Editando Producto #{{ producto_a_editar.id }}
+                            {% else %}
+                            <i class="fa-solid fa-plus-circle" style="color: #60a5fa;"></i> Registro de Nuevo Producto
+                            {% endif %}
+                        </h2>
+                        <p>Completa la información comercial, ficha técnica y fotos para publicarlo en la tienda virtual de Caraz.</p>
                     </div>
-                    {% if active_tab == 'edit_product' %}
-                    <span style="background: #f59e0b; color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 800;">
-                        <i class="fa-solid fa-pen-to-square"></i> Editando #{{ producto_a_editar.id }}
-                    </span>
-                    {% endif %}
+                    <div class="user-tag">
+                        <i class="fa-solid fa-user-shield"></i> {{ user.get_full_name|default:user.email }}
+                    </div>
                 </div>
 
-                <!-- OPCIÓN DE CLONACIÓN DESDE INFOTEC (COLAPSABLE / OPCIONAL) -->
-                <details class="infotec-import-card" style="background: #f0fdf4; border: 1.5px dashed #86efac; border-radius: 12px; padding: 12px 16px; margin: 16px 0;">
-                    <summary style="font-weight: 800; font-size: 13px; color: #166534; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-                        <span style="display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #16a34a;"></i> ¿Deseas autocompletar desde un link de Infotec? (Opcional)
+                <!-- 1. CLONADOR RÁPIDO DESDE INFOTEC -->
+                <details class="admin-section-card infotec-clone" style="cursor: pointer; padding: 18px 20px;">
+                    <summary style="font-weight: 800; font-size: 13.5px; color: #166534; display: flex; align-items: center; justify-content: space-between; user-select: none;">
+                        <span style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #16a34a; font-size: 16px;"></i> 
+                            <span>¿Deseas autocompletar todo desde un link de Infotec?</span>
                         </span>
-                        <span style="font-size: 11px; color: #15803d; font-weight: 600;">Clic para abrir</span>
+                        <span style="font-size: 11.5px; background: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 12px; font-weight: 700;">
+                            Importador Inteligente <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 3px;"></i>
+                        </span>
                     </summary>
-                    <div style="margin-top: 10px;">
-                        <p style="font-size: 11.5px; color: #4b5563; margin-bottom: 8px;">Pega un enlace de producto de Infotec para autocompletar nombre, precio, fotos y descripción en segundos:</p>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="url" id="infotecUrlInput" placeholder="https://infotec.com.pe/..." style="flex: 1; padding: 9px 12px; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 13px; outline: none; background: #ffffff;">
-                            <button type="button" id="btnImportarInfotec" onclick="importarDeInfotec()" style="background: #16a34a; color: #fff; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
-                                <i class="fa-solid fa-cloud-arrow-down"></i> <span>Extraer Datos</span>
+                    <div style="margin-top: 14px; cursor: default;">
+                        <p style="font-size: 12px; color: #374151; margin-bottom: 10px;">
+                            Pega el enlace web de cualquier producto o laptop de Infotec para autocompletar nombre, precio, procesador, memoria RAM, SSD, pantalla y fotos en segundos:
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <input type="url" id="infotecUrlInput" placeholder="https://infotec.com.pe/laptop/..." style="flex: 1; min-width: 260px; padding: 11px 14px; border: 1.5px solid #86efac; border-radius: 10px; font-size: 13px; outline: none; background: #ffffff;">
+                            <button type="button" id="btnImportarInfotec" onclick="importarDeInfotec()" style="background: #16a34a; color: #fff; border: none; padding: 11px 20px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
+                                <i class="fa-solid fa-cloud-arrow-down"></i> <span>Extraer y Autocompletar</span>
                             </button>
                         </div>
-                        <div id="importLoadingStatus" style="display: none; margin-top: 8px; font-size: 12px; color: #16a34a; font-weight: 600;">
-                            <i class="fa-solid fa-spinner fa-spin"></i> Conectando con Infotec y obteniendo datos...
+                        <div id="importLoadingStatus" style="display: none; margin-top: 10px; font-size: 12.5px; color: #16a34a; font-weight: 700;">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Conectando con Infotec y obteniendo ficha técnica...
                         </div>
-                        <div id="importSuccessBadge" style="display: none; margin-top: 8px; font-size: 12px; color: #15803d; font-weight: 700;">
+                        <div id="importSuccessBadge" style="display: none; margin-top: 10px; font-size: 12.5px; color: #15803d; font-weight: 800; background: #dcfce7; padding: 8px 14px; border-radius: 8px; border: 1px solid #86efac;">
                             <i class="fa-solid fa-circle-check"></i> <span id="importSuccessText"></span>
                         </div>
                     </div>
                 </details>
 
-
                 {% if producto_form.non_field_errors %}
-                <div class="auth-alert auth-alert-error" style="margin-bottom: 16px;">
+                <div class="auth-alert auth-alert-error" style="margin-bottom: 20px;">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <span>{{ producto_form.non_field_errors|striptags }}</span>
                 </div>
                 {% endif %}
 
-                <!-- Nombre del Producto / Laptop -->
-                <div class="form-group">
-                    <div class="form-label-row">
-                        <label class="form-label" for="id_nombre">Nombre o Modelo del Producto *</label>
-                    </div>
-                    <div class="form-input-container">
-                        {{ producto_form.nombre }}
-                        <i class="fa-solid fa-laptop form-input-icon"></i>
-                    </div>
-                    {% if producto_form.nombre.errors %}
-                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.nombre.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-
-                <!-- Categoría y Stock -->
-                <div class="auth-form-row">
-                    <div class="form-group">
-                        <div class="form-label-row">
-                            <label class="form-label" for="id_categoria">Categoría *</label>
+                <!-- 2. SECCIÓN: INFORMACIÓN COMERCIAL BÁSICA -->
+                <div class="admin-section-card">
+                    <div class="admin-section-header">
+                        <div class="section-title">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>1. Información Comercial & Precios</span>
                         </div>
-                        <div class="form-input-container">
-                            {{ producto_form.categoria }}
-                            <i class="fa-solid fa-layer-group form-input-icon"></i>
-                        </div>
-                        {% if producto_form.categoria.errors %}
-                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.categoria.errors|striptags }}</div>
-                        {% endif %}
+                        <span class="section-badge">Obligatorio</span>
                     </div>
 
                     <div class="form-group">
                         <div class="form-label-row">
-                            <label class="form-label" for="id_stock">Stock en Caraz *</label>
+                            <label class="form-label" for="id_nombre">Nombre Comercial / Título del Producto *</label>
                         </div>
                         <div class="form-input-container">
-                            {{ producto_form.stock }}
-                            <i class="fa-solid fa-boxes-stacked form-input-icon"></i>
+                            {{ producto_form.nombre }}
+                            <i class="fa-solid fa-laptop form-input-icon"></i>
                         </div>
-                        {% if producto_form.stock.errors %}
-                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.stock.errors|striptags }}</div>
+                        {% if producto_form.nombre.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.nombre.errors|striptags }}</div>
                         {% endif %}
+                    </div>
+
+                    <div class="admin-fields-grid-3">
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_categoria">Categoría *</label>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.categoria }}
+                                <i class="fa-solid fa-layer-group form-input-icon"></i>
+                            </div>
+                            {% if producto_form.categoria.errors %}
+                            <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.categoria.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_precio">Precio Venta (S/.) *</label>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.precio }}
+                                <i class="fa-solid fa-hand-holding-dollar form-input-icon"></i>
+                            </div>
+                            {% if producto_form.precio.errors %}
+                            <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.precio.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_precio_tachado">Precio Anterior (Tachado)</label>
+                                <span class="form-label-hint">Opcional</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.precio_tachado }}
+                                <i class="fa-solid fa-strikethrough form-input-icon"></i>
+                            </div>
+                            {% if producto_form.precio_tachado.errors %}
+                            <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.precio_tachado.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="admin-fields-grid" style="align-items: center;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_stock">Stock Disponible en Caraz *</label>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.stock }}
+                                <i class="fa-solid fa-boxes-stacked form-input-icon"></i>
+                            </div>
+                            {% if producto_form.stock.errors %}
+                            <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.stock.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0; padding-top: 18px;">
+                            <label class="checkbox-switch-label" for="id_disponible" style="background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; width: 100%;">
+                                {{ producto_form.disponible }}
+                                <span style="font-weight: 700; color: #0f172a;"><i class="fa-solid fa-eye" style="color: #059669; margin-right: 4px;"></i> Producto activo y visible para compra</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Precio Oferta y Precio Tachado -->
-                <div class="auth-form-row">
-                    <div class="form-group">
-                        <div class="form-label-row">
-                            <label class="form-label" for="id_precio">Precio de Oferta (S/.) *</label>
+                <!-- 3. SECCIÓN: ESPECIFICACIONES TÉCNICAS DETALLADAS (LA FICHA EDITABLE) -->
+                <div class="admin-section-card primary-specs">
+                    <div class="admin-section-header">
+                        <div class="section-title">
+                            <i class="fa-solid fa-microchip"></i>
+                            <span>2. Ficha Técnica & Especificaciones Detalladas</span>
                         </div>
-                        <div class="form-input-container">
-                            {{ producto_form.precio }}
-                            <i class="fa-solid fa-tag form-input-icon"></i>
-                        </div>
-                        {% if producto_form.precio.errors %}
-                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.precio.errors|striptags }}</div>
-                        {% endif %}
+                        <span class="section-badge" style="background: #dbeafe; color: #1e40af;">Personalizable al 100%</span>
                     </div>
 
-                    <div class="form-group">
-                        <div class="form-label-row">
-                            <label class="form-label" for="id_precio_tachado">Precio Normal Tachado (S/.)</label>
-                            <span class="form-label-hint">Opcional</span>
+                    <!-- Fila 1: Marca y Modelo/Código -->
+                    <div class="admin-fields-grid">
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_marca">Marca</label>
+                                <span class="form-label-hint">Ej: Lenovo, HP, ASUS</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.marca }}
+                                <i class="fa-solid fa-copyright form-input-icon"></i>
+                            </div>
                         </div>
-                        <div class="form-input-container">
-                            {{ producto_form.precio_tachado }}
-                            <i class="fa-solid fa-strikethrough form-input-icon"></i>
-                        </div>
-                        {% if producto_form.precio_tachado.errors %}
-                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.precio_tachado.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                </div>
 
-                <!-- Disponibilidad Inmediata -->
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="checkbox-switch-label" for="id_disponible">
-                        {{ producto_form.disponible }}
-                        <span>Visible para compra en la web</span>
-                    </label>
-                </div>
-
-                <!-- SECCIÓN DE FOTOS: SUBIR ARCHIVOS LOCALES O USAR ENLACE EXTERNO -->
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
-                        <span style="font-weight: 800; font-size: 13.5px; color: #1e293b; display: flex; align-items: center; gap: 7px;">
-                            <i class="fa-solid fa-camera" style="color: #2563eb;"></i> Fotos del Producto
-                        </span>
-                        <span style="font-size: 11.5px; color: #64748b;">Puedes subir desde tu PC o usar enlaces</span>
-                    </div>
-
-                    <!-- 1. Foto de Portada Principal -->
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <div class="form-label-row">
-                            <label class="form-label" for="id_imagen_archivo"><strong>Foto de Portada Principal:</strong></label>
-                            <span class="form-label-hint">Subir desde PC</span>
-                        </div>
-                        <div class="form-input-container">
-                            {{ producto_form.imagen_archivo }}
-                        </div>
-                        {% if producto_form.imagen_archivo.errors %}
-                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagen_archivo.errors|striptags }}</div>
-                        {% endif %}
-
-                        <div style="margin-top: 8px;">
-                            <label class="form-label" for="id_imagen_url" style="font-size: 11.5px; color: #64748b; font-weight: 600;">O ruta / enlace web de portada:</label>
-                            <div class="form-input-container" style="margin-top: 4px;">
-                                {{ producto_form.imagen_url }}
-                                <i class="fa-regular fa-image form-input-icon"></i>
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_modelo_codigo">Modelo / Código (SKU)</label>
+                                <span class="form-label-hint">Ej: 82YU017LLM</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.modelo_codigo }}
+                                <i class="fa-solid fa-barcode form-input-icon"></i>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 2. Fotos de Galería / Secundarias -->
+                    <!-- Fila 2: Procesador y Memoria RAM -->
+                    <div class="admin-fields-grid">
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_procesador">Procesador (CPU)</label>
+                                <span class="form-label-hint">Modelo, núcleos y velocidad</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.procesador }}
+                                <i class="fa-solid fa-microchip form-input-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_ram">Memoria RAM</label>
+                                <span class="form-label-hint">Capacidad, tipo y frecuencia</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.ram }}
+                                <i class="fa-solid fa-memory form-input-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Disco / Almacenamiento y Pantalla -->
+                    <div class="admin-fields-grid">
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_almacenamiento">Disco / Almacenamiento</label>
+                                <span class="form-label-hint">Ej: 512GB SSD M.2 NVMe PCIe 4.0</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.almacenamiento }}
+                                <i class="fa-solid fa-hard-drive form-input-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_pantalla">Pantalla / Display</label>
+                                <span class="form-label-hint">Tamaño, resolución y panel</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.pantalla }}
+                                <i class="fa-solid fa-desktop form-input-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 4: Tarjeta Gráfica y Condición / Estado -->
+                    <div class="admin-fields-grid">
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_grafica">Tarjeta Gráfica (GPU)</label>
+                                <span class="form-label-hint">Dedicada o integrada</span>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.grafica }}
+                                <i class="fa-solid fa-gamepad form-input-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-label-row">
+                                <label class="form-label" for="id_estado_producto">Condición / Estado del Equipo</label>
+                            </div>
+                            <div class="form-input-container">
+                                {{ producto_form.estado_producto }}
+                                <i class="fa-solid fa-certificate form-input-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 5: Garantía Técnica -->
+                    <div class="form-group">
+                        <div class="form-label-row">
+                            <label class="form-label" for="id_garantia">Garantía Técnica Local</label>
+                            <span class="form-label-hint">Garantía en tienda Caraz</span>
+                        </div>
+                        <div class="form-input-container">
+                            {{ producto_form.garantia }}
+                            <i class="fa-solid fa-shield-halved form-input-icon"></i>
+                        </div>
+                    </div>
+
+                    <!-- Especificaciones Adicionales Personalizables -->
                     <div class="form-group" style="margin-bottom: 0;">
                         <div class="form-label-row">
-                            <label class="form-label" for="id_imagenes_secundarias_archivos"><strong>Fotos Secundarias / Galería:</strong></label>
-                            <span class="form-label-hint">Subir desde PC (varias)</span>
+                            <label class="form-label" for="id_especificaciones_adicionales">Especificaciones Adicionales (Formato Clave: Valor)</label>
+                            <span class="form-label-hint">Una por línea • Puedes agregar lo que desees</span>
                         </div>
                         <div class="form-input-container">
-                            {{ producto_form.imagenes_secundarias_archivos }}
+                            {{ producto_form.especificaciones_adicionales }}
                         </div>
-                        {% if producto_form.imagenes_secundarias_archivos.errors %}
-                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.imagenes_secundarias_archivos.errors|striptags }}</div>
-                        {% endif %}
+                    </div>
+                </div>
 
-                        <div style="margin-top: 8px;">
-                            <label class="form-label" for="id_imagenes_secundarias" style="font-size: 11.5px; color: #64748b; font-weight: 600;">O enlaces de fotos secundarias (uno por línea):</label>
-                            <div class="form-input-container" style="margin-top: 4px;">
-                                {{ producto_form.imagenes_secundarias }}
+                <!-- 4. SECCIÓN: GESTIÓN DE FOTOS Y GALERÍA -->
+                <div class="admin-section-card">
+                    <div class="admin-section-header">
+                        <div class="section-title">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>3. Galería de Imágenes & Portada</span>
+                        </div>
+                        <span class="section-badge">Archivos o URLs</span>
+                    </div>
+
+                    <div class="admin-fields-grid">
+                        <!-- Portada Principal -->
+                        <div class="form-group" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                            <label class="form-label" for="id_imagen_archivo" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span><i class="fa-solid fa-image" style="color: #2563eb;"></i> <strong>Foto de Portada Principal:</strong></span>
+                                <span class="form-label-hint">Desde tu PC</span>
+                            </label>
+                            <div style="margin-top: 8px;">
+                                {{ producto_form.imagen_archivo }}
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <label class="form-label" for="id_imagen_url" style="font-size: 11.5px; color: #64748b;">O pegar enlace web:</label>
+                                <div class="form-input-container" style="margin-top: 4px;">
+                                    {{ producto_form.imagen_url }}
+                                    <i class="fa-regular fa-image form-input-icon"></i>
+                                </div>
+                            </div>
+                            <!-- Miniatura de Vista Previa Portada -->
+                            <div id="previewPortadaContainer" style="display: none; margin-top: 12px; padding: 8px; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; align-items: center; gap: 10px;">
+                                <img id="previewPortadaImg" src="" alt="Vista previa portada" style="width: 58px; height: 58px; object-fit: contain; border-radius: 6px; background: #f1f5f9; border: 1px solid #e2e8f0;">
+                                <div style="font-size: 12px; color: #334155; line-height: 1.3;">
+                                    <strong style="color: #2563eb;"><i class="fa-solid fa-circle-check"></i> Vista previa activa</strong><br>
+                                    <span id="previewPortadaName" style="color: #64748b; font-size: 11px;">Imagen lista</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fotos Secundarias / Galería -->
+                        <div class="form-group" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;">
+                            <label class="form-label" for="id_imagenes_secundarias_archivos" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span><i class="fa-solid fa-images" style="color: #059669;"></i> <strong>Fotos Secundarias (Galería):</strong></span>
+                                <span class="form-label-hint">Múltiples</span>
+                            </label>
+                            <div style="margin-top: 8px;">
+                                {{ producto_form.imagenes_secundarias_archivos }}
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <label class="form-label" for="id_imagenes_secundarias" style="font-size: 11.5px; color: #64748b;">O enlaces secundarios (uno por línea):</label>
+                                <div class="form-input-container" style="margin-top: 4px;">
+                                    {{ producto_form.imagenes_secundarias }}
+                                </div>
+                            </div>
+                            <!-- Miniaturas de Galería Previa Responsiva con Navegación -->
+                            <div id="previewGaleriaContainer" style="display: none; margin-top: 12px; padding: 10px; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-size: 11px; font-weight: 700; color: #059669;"><i class="fa-solid fa-images"></i> Vista previa de fotos galería</span>
+                                    <div style="display: flex; gap: 4px;">
+                                        <button type="button" onclick="scrollAdminGallery(-120)" style="width: 22px; height: 22px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #475569;"><i class="fa-solid fa-chevron-left"></i></button>
+                                        <button type="button" onclick="scrollAdminGallery(120)" style="width: 22px; height: 22px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #475569;"><i class="fa-solid fa-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                                <div id="previewGaleriaList" style="display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 4px; scrollbar-width: thin;"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-
-
-
-                <!-- Descripción y Especificaciones Técnicas -->
-                <div class="form-group">
-                    <div class="form-label-row">
-                        <label class="form-label" for="id_descripcion">Descripción y Especificaciones Técnicas</label>
+                <!-- 5. SECCIÓN: DESCRIPCIÓN & TEXTO COMERCIAL -->
+                <div class="admin-section-card">
+                    <div class="admin-section-header">
+                        <div class="section-title">
+                            <i class="fa-solid fa-file-lines"></i>
+                            <span>4. Descripción General & Reseña Comercial</span>
+                        </div>
+                        <span class="section-badge">Para el cliente</span>
                     </div>
-                    <div class="form-input-container">
-                        {{ producto_form.descripcion }}
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <div class="form-input-container">
+                            {{ producto_form.descripcion }}
+                        </div>
+                        {% if producto_form.descripcion.errors %}
+                        <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.descripcion.errors|striptags }}</div>
+                        {% endif %}
                     </div>
-                    {% if producto_form.descripcion.errors %}
-                    <div class="field-error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ producto_form.descripcion.errors|striptags }}</div>
-                    {% endif %}
                 </div>
 
-                <!-- Botón Submit Guardar / Actualizar Producto -->
-                <button type="submit" class="btn-auth-submit" id="btnSubmitAddProduct" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> {% if active_tab == 'edit_product' %}Actualizar Producto en Tienda{% else %}Guardar y Publicar en Tienda{% endif %}
-                </button>
-                
-                {% if active_tab == 'edit_product' %}
-                <a href="{% url 'login' %}?tab=recent_products" class="btn-auth-submit" style="background: #64748b; margin-top: 10px; text-decoration: none; text-align: center; display: block;">
-                    <i class="fa-solid fa-xmark"></i> Cancelar Edición
-                </a>
-                {% endif %}
+                <input type="hidden" name="return_url" value="{{ return_url|default:'' }}">
+
+                <!-- BARRA DE ACCIONES PRINCIPALES (GUARDAR / CANCELAR) -->
+                <div class="admin-form-actions-bar">
+                    {% if active_tab == 'edit_product' %}
+                    <a href="{% if return_url %}{{ return_url }}{% else %}{% url 'login' %}?tab=recent_products{% endif %}" class="btn-admin-cancel">
+                        <i class="fa-solid fa-xmark"></i> Cancelar
+                    </a>
+                    {% endif %}
+                    <button type="submit" class="btn-admin-submit-main" id="btnSubmitAddProduct">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> 
+                        <span>{% if active_tab == 'edit_product' %}Guardar Cambios del Producto{% else %}Publicar Producto en Tienda{% endif %}</span>
+                    </button>
+                </div>
             </form>
 
             <!-- VISTA DE PRODUCTOS EN LA BASE DE DATOS CON EDICIÓN (SOLO ADMIN) -->
@@ -525,14 +709,22 @@
                             </div>
                         </div>
                         
-                        <!-- Acciones: Editar y Ver -->
-                        <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                            <a href="{% url 'login' %}?edit={{ p.id }}" class="btn-row-action" title="Editar producto" style="background: #eff6ff; color: #2563eb; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; text-decoration: none; border: 1px solid #bfdbfe;">
+                        <!-- Acciones: Editar, Ver y Eliminar -->
+                        <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
+                            <a href="{% url 'login' %}?edit={{ p.id }}&tab=edit_product" class="btn-row-action" title="Editar producto" style="background: #eff6ff; color: #2563eb; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; text-decoration: none; border: 1px solid #bfdbfe;">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </a>
                             <a href="{% url 'detalle_producto' p.id %}" target="_blank" class="btn-row-action" title="Ver en tienda" style="background: #f8fafc; color: #475569; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; text-decoration: none; border: 1px solid #e2e8f0;">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </a>
+                            <form method="POST" action="{% url 'login' %}?tab=recent_products" style="display: inline; margin: 0;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar permanentemente el producto &quot;{{ p.nombre|escapejs }}&quot; de la tienda?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_product">
+                                <input type="hidden" name="producto_id" value="{{ p.id }}">
+                                <button type="submit" class="btn-row-action" title="Eliminar producto" style="background: #fef2f2; color: #dc2626; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #fecaca; cursor: pointer;">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                     {% empty %}
@@ -546,6 +738,7 @@
             </div>
             {% endif %}
 
+            {% if not user.is_authenticated %}
             <div class="auth-divider">
                 <span class="auth-divider-line"></span>
                 <span class="auth-divider-text">o contáctanos</span>
@@ -559,11 +752,12 @@
                     <span>Consultar por WhatsApp</span>
                 </a>
             </div>
+            {% endif %}
 
             <!-- Notice informativo -->
             <div class="auth-notice-box">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>Tus datos de compra y pedidos están protegidos por el sistema de seguridad de Full Piloto System Caraz.</span>
+                <span>{% if user.is_authenticated %}Panel administrativo de gestión de catálogo - Full Piloto System Caraz.{% else %}Tus datos de compra y pedidos están protegidos por el sistema de seguridad de Full Piloto System Caraz.{% endif %}</span>
             </div>
 
         </div>
@@ -590,6 +784,7 @@
             const authTitle = document.getElementById('authTitle');
             const authDesc = document.getElementById('authDesc');
             const authAvatar = document.getElementById('authAvatar');
+            const loginCard = document.getElementById('loginCard');
 
             // Quitar clase active de todos los tabs que existan
             [tabLogin, tabRegister, tabAddProduct, tabRecent].forEach(t => { if (t) t.classList.remove('active'); });
@@ -599,6 +794,12 @@
             if (formRegister) formRegister.style.display = 'none';
             if (formAddProduct) formAddProduct.style.display = 'none';
             if (viewRecentProducts) viewRecentProducts.style.display = 'none';
+
+            if (mode === 'add_product' || mode === 'edit_product' || mode === 'recent_products') {
+                if (loginCard) loginCard.classList.add('admin-mode-card');
+            } else {
+                if (loginCard) loginCard.classList.remove('admin-mode-card');
+            }
 
             if (mode === 'add_product') {
                 if (tabAddProduct) tabAddProduct.classList.add('active');
@@ -640,12 +841,20 @@
             const successBadge = document.getElementById('importSuccessBadge');
             const successText = document.getElementById('importSuccessText');
 
-            if (!input || !input.value.trim()) {
+            let url = (input.value || '').trim();
+            // Limpiar comillas accidentales
+            url = url.replace(/^['"]+|['"]+$/g, '').trim();
+
+            if (!url) {
                 alert('Por favor pega un enlace válido de Infotec (Ej: https://infotec.com.pe/...)');
                 return;
             }
 
-            const url = input.value.trim();
+            // Si el usuario no puso https://
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
             btn.disabled = true;
             btn.style.opacity = '0.6';
             statusBox.style.display = 'block';
@@ -660,17 +869,64 @@
                     return;
                 }
 
-                // Autocompletar campos
+                // Autocompletar campos básicos
                 if (data.nombre) document.getElementById('id_nombre').value = data.nombre;
                 if (data.precio) document.getElementById('id_precio').value = data.precio;
                 if (data.descripcion) document.getElementById('id_descripcion').value = data.descripcion;
-                if (data.imagen_url) document.getElementById('id_imagen_url').value = data.imagen_url;
+                if (data.imagen_url) {
+                    const imgInp = document.getElementById('id_imagen_url');
+                    imgInp.value = data.imagen_url;
+                    // Disparar evento para actualizar la miniatura de vista previa
+                    imgInp.dispatchEvent(new Event('input'));
+                }
                 if (data.imagenes_secundarias) {
                     const sec = document.getElementById('id_imagenes_secundarias');
-                    if (sec) sec.value = data.imagenes_secundarias;
+                    if (sec) {
+                        sec.value = data.imagenes_secundarias;
+                        sec.dispatchEvent(new Event('input'));
+                    }
+                }
+
+                // Autocompletar especificaciones detalladas
+                if (data.marca) {
+                    const el = document.getElementById('id_marca');
+                    if (el) el.value = data.marca;
+                }
+                if (data.modelo_codigo) {
+                    const el = document.getElementById('id_modelo_codigo');
+                    if (el) el.value = data.modelo_codigo;
+                }
+                if (data.procesador) {
+                    const el = document.getElementById('id_procesador');
+                    if (el) el.value = data.procesador;
+                }
+                if (data.ram) {
+                    const el = document.getElementById('id_ram');
+                    if (el) el.value = data.ram;
+                }
+                if (data.almacenamiento) {
+                    const el = document.getElementById('id_almacenamiento');
+                    if (el) el.value = data.almacenamiento;
+                }
+                if (data.pantalla) {
+                    const el = document.getElementById('id_pantalla');
+                    if (el) el.value = data.pantalla;
+                }
+                if (data.grafica) {
+                    const el = document.getElementById('id_grafica');
+                    if (el) el.value = data.grafica;
+                }
+                if (data.garantia) {
+                    const el = document.getElementById('id_garantia');
+                    if (el) el.value = data.garantia;
+                }
+                if (data.especificaciones_adicionales) {
+                    const el = document.getElementById('id_especificaciones_adicionales');
+                    if (el) el.value = data.especificaciones_adicionales;
                 }
 
                 // Autodetectar categoría
+                // Autodetectar categoría inteligentemente
                 const nombreLower = (data.nombre || '').toLowerCase();
                 const catSelect = document.getElementById('id_categoria');
                 if (catSelect) {
@@ -679,20 +935,26 @@
                         if ((nombreLower.includes('ssd') || nombreLower.includes('disco') || nombreLower.includes('solido') || nombreLower.includes('kingston') || nombreLower.includes('m.2')) && t.includes('almacenamiento')) {
                             catSelect.value = opt.value;
                             break;
-                        } else if ((nombreLower.includes('mouse') || nombreLower.includes('teclado') || nombreLower.includes('pad') || nombreLower.includes('case')) && t.includes('periférico')) {
+                        } else if ((nombreLower.includes('mouse') || nombreLower.includes('teclado') || nombreLower.includes('pad')) && t.includes('periférico')) {
                             catSelect.value = opt.value;
                             break;
                         } else if ((nombreLower.includes('audio') || nombreLower.includes('audifono') || nombreLower.includes('headset')) && t.includes('audio')) {
                             catSelect.value = opt.value;
                             break;
-                        } else if ((nombreLower.includes('laptop') || nombreLower.includes('notebook') || nombreLower.includes('pc')) && t.includes('laptop')) {
+                        } else if ((nombreLower.includes('setup') || nombreLower.includes('computadora') || nombreLower.includes('pc gamer') || (nombreLower.includes('pc') && !nombreLower.includes('laptop')))) {
+                            // Buscar Computadoras & PCs o Zona Gamer
+                            if (t.includes('computadora') || t.includes('pc') || t.includes('escritorio')) {
+                                catSelect.value = opt.value;
+                                break;
+                            }
+                        } else if ((nombreLower.includes('laptop') || nombreLower.includes('notebook')) && t.includes('laptop')) {
                             catSelect.value = opt.value;
                             break;
                         }
                     }
                 }
 
-                successText.textContent = `¡Datos extraídos con éxito! (${data.total_fotos} fotos obtenidas). Revisa los campos y pulsa Guardar.`;
+                successText.textContent = `¡Datos extraídos con éxito! (${data.total_fotos} fotos y especificaciones obtenidas). Revisa los campos y pulsa Guardar.`;
                 successBadge.style.display = 'block';
 
             } catch (err) {
@@ -723,7 +985,7 @@
             }
         }
 
-        // Asegurar que imagen_url nunca bloquee el envío en el navegador
+        // Asegurar que imagen_url nunca bloquee el envío en el navegador y configurar vista previa interactiva
         document.addEventListener('DOMContentLoaded', function() {
             const imgUrlInput = document.getElementById('id_imagen_url');
             if (imgUrlInput) {
@@ -735,7 +997,114 @@
                 addForm.setAttribute('novalidate', 'novalidate');
                 addForm.noValidate = true;
             }
+
+            // Vista previa en vivo para Portada (Archivo local)
+            const filePortada = document.getElementById('id_imagen_archivo');
+            const previewContainer = document.getElementById('previewPortadaContainer');
+            const previewImg = document.getElementById('previewPortadaImg');
+            const previewName = document.getElementById('previewPortadaName');
+
+            if (filePortada && previewContainer && previewImg) {
+                filePortada.addEventListener('change', function(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            previewImg.src = evt.target.result;
+                            if (previewName) previewName.textContent = file.name;
+                            previewContainer.style.display = 'flex';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Vista previa en vivo para Portada (URL)
+            if (imgUrlInput && previewContainer && previewImg) {
+                imgUrlInput.addEventListener('input', function() {
+                    const val = imgUrlInput.value.trim();
+                    if (val && (val.startsWith('http://') || val.startsWith('https://'))) {
+                        previewImg.src = val;
+                        if (previewName) previewName.textContent = 'Imagen desde URL web';
+                        previewContainer.style.display = 'flex';
+                    }
+                });
+            }
+
+            // Vista previa en vivo para Galería Secundarias (Archivos locales)
+            const fileGaleria = document.getElementById('id_imagenes_secundarias_archivos');
+            const galeriaContainer = document.getElementById('previewGaleriaContainer');
+            const galeriaList = document.getElementById('previewGaleriaList');
+
+            if (fileGaleria && galeriaContainer && galeriaList) {
+                fileGaleria.addEventListener('change', function(e) {
+                    galeriaList.innerHTML = '';
+                    const files = e.target.files;
+                    if (files && files.length > 0) {
+                        Array.from(files).forEach(file => {
+                            const reader = new FileReader();
+                            reader.onload = function(evt) {
+                                const thumb = document.createElement('img');
+                                thumb.src = evt.target.result;
+                                thumb.title = file.name;
+                                thumb.style.width = '48px';
+                                thumb.style.height = '48px';
+                                thumb.style.objectFit = 'contain';
+                                thumb.style.borderRadius = '6px';
+                                thumb.style.background = '#f1f5f9';
+                                thumb.style.border = '1px solid #cbd5e1';
+                                thumb.style.flexShrink = '0';
+                                galeriaList.appendChild(thumb);
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                        galeriaContainer.style.display = 'block';
+                    } else {
+                        galeriaContainer.style.display = 'none';
+                    }
+                });
+            }
+
+                // Vista previa en vivo para Galería Secundarias (URLs de texto)
+                const secUrlsInput = document.getElementById('id_imagenes_secundarias');
+            function renderSecUrlsPreview() {
+                if (!secUrlsInput || !galeriaContainer || !galeriaList) return;
+                const lines = secUrlsInput.value.split('\n').map(l => l.trim()).filter(l => l.startsWith('http://') || l.startsWith('https://'));
+                if (lines.length > 0) {
+                    galeriaList.innerHTML = '';
+                    lines.forEach((url, idx) => {
+                        const thumb = document.createElement('img');
+                        thumb.src = url;
+                        thumb.title = `Foto secundaria #${idx + 1}`;
+                        thumb.style.width = '48px';
+                        thumb.style.height = '48px';
+                        thumb.style.objectFit = 'contain';
+                        thumb.style.borderRadius = '6px';
+                        thumb.style.background = '#f1f5f9';
+                        thumb.style.border = '1px solid #cbd5e1';
+                        thumb.style.flexShrink = '0';
+                        galeriaList.appendChild(thumb);
+                    });
+                    galeriaContainer.style.display = 'block';
+                } else if (!fileGaleria.files || fileGaleria.files.length === 0) {
+                    galeriaContainer.style.display = 'none';
+                }
+            }
+
+            if (secUrlsInput) {
+                secUrlsInput.addEventListener('input', renderSecUrlsPreview);
+                // Si ya tenía datos (por ejemplo al editar)
+                if (secUrlsInput.value.trim()) renderSecUrlsPreview();
+            }
         });
+
+        // Navegar horizontalmente las miniaturas en el panel de administración
+        function scrollAdminGallery(amount) {
+            const list = document.getElementById('previewGaleriaList');
+            if (list) {
+                list.scrollBy({ left: amount, behavior: 'smooth' });
+            }
+        }
     </script>
 
 

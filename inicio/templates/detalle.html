@@ -167,20 +167,55 @@
                     </div>
 
                     {% if galeria_fotos and galeria_fotos|length > 1 %}
-                    <!-- Miniaturas interactivas dinámicas -->
-                    <div class="detail-thumbs-strip" style="display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; padding-bottom: 4px;">
-                        {% for foto in galeria_fotos %}
-                        <button type="button" class="detail-thumb-btn {% if forloop.first %}active{% endif %}" onclick="document.getElementById('detailMainImg').src='{{ foto }}'; document.querySelectorAll('.detail-thumb-btn').forEach(b=>b.style.borderColor='#cbd5e1'); this.style.borderColor='#3483fa';" style="width: 64px; height: 50px; border-radius: 8px; border: 2px solid {% if forloop.first %}#3483fa{% else %}#cbd5e1{% endif %}; background: #fff; padding: 2px; cursor: pointer; flex-shrink: 0; overflow: hidden;">
-                            <img src="{{ foto }}" alt="{{ producto.nombre }} - Foto {{ forloop.counter }}" style="width:100%; height:100%; object-fit:contain;">
+                    <!-- Carrusel responsivo: exactamente 5 miniaturas visibles con flechas -->
+                    <div class="detail-thumbs-carousel-wrapper" style="position: relative; margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+                        <!-- Flecha Izquierda -->
+                        <button type="button" id="btnPrevThumbs" class="thumb-nav-arrow thumb-nav-prev" onclick="navThumbsPage(-1)" aria-label="Ver fotos anteriores" style="width: 32px; height: 42px; border: 1.5px solid #cbd5e1; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0; transition: all 0.2s; z-index: 2;">
+                            <i class="fa-solid fa-chevron-left" style="font-size: 13px;"></i>
                         </button>
-                        {% endfor %}
+
+                        <!-- Contenedor scrollable horizontal: 5 miniaturas visibles fijas -->
+                        <div id="detailThumbsTrack" class="detail-thumbs-strip" style="display: flex; gap: 8px; overflow-x: hidden; scroll-behavior: smooth; padding: 4px 2px; flex: 1;">
+                            {% for foto in galeria_fotos %}
+                            <button type="button" class="detail-thumb-btn {% if forloop.first %}active{% endif %}" onclick="selectThumbPhoto('{{ foto }}', this)" style="flex: 0 0 calc((100% - 32px) / 5); max-width: calc((100% - 32px) / 5); aspect-ratio: 4/3; border-radius: 8px; border: 2px solid {% if forloop.first %}#3483fa{% else %}#e2e8f0{% endif %}; background: #fff; padding: 3px; cursor: pointer; overflow: hidden; transition: all 0.2s; box-sizing: border-box;">
+                                <img src="{{ foto }}" alt="{{ producto.nombre }} - Foto {{ forloop.counter }}" style="width:100%; height:100%; object-fit:contain; display: block;">
+                            </button>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Flecha Derecha -->
+                        <button type="button" id="btnNextThumbs" class="thumb-nav-arrow thumb-nav-next" onclick="navThumbsPage(1)" aria-label="Ver fotos siguientes" style="width: 32px; height: 42px; border: 1.5px solid #cbd5e1; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0; transition: all 0.2s; z-index: 2;">
+                            <i class="fa-solid fa-chevron-right" style="font-size: 13px;"></i>
+                        </button>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding: 0 4px;">
+                        <span style="font-size: 11.5px; color: #64748b; font-weight: 700;"><i class="fa-solid fa-images" style="color: #3483fa;"></i> {{ galeria_fotos|length }} fotos del producto</span>
+                        <span id="thumbsIndicator" style="font-size: 11.5px; color: #0284c7; font-weight: 700; background: #e0f2fe; padding: 2px 8px; border-radius: 6px;">Mostrando 5 de {{ galeria_fotos|length }}</span>
                     </div>
                     {% endif %}
                 </div>
 
                 <!-- Columna Derecha: Información y Compra -->
                 <div class="product-info-col">
-                    <span class="category-pill">{{ producto.categoria.nombre|default:"Cómputo & Hardware" }}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <span class="category-pill">{{ producto.categoria.nombre|default:"Cómputo & Hardware" }}</span>
+                        {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <a href="{% url 'login' %}?edit={{ producto.id }}&tab=edit_product&return_url={{ request.path }}" style="display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; padding: 5px 12px; border-radius: 8px; font-size: 12.5px; font-weight: 800; text-decoration: none;">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar Producto
+                            </a>
+                            <form method="POST" action="{% url 'login' %}?tab=recent_products" style="display: inline; margin: 0;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar permanentemente &quot;{{ producto.nombre|escapejs }}&quot;?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_product">
+                                <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                <button type="submit" style="display: inline-flex; align-items: center; gap: 5px; background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer;">
+                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
                     <h1 class="product-main-title">{{ producto.nombre }}</h1>
 
                     <div class="product-rating">
@@ -262,162 +297,15 @@
 
                         <h3 class="section-subtitle"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> Especificaciones Técnicas</h3>
                         <table class="specs-table">
-                            {% if producto.id == 101 %}
+                            {% for clave, valor in specs_list %}
+                            <tr>
+                                <td>{{ clave }}</td>
+                                <td><strong>{{ valor }}</strong></td>
+                            </tr>
+                            {% empty %}
                             <tr>
                                 <td>Marca / Modelo</td>
-                                <td><strong>Lenovo V15 G4 AMN (82YU017LLM)</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Procesador</td>
-                                <td>AMD Ryzen 3 7320U (4 núcleos / 8 hilos, 2.4GHz hasta 4.10GHz Turbo Boost, 4MB Caché L3)</td>
-                            </tr>
-                            <tr>
-                                <td>Memoria RAM</td>
-                                <td>8GB LPDDR5 5500MHz Soldada (Alta Velocidad y Bajo Consumo)</td>
-                            </tr>
-                            <tr>
-                                <td>Almacenamiento</td>
-                                <td>512GB SSD M.2 2242 PCIe 4.0x4 NVMe</td>
-                            </tr>
-                            <tr>
-                                <td>Pantalla</td>
-                                <td>15.6" Full HD (1920x1080) TN, 250 nits, Antirreflejo (Anti-glare)</td>
-                            </tr>
-                            <tr>
-                                <td>Tarjeta Gráfica</td>
-                                <td>Gráficos integrados AMD Radeon 610M Graphics</td>
-                            </tr>
-                            <tr>
-                                <td>Teclado</td>
-                                <td>Español Latinoamérica con teclado numérico independiente</td>
-                            </tr>
-                            <tr>
-                                <td>Conectividad</td>
-                                <td>Wi-Fi 6 + Bluetooth 5.1, Puerto Ethernet RJ-45 Gigabit</td>
-                            </tr>
-                            <tr>
-                                <td>Puertos</td>
-                                <td>1x USB-C 3.2 Gen 1 (datos y Power Delivery), 2x USB 3.2 Gen 1, 1x HDMI 1.4b, Jack Audio 3.5mm</td>
-                            </tr>
-                            <tr>
-                                <td>Cámara & Audio</td>
-                                <td>Cámara HD 720p con obturador de privacidad + Altavoces estéreo Dolby Audio</td>
-                            </tr>
-                            <tr>
-                                <td>Garantía</td>
-                                <td>12 Meses Oficial con respaldo técnico en tienda Caraz</td>
-                            </tr>
-                            {% elif producto.id == 102 %}
-                            <tr>
-                                <td>Marca / Modelo</td>
-                                <td><strong>Lenovo V15 G4 AMN (82YU00X6LM)</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Procesador</td>
-                                <td>AMD Ryzen 5 7520U (4 núcleos / 8 hilos, 2.80GHz hasta 4.30GHz Turbo Boost, 4MB Caché L3)</td>
-                            </tr>
-                            <tr>
-                                <td>Memoria RAM</td>
-                                <td>8GB LPDDR5 5500MHz Soldada (Bajo consumo y máxima fluidez)</td>
-                            </tr>
-                            <tr>
-                                <td>Almacenamiento</td>
-                                <td>256GB SSD M.2 2242 PCIe NVMe ultrarrápido</td>
-                            </tr>
-                            <tr>
-                                <td>Pantalla</td>
-                                <td>15.6" Full HD (1920x1080) antirreflejo</td>
-                            </tr>
-                            <tr>
-                                <td>Tarjeta Gráfica</td>
-                                <td>Gráficos integrados AMD Radeon 610M Graphics</td>
-                            </tr>
-                            <tr>
-                                <td>Teclado</td>
-                                <td>Español Latinoamérica con teclado numérico integrado</td>
-                            </tr>
-                            <tr>
-                                <td>Conectividad & Puertos</td>
-                                <td>Wi-Fi 6 + Bluetooth, Puerto Ethernet RJ-45 Gigabit, USB-C, USB 3.2, HDMI</td>
-                            </tr>
-                            <tr>
-                                <td>Garantía</td>
-                                <td>12 Meses Oficial con respaldo técnico en Caraz</td>
-                            </tr>
-                            {% elif producto.id == 103 %}
-                            <tr>
-                                <td>Marca / Modelo</td>
-                                <td><strong>Lenovo V15 G5 IRL (83GW005MLD) - Serie 2026</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Procesador</td>
-                                <td>Intel Core i3-1315U 13va Generación (6 núcleos / 8 hilos hasta 4.50GHz Turbo Boost, 10MB Caché)</td>
-                            </tr>
-                            <tr>
-                                <td>Memoria RAM</td>
-                                <td>8GB DDR5 5200MHz de alta velocidad</td>
-                            </tr>
-                            <tr>
-                                <td>Almacenamiento</td>
-                                <td>512GB SSD M.2 PCIe NVMe Gen4</td>
-                            </tr>
-                            <tr>
-                                <td>Pantalla</td>
-                                <td>15.6" Full HD (1920x1080) micro-edge antirreflejo</td>
-                            </tr>
-                            <tr>
-                                <td>Tarjeta Gráfica</td>
-                                <td>Intel UHD Graphics</td>
-                            </tr>
-                            <tr>
-                                <td>Teclado</td>
-                                <td>Español Latinoamérica ergonómico con pad numérico</td>
-                            </tr>
-                            <tr>
-                                <td>Garantía</td>
-                                <td>12 Meses Oficial con soporte en tienda Caraz</td>
-                            </tr>
-                            {% elif producto.id == 104 %}
-                            <tr>
-                                <td>Marca / Modelo</td>
-                                <td><strong>Lenovo IdeaPad Slim 3 15IRH10 (83K1016CLM)</strong></td>
-                            </tr>
-                            <tr>
-                                <td>Procesador</td>
-                                <td>Intel Core i5-13420H Serie H Alto Rendimiento (8 núcleos / 12 hilos, 4P + 4E hasta 4.60GHz, 12MB Caché)</td>
-                            </tr>
-                            <tr>
-                                <td>Memoria RAM</td>
-                                <td>16GB DDR5 4800MHz / 5200MHz Multitarea Pro</td>
-                            </tr>
-                            <tr>
-                                <td>Almacenamiento</td>
-                                <td>512GB SSD M.2 2242 PCIe 4.0x4 NVMe</td>
-                            </tr>
-                            <tr>
-                                <td>Pantalla Prémium</td>
-                                <td>15.3" WUXGA (1920x1200) IPS 300 nits, Anti-glare, Formato 16:10 Área Ampliada</td>
-                            </tr>
-                            <tr>
-                                <td>Tarjeta Gráfica</td>
-                                <td>Intel UHD Graphics para procesadores de 13va Gen</td>
-                            </tr>
-                            <tr>
-                                <td>Diseño & Chasis</td>
-                                <td>Chasis Slim Ultradelgado y Liviano color Gris Ártico</td>
-                            </tr>
-                            <tr>
-                                <td>Teclado & Audio</td>
-                                <td>Teclado en español con numpad + Altavoces estéreo con Dolby Audio</td>
-                            </tr>
-                            <tr>
-                                <td>Garantía</td>
-                                <td>12 Meses Oficial con respaldo técnico en tienda Caraz</td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td>Marca / Modelo</td>
-                                <td>{{ producto.nombre }}</td>
+                                <td><strong>{{ producto.nombre }}</strong></td>
                             </tr>
                             <tr>
                                 <td>Categoría</td>
@@ -431,11 +319,7 @@
                                 <td>Garantía</td>
                                 <td>12 Meses directa en tienda Full Piloto System</td>
                             </tr>
-                            <tr>
-                                <td>Entrega</td>
-                                <td>Inmediata en Jr. Sucre 715 (frente a Pollería Mayli), Caraz o delivery a domicilio</td>
-                            </tr>
-                            {% endif %}
+                            {% endfor %}
                         </table>
                     </div>
 
@@ -695,6 +579,75 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             DetailProductPage.init();
+        });
+
+        // Navegación de carrusel de miniaturas en bloques de 5 fotos
+        let currentThumbPageIndex = 0;
+        const thumbsPerPage = 5;
+
+        function navThumbsPage(direction) {
+            const track = document.getElementById('detailThumbsTrack');
+            if (!track) return;
+            const buttons = track.querySelectorAll('.detail-thumb-btn');
+            const total = buttons.length;
+            if (total <= thumbsPerPage) return;
+
+            const maxPage = Math.ceil(total / thumbsPerPage) - 1;
+            currentThumbPageIndex = Math.max(0, Math.min(maxPage, currentThumbPageIndex + direction));
+
+            // Desplazar el riel exactamente al ancho visible
+            const scrollAmount = currentThumbPageIndex * track.clientWidth;
+            track.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+
+            // Actualizar flechas e indicador
+            updateThumbsUI(total);
+        }
+
+        function updateThumbsUI(total) {
+            const btnPrev = document.getElementById('btnPrevThumbs');
+            const btnNext = document.getElementById('btnNextThumbs');
+            const indicator = document.getElementById('thumbsIndicator');
+            const maxPage = Math.ceil(total / thumbsPerPage) - 1;
+
+            if (btnPrev) {
+                btnPrev.disabled = currentThumbPageIndex === 0;
+                btnPrev.style.opacity = currentThumbPageIndex === 0 ? '0.4' : '1';
+                btnPrev.style.cursor = currentThumbPageIndex === 0 ? 'not-allowed' : 'pointer';
+            }
+            if (btnNext) {
+                btnNext.disabled = currentThumbPageIndex >= maxPage;
+                btnNext.style.opacity = currentThumbPageIndex >= maxPage ? '0.4' : '1';
+                btnNext.style.cursor = currentThumbPageIndex >= maxPage ? 'not-allowed' : 'pointer';
+            }
+            if (indicator) {
+                const start = (currentThumbPageIndex * thumbsPerPage) + 1;
+                const end = Math.min(total, (currentThumbPageIndex + 1) * thumbsPerPage);
+                indicator.textContent = `Mostrando ${start}-${end} de ${total}`;
+            }
+        }
+
+        function selectThumbPhoto(photoUrl, btnElement) {
+            const mainImg = document.getElementById('detailMainImg');
+            if (mainImg) {
+                mainImg.src = photoUrl;
+            }
+            document.querySelectorAll('.detail-thumb-btn').forEach(btn => {
+                btn.style.borderColor = '#e2e8f0';
+                btn.classList.remove('active');
+            });
+            if (btnElement) {
+                btnElement.style.borderColor = '#3483fa';
+                btnElement.classList.add('active');
+            }
+        }
+
+        // Inicializar estado de flechas al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            const track = document.getElementById('detailThumbsTrack');
+            if (track) {
+                const total = track.querySelectorAll('.detail-thumb-btn').length;
+                updateThumbsUI(total);
+            }
         });
 
         // Control del menú de usuario desplegable

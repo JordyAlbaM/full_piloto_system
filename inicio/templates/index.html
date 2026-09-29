@@ -213,7 +213,9 @@
                 <div class="category-bubble-item-wrapper" data-cat="{{ cat.slug }}">
                     <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="category-bubble-card {% if categoria_seleccionada == cat.slug %}active{% endif %}">
                         <div class="category-bubble-circle">
-                            {% if 'laptop' in cat.slug %}
+                            {% if 'escritorio' in cat.slug or 'pc' in cat.slug and not 'laptop' in cat.slug %}
+                                <i class="fa-solid fa-computer"></i>
+                            {% elif 'laptop' in cat.slug %}
                                 <i class="fa-solid fa-laptop"></i>
                             {% elif 'periferico' in cat.slug %}
                                 <i class="fa-solid fa-keyboard"></i>
@@ -737,11 +739,21 @@
                     <div>
                         <div class="promo-top-meta">
                             <span class="promo-tag">{{ prod.categoria.nombre|default:"Full Piloto" }}</span>
-                            {% if prod.stock <= 4 %}
-                            <span class="promo-discount-badge" style="background:#f59e0b;"><i class="fa-solid fa-bolt"></i> Pocas unidades</span>
-                            {% else %}
-                            <span class="promo-discount-badge" style="background:#00a650;"><i class="fa-solid fa-check"></i> Disponible</span>
-                            {% endif %}
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
+                                <a href="{% url 'login' %}?edit={{ prod.id }}&tab=edit_product&return_url={{ request.get_full_path }}" 
+                                   onclick="event.stopPropagation();" 
+                                   title="Editar producto" 
+                                   style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fa-solid fa-pen-to-square"></i> Editar
+                                </a>
+                                {% endif %}
+                                {% if prod.stock <= 4 %}
+                                <span class="promo-discount-badge" style="background:#f59e0b;"><i class="fa-solid fa-bolt"></i> Pocas unidades</span>
+                                {% else %}
+                                <span class="promo-discount-badge" style="background:#00a650;"><i class="fa-solid fa-check"></i> Disponible</span>
+                                {% endif %}
+                            </div>
                         </div>
 
                         <div class="promo-image-box">
@@ -1659,67 +1671,99 @@
     /* Optimización específica para móviles */
     @media (max-width: 620px) {
         .promo-ad-overlay {
-            padding: 12px;
+            padding: 10px;
             align-items: center;
         }
         .promo-ad-card {
-            max-height: 86vh;
+            max-width: 340px;
+            max-height: 82vh;
             border-radius: 16px;
         }
         .promo-ad-badge {
-            font-size: 0.72rem;
-            padding: 6px 14px;
-            padding-right: 48px; /* Evitar que el texto choque con el botón cerrar */
+            font-size: 0.68rem;
+            padding: 5px 12px;
+            padding-right: 44px;
+            letter-spacing: 0.3px;
         }
         .promo-ad-close {
-            top: 8px;
-            right: 8px;
-            width: 34px;
-            height: 34px;
-            font-size: 1.1rem;
+            top: 6px;
+            right: 6px;
+            width: 30px;
+            height: 30px;
+            font-size: 0.95rem;
             background: #ffffff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         }
         .promo-ad-content {
             grid-template-columns: 1fr;
-            padding: 14px 16px 16px;
-            gap: 12px;
+            padding: 8px 14px 14px;
+            gap: 8px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
+        /* La imagen se mantiene destacada y mediana-grande */
         .promo-ad-image-box {
-            min-height: 120px;
-            padding: 8px;
+            min-height: 145px;
+            max-height: 155px;
+            padding: 6px;
+            background: #f8fafc;
+            border-radius: 12px;
         }
         .promo-ad-img {
-            max-height: 120px;
+            max-height: 140px;
+            width: auto;
+            object-fit: contain;
+        }
+        .promo-ad-tag-discount {
+            bottom: 6px;
+            left: 6px;
+            font-size: 0.72rem;
+            padding: 3px 8px;
+        }
+        /* El resto de la información mucho más compacto */
+        .promo-ad-subtitle {
+            font-size: 0.68rem;
+            margin-bottom: 2px;
         }
         .promo-ad-title {
-            font-size: 1.05rem;
-            margin: 2px 0 4px;
-        }
-        .promo-ad-desc {
-            font-size: 0.8rem;
-            margin-bottom: 8px;
+            font-size: 0.94rem;
+            margin: 0 0 3px;
+            line-height: 1.25;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        .promo-ad-desc {
+            display: none; /* Ocultar párrafo largo en móvil para ahorrar espacio */
+        }
         .promo-ad-pricing {
-            margin-bottom: 6px;
+            margin: 4px 0 6px;
+            gap: 8px;
+        }
+        .promo-ad-old-price {
+            font-size: 0.85rem;
         }
         .promo-ad-current-price {
-            font-size: 1.35rem;
+            font-size: 1.25rem;
         }
         .promo-ad-countdown-bar {
             padding: 4px 8px;
-            font-size: 0.75rem;
-            margin-bottom: 10px;
+            font-size: 0.72rem;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+        .promo-ad-actions {
+            gap: 6px;
         }
         .promo-ad-btn-primary {
-            padding: 10px 14px;
-            font-size: 0.85rem;
+            padding: 9px 12px;
+            font-size: 0.82rem;
+            border-radius: 8px;
+        }
+        .promo-ad-btn-secondary {
+            font-size: 0.75rem;
+            padding: 2px;
         }
     }
 

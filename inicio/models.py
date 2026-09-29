@@ -80,6 +80,18 @@ class Producto(models.Model):
     imagen_url = models.CharField(max_length=500, blank=True, help_text="URL de imagen externa, ruta /media/... o /static/...")
     imagenes_secundarias = models.TextField(blank=True, help_text="URLs de imágenes secundarias/galería separadas por salto de línea")
 
+    # Especificaciones técnicas detalladas y personalizables
+    marca = models.CharField('Marca', max_length=100, blank=True, help_text="Ej: Lenovo, HP, ASUS, Kingston, Logitech")
+    modelo_codigo = models.CharField('Modelo / Código de Parte', max_length=150, blank=True, help_text="Ej: 82YU017LLM, 15-fc0225dx")
+    procesador = models.CharField('Procesador', max_length=200, blank=True, help_text="Ej: Intel Core i5-13420H / AMD Ryzen 5 7520U")
+    ram = models.CharField('Memoria RAM', max_length=100, blank=True, help_text="Ej: 16GB DDR5 5200MHz / 8GB LPDDR5")
+    almacenamiento = models.CharField('Almacenamiento', max_length=150, blank=True, help_text="Ej: 512GB SSD M.2 NVMe PCIe 4.0")
+    pantalla = models.CharField('Pantalla', max_length=150, blank=True, help_text="Ej: 15.6\" FHD (1920x1080) Antirreflejo IPS")
+    grafica = models.CharField('Tarjeta de Video / Gráficos', max_length=150, blank=True, help_text="Ej: NVIDIA RTX 3050 6GB / AMD Radeon 610M / Intel Iris Xe")
+    garantia = models.CharField('Garantía', max_length=150, blank=True, default='12 Meses Oficial en tienda Caraz')
+    estado_producto = models.CharField('Condición / Estado', max_length=50, blank=True, default='Nuevo Sellado', help_text="Ej: Nuevo Sellado, Reacondicionado Certificado")
+    especificaciones_adicionales = models.TextField('Especificaciones Adicionales (Clave: Valor)', blank=True, help_text="Una especificación por línea en formato 'Característica: Detalle' (ej: Teclado: Español con pad numérico)")
+
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
 
@@ -122,6 +134,68 @@ class Producto(models.Model):
                 if l and l not in imgs:
                     imgs.append(l)
         return imgs
+
+    def get_lista_especificaciones(self):
+        """Retorna una lista de tuplas (Característica, Valor) estructuradas a partir de los campos del producto"""
+        specs = []
+        if self.marca:
+            specs.append(("Marca", self.marca))
+        if self.modelo_codigo:
+            specs.append(("Modelo / Código", self.modelo_codigo))
+        if self.procesador:
+            specs.append(("Procesador", self.procesador))
+        if self.ram:
+            specs.append(("Memoria RAM", self.ram))
+        if self.almacenamiento:
+            specs.append(("Almacenamiento", self.almacenamiento))
+        if self.pantalla:
+            specs.append(("Pantalla", self.pantalla))
+        if self.grafica:
+            specs.append(("Tarjeta Gráfica", self.grafica))
+        if self.estado_producto:
+            specs.append(("Condición", self.estado_producto))
+        if self.garantia:
+            specs.append(("Garantía", self.garantia))
+
+        # Analizar especificaciones_adicionales personalizadas (formato clave: valor)
+        if self.especificaciones_adicionales:
+            for line in self.especificaciones_adicionales.splitlines():
+                line = line.strip()
+                if line:
+                    if ':' in line:
+                        k, v = line.split(':', 1)
+                        specs.append((k.strip(), v.strip()))
+                    elif '•' in line:
+                        cleaned = line.replace('•', '').strip()
+                        if ':' in cleaned:
+                            k, v = cleaned.split(':', 1)
+                            specs.append((k.strip(), v.strip()))
+                        else:
+                            specs.append(("Detalle", cleaned))
+                    else:
+                        specs.append(("Detalle", line))
+
+        # Si aún no tiene campos estructurados llenos, intentamos extraer de descripcion si tiene viñetas con ':'
+        if not specs and self.descripcion:
+            for line in self.descripcion.splitlines():
+                line = line.strip()
+                if line and ':' in line:
+                    k, v = line.split(':', 1)
+                    k = k.replace('•', '').replace('-', '').strip()
+                    v = v.strip()
+                    if k and v:
+                        specs.append((k, v))
+
+        # Fallback estándar si sigue vacío
+        if not specs:
+            specs = [
+                ("Marca / Modelo", self.nombre),
+                ("Categoría", self.categoria.nombre if self.categoria else "Cómputo & Hardware"),
+                ("Stock", f"{self.stock} unidades en Caraz"),
+                ("Garantía", self.garantia or "12 Meses en tienda Full Piloto System"),
+                ("Entrega", "Inmediata en Jr. Sucre 715, Caraz o delivery a domicilio"),
+            ]
+        return specs
 
 
 class Pedido(models.Model):
