@@ -4,7 +4,7 @@ from django.db import migrations
 def asegurar_categorias(apps, schema_editor):
     Categoria = apps.get_model('inicio', 'Categoria')
     categorias_requeridas = [
-        {'id': 1, 'nombre': 'Laptops & PC', 'slug': 'laptops-pc'},
+        {'id': 1, 'nombre': 'Laptops', 'slug': 'laptops-pc'},
         {'id': 2, 'nombre': 'Periféricos', 'slug': 'perifericos'},
         {'id': 3, 'nombre': 'Almacenamiento', 'slug': 'almacenamiento'},
         {'id': 4, 'nombre': 'Audio', 'slug': 'audio'},

@@ -141,7 +141,7 @@
   "model": "inicio.categoria",
   "pk": 1,
   "fields": {
-    "nombre": "Laptops & PC",
+    "nombre": "Laptops",
     "slug": "laptops-pc"
   }
 },
