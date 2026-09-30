@@ -169,31 +169,31 @@
                     </div>
 
                     {% if galeria_fotos and galeria_fotos|length > 1 %}
-                    <!-- Carrusel responsivo: exactamente 5 miniaturas visibles con flechas -->
-                    <div class="detail-thumbs-carousel-wrapper" style="position: relative; margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+                    <!-- Carrusel responsivo con soporte táctil swipe y flechas -->
+                    <div class="detail-thumbs-carousel-wrapper">
                         <!-- Flecha Izquierda -->
-                        <button type="button" id="btnPrevThumbs" class="thumb-nav-arrow thumb-nav-prev" onclick="navThumbsPage(-1)" aria-label="Ver fotos anteriores" style="width: 32px; height: 42px; border: 1.5px solid #cbd5e1; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0; transition: all 0.2s; z-index: 2;">
-                            <i class="fa-solid fa-chevron-left" style="font-size: 13px;"></i>
+                        <button type="button" id="btnPrevThumbs" class="thumb-nav-arrow thumb-nav-prev" onclick="navThumbsPage(-1)" aria-label="Ver fotos anteriores">
+                            <i class="fa-solid fa-chevron-left"></i>
                         </button>
 
-                        <!-- Contenedor scrollable horizontal: 5 miniaturas visibles fijas -->
-                        <div id="detailThumbsTrack" class="detail-thumbs-strip" style="display: flex; gap: 8px; overflow-x: hidden; scroll-behavior: smooth; padding: 4px 2px; flex: 1;">
+                        <!-- Contenedor deslizable de miniaturas -->
+                        <div id="detailThumbsTrack" class="detail-thumbs-strip">
                             {% for foto in galeria_fotos %}
-                            <button type="button" class="detail-thumb-btn {% if forloop.first %}active{% endif %}" onclick="selectThumbPhoto('{{ foto }}', this)" style="flex: 0 0 calc((100% - 32px) / 5); max-width: calc((100% - 32px) / 5); aspect-ratio: 4/3; border-radius: 8px; border: 2px solid {% if forloop.first %}#3483fa{% else %}#e2e8f0{% endif %}; background: #fff; padding: 3px; cursor: pointer; overflow: hidden; transition: all 0.2s; box-sizing: border-box;">
-                                <img src="{{ foto }}" alt="{{ producto.nombre }} - Foto {{ forloop.counter }}" style="width:100%; height:100%; object-fit:contain; display: block;">
+                            <button type="button" class="detail-thumb-btn {% if forloop.first %}active{% endif %}" onclick="selectThumbPhoto('{{ foto }}', this)" title="Ver imagen {{ forloop.counter }}">
+                                <img src="{{ foto }}" alt="{{ producto.nombre }} - Foto {{ forloop.counter }}" loading="lazy">
                             </button>
                             {% endfor %}
                         </div>
 
                         <!-- Flecha Derecha -->
-                        <button type="button" id="btnNextThumbs" class="thumb-nav-arrow thumb-nav-next" onclick="navThumbsPage(1)" aria-label="Ver fotos siguientes" style="width: 32px; height: 42px; border: 1.5px solid #cbd5e1; background: #ffffff; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.06); flex-shrink: 0; transition: all 0.2s; z-index: 2;">
-                            <i class="fa-solid fa-chevron-right" style="font-size: 13px;"></i>
+                        <button type="button" id="btnNextThumbs" class="thumb-nav-arrow thumb-nav-next" onclick="navThumbsPage(1)" aria-label="Ver fotos siguientes">
+                            <i class="fa-solid fa-chevron-right"></i>
                         </button>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding: 0 4px;">
-                        <span style="font-size: 11.5px; color: #64748b; font-weight: 700;"><i class="fa-solid fa-images" style="color: #3483fa;"></i> {{ galeria_fotos|length }} fotos del producto</span>
-                        <span id="thumbsIndicator" style="font-size: 11.5px; color: #0284c7; font-weight: 700; background: #e0f2fe; padding: 2px 8px; border-radius: 6px;">Mostrando 5 de {{ galeria_fotos|length }}</span>
+                    <div class="detail-thumbs-meta">
+                        <span class="thumbs-counter"><i class="fa-solid fa-images"></i> {{ galeria_fotos|length }} fotos</span>
+                        <span id="thumbsIndicator" class="thumbs-badge">Mostrando fotos</span>
                     </div>
                     {% endif %}
                 </div>
@@ -583,48 +583,65 @@
             DetailProductPage.init();
         });
 
-        // Navegación de carrusel de miniaturas en bloques de 5 fotos
-        let currentThumbPageIndex = 0;
-        const thumbsPerPage = 5;
+        // Navegación responsiva del carrusel de miniaturas
+        function getThumbsPerPage() {
+            const width = window.innerWidth;
+            if (width <= 360) return 3;
+            if (width <= 768) return 4;
+            return 5;
+        }
 
         function navThumbsPage(direction) {
             const track = document.getElementById('detailThumbsTrack');
             if (!track) return;
             const buttons = track.querySelectorAll('.detail-thumb-btn');
             const total = buttons.length;
-            if (total <= thumbsPerPage) return;
+            if (total === 0) return;
 
-            const maxPage = Math.ceil(total / thumbsPerPage) - 1;
-            currentThumbPageIndex = Math.max(0, Math.min(maxPage, currentThumbPageIndex + direction));
+            // Ancho de una miniatura + gap
+            const firstBtn = buttons[0];
+            const btnWidth = firstBtn ? firstBtn.getBoundingClientRect().width : (track.clientWidth / getThumbsPerPage());
+            const gap = window.innerWidth <= 360 ? 5 : (window.innerWidth <= 768 ? 6 : 8);
+            const step = (btnWidth + gap) * (getThumbsPerPage() - 1 || 1);
 
-            // Desplazar el riel exactamente al ancho visible
-            const scrollAmount = currentThumbPageIndex * track.clientWidth;
-            track.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-
-            // Actualizar flechas e indicador
-            updateThumbsUI(total);
+            track.scrollBy({ left: direction * step, behavior: 'smooth' });
         }
 
-        function updateThumbsUI(total) {
+        function updateThumbsUI() {
+            const track = document.getElementById('detailThumbsTrack');
             const btnPrev = document.getElementById('btnPrevThumbs');
             const btnNext = document.getElementById('btnNextThumbs');
             const indicator = document.getElementById('thumbsIndicator');
-            const maxPage = Math.ceil(total / thumbsPerPage) - 1;
+            if (!track) return;
+
+            const buttons = track.querySelectorAll('.detail-thumb-btn');
+            const total = buttons.length;
+            if (total === 0) return;
+
+            const scrollLeft = track.scrollLeft;
+            const maxScroll = track.scrollWidth - track.clientWidth;
+            const isAtStart = scrollLeft <= 4;
+            const isAtEnd = scrollLeft >= maxScroll - 4;
 
             if (btnPrev) {
-                btnPrev.disabled = currentThumbPageIndex === 0;
-                btnPrev.style.opacity = currentThumbPageIndex === 0 ? '0.4' : '1';
-                btnPrev.style.cursor = currentThumbPageIndex === 0 ? 'not-allowed' : 'pointer';
+                btnPrev.disabled = isAtStart;
+                btnPrev.style.opacity = isAtStart ? '0.35' : '1';
+                btnPrev.style.cursor = isAtStart ? 'not-allowed' : 'pointer';
             }
             if (btnNext) {
-                btnNext.disabled = currentThumbPageIndex >= maxPage;
-                btnNext.style.opacity = currentThumbPageIndex >= maxPage ? '0.4' : '1';
-                btnNext.style.cursor = currentThumbPageIndex >= maxPage ? 'not-allowed' : 'pointer';
+                btnNext.disabled = isAtEnd;
+                btnNext.style.opacity = isAtEnd ? '0.35' : '1';
+                btnNext.style.cursor = isAtEnd ? 'not-allowed' : 'pointer';
             }
             if (indicator) {
-                const start = (currentThumbPageIndex * thumbsPerPage) + 1;
-                const end = Math.min(total, (currentThumbPageIndex + 1) * thumbsPerPage);
-                indicator.textContent = `Mostrando ${start}-${end} de ${total}`;
+                // Calcular aproximadamente qué miniaturas están a la vista
+                const perPage = getThumbsPerPage();
+                const firstBtn = buttons[0];
+                const btnWidth = firstBtn ? firstBtn.getBoundingClientRect().width : 60;
+                const gap = window.innerWidth <= 768 ? 6 : 8;
+                const firstVisibleIdx = Math.min(total - 1, Math.max(0, Math.round(scrollLeft / (btnWidth + gap))));
+                const lastVisibleIdx = Math.min(total, firstVisibleIdx + perPage);
+                indicator.textContent = `Mostrando ${firstVisibleIdx + 1}-${lastVisibleIdx} de ${total}`;
             }
         }
 
@@ -634,21 +651,26 @@
                 mainImg.src = photoUrl;
             }
             document.querySelectorAll('.detail-thumb-btn').forEach(btn => {
-                btn.style.borderColor = '#e2e8f0';
                 btn.classList.remove('active');
             });
             if (btnElement) {
-                btnElement.style.borderColor = '#3483fa';
                 btnElement.classList.add('active');
+                // Asegurar que la miniatura seleccionada sea visible en el riel
+                btnElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
             }
         }
 
-        // Inicializar estado de flechas al cargar
+        // Inicializar estado de flechas y escuchar scroll táctil y resize
         document.addEventListener('DOMContentLoaded', () => {
             const track = document.getElementById('detailThumbsTrack');
             if (track) {
-                const total = track.querySelectorAll('.detail-thumb-btn').length;
-                updateThumbsUI(total);
+                updateThumbsUI();
+                track.addEventListener('scroll', () => {
+                    requestAnimationFrame(updateThumbsUI);
+                }, { passive: true });
+                window.addEventListener('resize', () => {
+                    requestAnimationFrame(updateThumbsUI);
+                }, { passive: true });
             }
         });
 

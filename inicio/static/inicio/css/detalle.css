@@ -454,8 +454,170 @@
             height: 7px;
             border-radius: 50%;
             background-color: currentColor;
-            box-shadow: 0 0 8px currentColor;
             display: inline-block;
+        }
+
+        /* Carrusel Responsivo de Miniaturas de Galería */
+        .detail-thumbs-carousel-wrapper {
+            position: relative;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .thumb-nav-arrow {
+            width: 32px;
+            height: 44px;
+            border: 1.5px solid #cbd5e1;
+            background: #ffffff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #1e293b;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            z-index: 2;
+            padding: 0;
+        }
+
+        .thumb-nav-arrow:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #3483fa;
+            color: #3483fa;
+            transform: scale(1.04);
+        }
+
+        .thumb-nav-arrow:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .detail-thumbs-strip {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 4px 2px;
+            flex: 1;
+            min-width: 0;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .detail-thumbs-strip::-webkit-scrollbar {
+            display: none;
+        }
+
+        .detail-thumb-btn {
+            /* Por defecto en pantallas medianas/grandes: 5 miniaturas visibles */
+            flex: 0 0 calc((100% - (4 * 8px)) / 5);
+            max-width: calc((100% - (4 * 8px)) / 5);
+            aspect-ratio: 4/3;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            padding: 3px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .detail-thumb-btn.active {
+            border-color: #3483fa;
+            box-shadow: 0 0 0 2px rgba(52, 131, 250, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .detail-thumb-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            mix-blend-mode: multiply;
+        }
+
+        .detail-thumbs-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding: 0 4px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .thumbs-counter {
+            color: #64748b;
+        }
+
+        .thumbs-badge {
+            color: #0284c7;
+            background: #e0f2fe;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        /* Responsive para miniaturas en Tablets y Móviles */
+        @media (max-width: 768px) {
+            .detail-thumb-btn {
+                /* En pantallas de 768px o menos: 4 miniaturas visibles */
+                flex: 0 0 calc((100% - (3 * 6px)) / 4);
+                max-width: calc((100% - (3 * 6px)) / 4);
+            }
+            .detail-thumbs-strip {
+                gap: 6px;
+            }
+            .thumb-nav-arrow {
+                width: 28px;
+                height: 40px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .detail-thumbs-carousel-wrapper {
+                gap: 6px;
+            }
+            .detail-thumb-btn {
+                /* En pantallas móviles angostas: 4 miniaturas bien proporcionadas */
+                flex: 0 0 calc((100% - (3 * 6px)) / 4);
+                max-width: calc((100% - (3 * 6px)) / 4);
+                border-radius: 6px;
+                padding: 2px;
+            }
+            .thumb-nav-arrow {
+                width: 26px;
+                height: 38px;
+                border-radius: 6px;
+            }
+            .detail-thumbs-meta {
+                font-size: 10.5px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .detail-thumb-btn {
+                /* Para móviles muy pequeños (menores a 360px): 3 miniaturas para que no se deformen */
+                flex: 0 0 calc((100% - (2 * 5px)) / 3);
+                max-width: calc((100% - (2 * 5px)) / 3);
+            }
+            .detail-thumbs-strip {
+                gap: 5px;
+            }
+            .thumb-nav-arrow {
+                width: 24px;
+                height: 36px;
+            }
         }
 
         /* Info del Producto */
