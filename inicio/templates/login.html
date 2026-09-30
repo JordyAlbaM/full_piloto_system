@@ -25,9 +25,19 @@
                 <div class="brand-name">Full Piloto <span>System</span></div>
             </a>
 
-            <a href="{% url 'inicio' %}" class="header-back-link">
-                <i class="fa-solid fa-arrow-left"></i> Volver a la Tienda
-            </a>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                {% if user.is_authenticated %}
+                <a href="{% url 'pedidos' %}" class="header-back-link" style="background: rgba(37, 99, 235, 0.1); border-color: rgba(37, 99, 235, 0.25); color: #1e40af;">
+                    <i class="fa-solid fa-receipt"></i> {% if user.is_superuser %}Panel Pedidos{% else %}Mis Pedidos{% endif %}
+                </a>
+                <a href="{% url 'logout' %}" class="header-back-link" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.25); color: #b91c1c;" title="Cerrar sesión">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
+                </a>
+                {% endif %}
+                <a href="{% url 'inicio' %}" class="header-back-link">
+                    <i class="fa-solid fa-arrow-left"></i> Volver a la Tienda
+                </a>
+            </div>
         </div>
     </header>
 

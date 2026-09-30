@@ -44,6 +44,18 @@ if CUSTOM_DOMAIN:
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Configuración de Sesiones y Cookies para Producción (HTTPS / Render)
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_SAVE_EVERY_REQUEST = True
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+
 
 # Application definition
 
