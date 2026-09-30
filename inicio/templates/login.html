@@ -950,6 +950,9 @@
                         } else if ((nombreLower.includes('laptop') || nombreLower.includes('notebook')) && t.includes('laptop')) {
                             catSelect.value = opt.value;
                             break;
+                        } else if ((nombreLower.includes('tv') || nombreLower.includes('televisor') || nombreLower.includes('smart tv')) && (t.includes('televisor') || t.includes('tv'))) {
+                            catSelect.value = opt.value;
+                            break;
                         }
                     }
                 }

@@ -149,6 +149,8 @@
                             <div class="icon-placeholder">
                                 {% if "Laptop" in producto.nombre or "PC" in producto.nombre %}
                                     <i class="fa-solid fa-laptop"></i>
+                                {% elif "TV" in producto.nombre or "Televisor" in producto.nombre %}
+                                    <i class="fa-solid fa-tv"></i>
                                 {% elif "Mouse" in producto.nombre %}
                                     <i class="fa-solid fa-computer-mouse"></i>
                                 {% elif "Teclado" in producto.nombre %}
