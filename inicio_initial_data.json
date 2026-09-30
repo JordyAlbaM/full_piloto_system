@@ -202,6 +202,22 @@
   }
 },
 {
+  "model": "inicio.categoria",
+  "pk": 9,
+  "fields": {
+    "nombre": "Computadoras & PCs",
+    "slug": "pcs-escritorio"
+  }
+},
+{
+  "model": "inicio.categoria",
+  "pk": 10,
+  "fields": {
+    "nombre": "Televisores",
+    "slug": "televisores"
+  }
+},
+{
   "model": "inicio.producto",
   "pk": 1,
   "fields": {
