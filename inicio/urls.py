@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from terms.views import pagina_cookies, pagina_politica_privacidad, terminos_condiciones, terminos_uso
+from terms.views import pagina_cookies, pagina_politica_privacidad, terminos_condiciones, terminos_uso, ruc
 
 
 
@@ -16,6 +16,7 @@ urlpatterns = [
     path('politica-privacidad/', pagina_politica_privacidad, name='politica_privacidad'),
     path('terminos-condiciones/', terminos_condiciones,name='terminos_condiciones'),
     path('terminos-uso/', terminos_uso,name='terminos_uso'),
+    path('ruc/', ruc, name='ruc'),
  ]
 
 

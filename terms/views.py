@@ -15,6 +15,10 @@ def terminos_condiciones(request):
 def terminos_uso(request):
     return render(request, 'terminos_uso.html')
 
+def ruc(request):
+    return render(request, 'ruc.html')
+
+
 
 
 
