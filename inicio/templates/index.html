@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     {% load static %}
+    {% load l10n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full Piloto System - Caraz</title>
@@ -11,11 +12,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=4.0">
-    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=4.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=5.7">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.7">
 </head>
 <body>
 
+    {% if not query %}
     <!-- BARRA SUPERIOR DE OFERTAS & PROMOCIONES (ESTILO INFOTEC) -->
     <div class="top-promo-bar">
         <div class="container">
@@ -66,11 +68,12 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- HEADER PRINCIPAL -->
     <header class="main-header">
         <div class="container">
-            <div class="header-content">
+            <div class="header-content" id="headerContentBar">
                 
                 <!-- Logo & Branding -->
                 <a href="{% url 'inicio' %}" class="brand-logo">
@@ -84,65 +87,98 @@
                 </a>
 
                 <!-- Buscador Central (Desktop y Móvil Desplegable) -->
-                <div class="header-search" id="headerSearchBox">
-                    <form method="GET" action="{% url 'inicio' %}" id="headerSearchForm">
+                <div class="header-search" id="headerSearchBox" style="position: relative;">
+                    <form method="GET" action="{% url 'inicio' %}" id="headerSearchForm" autocomplete="off">
                         <div class="search-container">
                             <i class="fa-solid fa-magnifying-glass search-icon-left"></i>
-                            <input type="text" name="q" id="headerSearchInput" value="{{ query }}" class="search-input" placeholder="Buscar laptops, accesorios...">
+                            <input type="text" name="q" id="headerSearchInput" value="{{ query }}" class="search-input" placeholder="Buscar laptops, accesorios..." autocomplete="off" spellcheck="false">
+                            <button type="button" class="search-clear-btn" id="headerSearchClearBtn" style="display: none;" title="Limpiar búsqueda">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
                             <button type="submit" class="search-btn">
                                 <i class="fa-solid fa-magnifying-glass"></i> Buscar
                             </button>
-                            <!-- Botón cerrar para móvil -->
-                            <button type="button" class="mobile-search-close-btn" onclick="toggleMobileSearch(false)" title="Cerrar búsqueda">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
                         </div>
                     </form>
+                    <!-- Menú desplegable flotante con resultados en vivo (AJAX / Fetch) -->
+                    <div class="live-search-dropdown" id="liveSearchDropdown"></div>
                 </div>
 
                 <!-- Botones de Acción -->
                 <div class="header-actions">
                     <!-- Botón disparador de búsqueda para móvil (Lupa táctil) -->
-                    <button type="button" class="mobile-search-trigger-btn" id="mobileSearchTrigger" onclick="toggleMobileSearch()" title="Buscar productos">
+                    <button type="button" class="mobile-search-trigger-btn" id="mobileSearchTrigger" onclick="toggleMobileSearch()" title="Buscar productos" aria-label="Buscar productos">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
 
-                    <!-- Icono / Botón de Usuario -->
-                    <!-- Icono / Botón de Usuario -->
-                    {% if user.is_authenticated %}
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        {% if user.is_superuser or user.rol == 'admin' %}
-                        <a href="{% url 'login' %}?tab=add_product" class="action-button" title="Panel Administrador: Registrar Producto" style="padding: 7px 12px; background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; text-decoration: none; display: flex; align-items: center; gap: 6px; border-radius: 10px; font-weight: 700; font-size: 12px;">
-                            <i class="fa-solid fa-plus-circle"></i> <span>+ Producto</span>
-                        </a>
-                        {% endif %}
-                        <div class="action-button user-btn" style="cursor: default;" title="{{ user.email }}">
-                            <div class="action-icon-circle user-icon-circle" style="background: #e0f2fe; color: #0284c7;">
+                    <!-- Icono / Botón de Usuario con Menú Desplegable -->
+                    <div class="header-user-wrapper" id="headerUserWrapper" style="position: relative;">
+                        {% if user.is_authenticated %}
+                        <button type="button" class="action-button user-btn auth-user-btn" id="userMenuTrigger" onclick="toggleUserDropdown()" title="Mi cuenta ({{ user.email }})">
+                            <div class="action-icon-circle user-icon-circle auth-avatar">
                                 <i class="fa-solid fa-user-check"></i>
                             </div>
                             <div class="action-label-box user-label-box">
                                 <span class="small-title">Hola, {{ user.first_name|default:user.username|truncatechars:10 }}</span>
-                                <span class="main-value" style="color: #059669; font-size: 11px;">{% if user.is_superuser %}Admin{% else %}En línea{% endif %}</span>
+                                <span class="main-value" style="color: #059669; font-size: 11px;">{% if user.is_superuser %}Admin{% else %}Mi cuenta{% endif %} <i class="fa-solid fa-chevron-down" style="font-size: 9px; margin-left: 2px;"></i></span>
+                            </div>
+                        </button>
+
+                        <!-- Menú desplegable flotante de usuario -->
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="user-dropdown-header">
+                                <div class="user-dropdown-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="user-dropdown-info">
+                                    <strong class="user-dropdown-name">{{ user.get_full_name|default:user.username }}</strong>
+                                    <span class="user-dropdown-email">{{ user.email|default:"Cliente Caraz" }}</span>
+                                    <span class="user-dropdown-badge {% if user.is_superuser %}badge-admin{% else %}badge-client{% endif %}">
+                                        {% if user.is_superuser %}Administrador{% elif user.rol == 'admin' %}Gestor Tienda{% else %}Cliente Registrado{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="user-dropdown-body">
+                                {% if user.is_superuser or user.rol == 'admin' %}
+                                <a href="{% url 'login' %}?tab=add_product" class="user-dropdown-item admin-item">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                    <div>
+                                        <span>Registrar Producto</span>
+                                        <small>Agregar stock al catálogo</small>
+                                    </div>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'pedidos' %}" class="user-dropdown-item">
+                                    <i class="fa-solid fa-receipt"></i>
+                                    <div>
+                                        <span>{% if user.is_superuser %}Panel de Pedidos{% else %}Mis Pedidos{% endif %}</span>
+                                        <small>Historial y comprobantes</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="user-dropdown-footer">
+                                <a href="{% url 'logout' %}" class="user-dropdown-logout">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                    <span>Cerrar Sesión</span>
+                                </a>
                             </div>
                         </div>
-                        <a href="{% url 'logout' %}" class="action-button" title="Cerrar Sesión" style="padding: 6px 10px; background: #fee2e2; border-color: #fca5a5; color: #dc2626;">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                        {% else %}
+                        <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Registrarse">
+                            <div class="action-icon-circle user-icon-circle">
+                                <i class="fa-regular fa-user"></i>
+                            </div>
+                            <div class="action-label-box user-label-box">
+                                <span class="small-title">Bienvenido</span>
+                                <span class="main-value">Ingresar</span>
+                            </div>
                         </a>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <a href="{% url 'login' %}" class="action-button user-btn" title="Iniciar Sesión / Registrarse">
-                        <div class="action-icon-circle user-icon-circle">
-                            <i class="fa-regular fa-user"></i>
-                        </div>
-                        <div class="action-label-box user-label-box">
-                            <span class="small-title">Bienvenido</span>
-                            <span class="main-value">Ingresar</span>
-                        </div>
-                    </a>
-                    {% endif %}
 
                     <!-- Carrito de Compras -->
-                    <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()">
+                    <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" role="button" tabindex="0" title="Ver Carrito de Compras">
                         <div class="action-icon-circle">
                             <i class="fa-solid fa-cart-shopping"></i>
                             <span class="cart-badge">0</span>
@@ -165,13 +201,217 @@
         <div class="container">
             <div class="category-bubbles-list">
                 
-                <a href="{% url 'inicio' %}" class="category-bubble-card active">
+                <a href="{% url 'inicio' %}" class="category-bubble-card {% if not categoria_seleccionada %}active{% endif %}">
                     <div class="category-bubble-circle">
-                        <i class="fa-solid fa-laptop"></i>
-                        <span class="bubble-badge-hot">TOP</span>
+                        <i class="fa-solid fa-border-all"></i>
+                        <span class="bubble-badge-hot">TODO</span>
                     </div>
-                    <span class="category-bubble-label">Laptops Caraz</span>
+                    <span class="category-bubble-label">Ver Todo</span>
                 </a>
+
+                {% for cat in categorias %}
+                <div class="category-bubble-item-wrapper" data-cat="{{ cat.slug }}">
+                    <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="category-bubble-card {% if categoria_seleccionada == cat.slug %}active{% endif %}">
+                        <div class="category-bubble-circle">
+                            {% if 'laptop' in cat.slug %}
+                                <i class="fa-solid fa-laptop"></i>
+                            {% elif 'periferico' in cat.slug %}
+                                <i class="fa-solid fa-keyboard"></i>
+                            {% elif 'almacenamiento' in cat.slug %}
+                                <i class="fa-solid fa-hard-drive"></i>
+                            {% elif 'audio' in cat.slug %}
+                                <i class="fa-solid fa-headphones"></i>
+                            {% elif 'software' in cat.slug %}
+                                <i class="fa-solid fa-shield-virus"></i>
+                            {% elif 'gamer' in cat.slug %}
+                                <i class="fa-solid fa-gamepad"></i>
+                            {% elif 'monitor' in cat.slug %}
+                                <i class="fa-solid fa-desktop"></i>
+                            {% elif 'parte' in cat.slug %}
+                                <i class="fa-solid fa-microchip"></i>
+                            {% else %}
+                                <i class="fa-solid fa-box"></i>
+                            {% endif %}
+                        </div>
+                        <span class="category-bubble-label">{{ cat.nombre }}</span>
+                    </a>
+
+                    <!-- SUBMENÚ FLOTANTE MINIMALISTA ESTILO INFOTEC (ARMONIZADO CON LA PÁGINA) -->
+                    {% if 'laptop' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-laptop"></i> Laptops & Portátiles</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Por Marcas</span>
+                                <a href="{% url 'inicio' %}?q=Lenovo"><i class="fa-solid fa-angle-right"></i> Lenovo IdeaPad & LOQ</a>
+                                <a href="{% url 'inicio' %}?q=HP"><i class="fa-solid fa-angle-right"></i> HP Pavilion & 15</a>
+                                <a href="{% url 'inicio' %}?q=Asus"><i class="fa-solid fa-angle-right"></i> ASUS TUF & VivoBook</a>
+                                <a href="{% url 'inicio' %}?q=Dell"><i class="fa-solid fa-angle-right"></i> Dell Inspiron</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Por Gama / Uso</span>
+                                <a href="{% url 'inicio' %}?q=Gamer"><i class="fa-solid fa-fire"></i> Laptops Gamer</a>
+                                <a href="{% url 'inicio' %}?q=Touch"><i class="fa-solid fa-hand-pointer"></i> Pantalla Táctil / 2 en 1</a>
+                                <a href="{% url 'inicio' %}?q=Ryzen"><i class="fa-solid fa-bolt"></i> AMD Ryzen Serie 7000/8000</a>
+                                <a href="{% url 'inicio' %}?q=Core"><i class="fa-solid fa-microchip"></i> Intel Core i5 / i7</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'parte' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-microchip"></i> Partes de PC & Hardware</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Componentes Clave</span>
+                                <a href="{% url 'inicio' %}?q=RAM"><i class="fa-solid fa-angle-right"></i> Memorias RAM DDR4 / DDR5</a>
+                                <a href="{% url 'inicio' %}?q=Ryzen"><i class="fa-solid fa-angle-right"></i> Procesadores AMD Ryzen</a>
+                                <a href="{% url 'inicio' %}?q=Core"><i class="fa-solid fa-angle-right"></i> Procesadores Intel Core</a>
+                                <a href="{% url 'inicio' %}?q=Placa"><i class="fa-solid fa-angle-right"></i> Placas Madre / Mainboard</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Enfriamiento & Energía</span>
+                                <a href="{% url 'inicio' %}?q=Fuente"><i class="fa-solid fa-bolt"></i> Fuentes Certificadas 80 Plus</a>
+                                <a href="{% url 'inicio' %}?q=Cooler"><i class="fa-solid fa-fan"></i> Coolers CPU & Enfriamiento</a>
+                                <a href="{% url 'inicio' %}?q=Pasta"><i class="fa-solid fa-droplet"></i> Pasta Térmica Artic</a>
+                                <a href="{% url 'inicio' %}?q=Case"><i class="fa-solid fa-box"></i> Cases Gamer con Vidrio</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'gamer' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-gamepad"></i> Zona Gamer Pro</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Setup Gamer</span>
+                                <a href="{% url 'inicio' %}?q=Gamer"><i class="fa-solid fa-laptop"></i> Laptops Gamer TUF / LOQ</a>
+                                <a href="{% url 'inicio' %}?q=Mecanico"><i class="fa-solid fa-keyboard"></i> Teclados Mecánicos RGB</a>
+                                <a href="{% url 'inicio' %}?q=Mouse+Gamer"><i class="fa-solid fa-computer-mouse"></i> Mouse Gamer Ultraligero</a>
+                                <a href="{% url 'inicio' %}?q=Pad"><i class="fa-solid fa-rug"></i> Mousepads XXL Gamer</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Audio & Ambiente</span>
+                                <a href="{% url 'inicio' %}?q=Audifonos"><i class="fa-solid fa-headphones"></i> Audífonos Gamer con Micrófono</a>
+                                <a href="{% url 'inicio' %}?q=RGB"><i class="fa-solid fa-lightbulb"></i> Iluminación & Tiras RGB</a>
+                                <a href="{% url 'inicio' %}?q=Silla"><i class="fa-solid fa-chair"></i> Sillas Ergonómicas</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'monitor' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-desktop"></i> Pantallas & Monitores</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Tasa de Refresco</span>
+                                <a href="{% url 'inicio' %}?q=144Hz"><i class="fa-solid fa-bolt"></i> Monitores Gamer 144Hz / 165Hz / 180Hz</a>
+                                <a href="{% url 'inicio' %}?q=75Hz"><i class="fa-solid fa-angle-right"></i> Monitores 75Hz para Oficina y Casa</a>
+                                <a href="{% url 'inicio' %}?q=Curvo"><i class="fa-solid fa-angle-right"></i> Monitores Curvos Inmersivos</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Tamaño & Resolución</span>
+                                <a href="{% url 'inicio' %}?q=24"><i class="fa-solid fa-display"></i> Monitores 24" y 23.8" Full HD</a>
+                                <a href="{% url 'inicio' %}?q=27"><i class="fa-solid fa-display"></i> Monitores 27" 2K QHD</a>
+                                <a href="{% url 'inicio' %}?q=IPS"><i class="fa-solid fa-eye"></i> Paneles IPS Colores Reales</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'almacenamiento' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-hard-drive"></i> Discos SSD & Almacenamiento</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Por Tipo</span>
+                                <a href="{% url 'inicio' %}?q=M.2"><i class="fa-solid fa-bolt"></i> SSD M.2 NVMe PCIe (Ultra Rápido)</a>
+                                <a href="{% url 'inicio' %}?q=SATA"><i class="fa-solid fa-angle-right"></i> SSD SATA 2.5" para Laptop / PC</a>
+                                <a href="{% url 'inicio' %}?q=Externo"><i class="fa-solid fa-angle-right"></i> Discos Externos Portátiles</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Capacidades</span>
+                                <a href="{% url 'inicio' %}?q=512GB"><i class="fa-solid fa-database"></i> 512GB (Más Vendido)</a>
+                                <a href="{% url 'inicio' %}?q=1TB"><i class="fa-solid fa-database"></i> 1TB y 2TB Gran Capacidad</a>
+                                <a href="{% url 'inicio' %}?q=256GB"><i class="fa-solid fa-database"></i> 240GB / 256GB Económicos</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'periferico' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-keyboard"></i> Periféricos & Accesorios</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Entrada & Control</span>
+                                <a href="{% url 'inicio' %}?q=Mouse"><i class="fa-solid fa-computer-mouse"></i> Mouse Gamer y de Oficina</a>
+                                <a href="{% url 'inicio' %}?q=Teclado"><i class="fa-solid fa-keyboard"></i> Teclados Mecánicos y Membrana</a>
+                                <a href="{% url 'inicio' %}?q=Combo"><i class="fa-solid fa-box"></i> Combos Teclado + Mouse</a>
+                                <a href="{% url 'inicio' %}?q=Pad"><i class="fa-solid fa-rug"></i> Mousepads Gamer XXL</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Conectividad & Cables</span>
+                                <a href="{% url 'inicio' %}?q=HDMI"><i class="fa-solid fa-plug"></i> Cables HDMI 4K & DisplayPort</a>
+                                <a href="{% url 'inicio' %}?q=Hub"><i class="fa-solid fa-circle-nodes"></i> Hubs Tipo C & USB</a>
+                                <a href="{% url 'inicio' %}?q=Wifi"><i class="fa-solid fa-wifi"></i> Adaptadores Wi-Fi Dual Band</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'audio' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-headphones"></i> Audio & Sonido</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Auriculares</span>
+                                <a href="{% url 'inicio' %}?categoria=audio"><i class="fa-solid fa-headset"></i> Audífonos Gamer con Micrófono</a>
+                                <a href="{% url 'inicio' %}?categoria=audio"><i class="fa-solid fa-headphones-simple"></i> Auriculares Bluetooth Inalámbricos</a>
+                                <a href="{% url 'inicio' %}?categoria=audio"><i class="fa-solid fa-headset"></i> Headsets para Clases / Zoom</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Parlantes</span>
+                                <a href="{% url 'inicio' %}?categoria=audio"><i class="fa-solid fa-volume-high"></i> Barras de Sonido para PC</a>
+                                <a href="{% url 'inicio' %}?categoria=audio"><i class="fa-solid fa-radio"></i> Parlantes Bluetooth Portátiles</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'software' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-shield-virus"></i> Software & Antivirus</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Antivirus Original</span>
+                                <a href="{% url 'inicio' %}?q=ESET"><i class="fa-solid fa-shield-halved"></i> ESET NOD32 Antivirus Original</a>
+                                <a href="{% url 'inicio' %}?q=Internet+Security"><i class="fa-solid fa-shield-check"></i> ESET Home Security Ultimate</a>
+                                <a href="{% url 'inicio' %}?q=Kaspersky"><i class="fa-solid fa-shield-virus"></i> Kaspersky Standard</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Sistemas & Suites</span>
+                                <a href="{% url 'inicio' %}?categoria=software-antivirus"><i class="fa-brands fa-windows"></i> Licencias Windows 11 Pro</a>
+                                <a href="{% url 'inicio' %}?categoria=software-antivirus"><i class="fa-regular fa-file-lines"></i> Microsoft Office 365 / 2024</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
 
                 <a href="https://wa.me/51961081784?text=Hola%20deseo%20servicio%20tecnico%20y%20mantenimiento%20de%20laptop%20en%20Caraz" target="_blank" class="category-bubble-card">
                     <div class="category-bubble-circle">
@@ -211,7 +451,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_101', name:'Laptop Lenovo V15 G4 AMN Ryzen 3 7320U 8GB LPDDR5 512GB SSD 15.6\" FHD', price:2149.00, icon:'fa-solid fa-laptop', qty:1, maxStock:8})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_101', name:'Laptop Lenovo V15 G4 AMN Ryzen 3 7320U 8GB LPDDR5 512GB SSD 15.6\" FHD', price:2149.00, image:'{% static 'inicio/images/lenovo_v15/lenovo_v15_1.png' %}', icon:'fa-solid fa-laptop', qty:1, maxStock:8}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 2,149.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 101 %}" class="btn-hero-secondary">
@@ -268,7 +508,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_104', name:'Laptop Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5-13420H 16GB DDR5 512GB SSD 15.3\" WUXGA', price:3299.00, icon:'fa-solid fa-laptop', qty:1, maxStock:4})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_104', name:'Laptop Lenovo IdeaPad Slim 3 15IRH10 Intel Core i5-13420H 16GB DDR5 512GB SSD 15.3\" WUXGA', price:3299.00, image:'{% static 'inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png' %}', icon:'fa-solid fa-laptop', qty:1, maxStock:4}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 3,299.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 104 %}" class="btn-hero-secondary">
@@ -325,7 +565,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_106', name:'Laptop HP 15-FC0225DX AMD Ryzen 7 7730U 16GB 512GB SSD 15.6\" FHD Touchscreen', price:3399.00, icon:'fa-solid fa-laptop', qty:1, maxStock:5})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_106', name:'Laptop HP 15-FC0225DX AMD Ryzen 7 7730U 16GB 512GB SSD 15.6\" FHD Touchscreen', price:3399.00, image:'/static/inicio/images/nuevas_laptops/106_hp_r7.jpg', icon:'fa-solid fa-laptop', qty:1, maxStock:5}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 3,399.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 106 %}" class="btn-hero-secondary">
@@ -370,7 +610,7 @@
                             </div>
 
                             <div class="hero-slide-actions">
-                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_108', name:'Laptop 2 en 1 Lenovo IdeaPad 5 16AHP9 AMD Ryzen 7 8845HS 16GB 1TB SSD 16\" WUXGA Touch 360°', price:4099.00, icon:'fa-solid fa-laptop', qty:1, maxStock:3})">
+                                <button type="button" class="btn-hero-primary btn-hero-meli-yellow" onclick="CartManager.addItem({id:'prod_108', name:'Laptop 2 en 1 Lenovo IdeaPad 5 16AHP9 AMD Ryzen 7 8845HS 16GB 1TB SSD 16\" WUXGA Touch 360°', price:4099.00, image:'/static/inicio/images/nuevas_laptops/108_lenovo_360.jpg', icon:'fa-solid fa-laptop', qty:1, maxStock:3}, this)">
                                     <i class="fa-solid fa-cart-plus"></i> Comprar a S/. 4,099.00
                                 </button>
                                 <a href="{% url 'detalle_producto' 108 %}" class="btn-hero-secondary">
@@ -482,7 +722,7 @@
                         <i class="fa-solid fa-magnifying-glass" style="color:#3483fa;"></i>
                         {% if query %}Resultados para: "{{ query }}"{% else %}Categoría: {{ categoria_seleccionada|title }}{% endif %}
                     </h2>
-                    <span style="font-size:13px; color:#666666;">Se encontraron {{ productos|length }} productos disponibles</span>
+                    <span style="font-size:13px; color:#666666;">Se encontraron {{ total_productos|default:productos|length }} productos disponibles</span>
                 </div>
                 <a href="{% url 'inicio' %}" style="display:inline-flex; align-items:center; gap:6px; background:#fffbe6; color:#2d3277; border:1px solid #ffe600; padding:8px 16px; border-radius:8px; font-weight:700; text-decoration:none; font-size:13px; transition:all 0.2s;">
                     <i class="fa-solid fa-xmark"></i> Ver catálogo completo
@@ -533,7 +773,7 @@
                         <div class="promo-pricing-box">
                             <div class="price-label-col">
                                 <span class="price-old">S/. {{ prod.precio_anterior }}</span>
-                                <span style="color:#00a650; font-weight:800; font-size:11.5px;">
+                                <span style="color:#00a650; font-weight:800; font-size:9.5px; letter-spacing:-0.2px;">
                                     <i class="fa-solid fa-arrow-down"></i> {{ prod.porcentaje_descuento }}% OFF
                                 </span>
                             </div>
@@ -544,7 +784,7 @@
                         </div>
 
                         <div class="promo-card-actions-group">
-                            <button type="button" class="btn-promo-action" onclick="event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio }}, icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock }} })">
+                            <button type="button" class="btn-promo-action" onclick="event.preventDefault(); event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio|unlocalize }}, image:'{{ prod.imagen_url|default:''|escapejs }}', icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock|unlocalize }} }, this);">
                                 <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
                             </button>
                         </div>
@@ -558,6 +798,62 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <!-- PAGINACIÓN SINCRÓNICA ESTILO MERCADO LIBRE / TIENDA PROFESIONAL -->
+            {% if productos.has_other_pages %}
+            <nav class="pagination-container" aria-label="Páginas de productos">
+                <ul class="pagination-list">
+                    <!-- Botón Anterior -->
+                    {% if productos.has_previous %}
+                    <li class="page-item">
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ productos.previous_page_number }}#promosCatalog" 
+                           class="page-link page-prev-next" 
+                           title="Página anterior">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link page-prev-next"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
+                    </li>
+                    {% endif %}
+
+                    <!-- Números de Página -->
+                    {% for num in productos.paginator.page_range %}
+                        {% if productos.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link current-page">{{ num }}</span>
+                        </li>
+                        {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
+                        <li class="page-item">
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ num }}#promosCatalog" 
+                               class="page-link">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Botón Siguiente -->
+                    {% if productos.has_next %}
+                    <li class="page-item">
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ productos.next_page_number }}#promosCatalog" 
+                           class="page-link page-prev-next" 
+                           title="Página siguiente">
+                            Siguiente <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link page-prev-next">Siguiente <i class="fa-solid fa-chevron-right"></i></span>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="pagination-info-text">
+                    Página {{ productos.number }} de {{ productos.paginator.num_pages }} • Mostrando {{ productos|length }} de {{ total_productos }} productos
+                </div>
+            </nav>
+            {% endif %}
 
         </div>
     </main>
@@ -724,6 +1020,7 @@
                     id: `prod_${data.id}`,
                     name: data.nombre,
                     price: data.precio,
+                    image: data.imagen_url || (data.fotos && data.fotos.length ? data.fotos[0] : ''),
                     icon: 'fa-solid fa-laptop',
                     qty: 1,
                     maxStock: data.stock
@@ -806,35 +1103,290 @@
         }
     });
 
-    // Control del buscador desplegable inteligente en móvil
+    // Control del buscador desplegable inteligente en móvil (Abrir y cerrar con el mismo botón)
     function toggleMobileSearch(forceState) {
         const box = document.getElementById('headerSearchBox');
         const trigger = document.getElementById('mobileSearchTrigger');
         const input = document.getElementById('headerSearchInput');
+        const headerBar = document.getElementById('headerContentBar');
         if (!box) return;
 
         const willOpen = typeof forceState === 'boolean' ? forceState : !box.classList.contains('active-mobile');
         
         if (willOpen) {
             box.classList.add('active-mobile');
-            if (trigger) trigger.classList.add('active');
-            setTimeout(() => { if (input) input.focus(); }, 100);
+            if (headerBar) headerBar.classList.add('search-expanded');
+            if (trigger) {
+                trigger.classList.add('active');
+                trigger.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                trigger.setAttribute('title', 'Cerrar buscador');
+                trigger.setAttribute('aria-label', 'Cerrar buscador');
+            }
+            setTimeout(() => { 
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 120);
         } else {
             box.classList.remove('active-mobile');
-            if (trigger) trigger.classList.remove('active');
+            if (headerBar) headerBar.classList.remove('search-expanded');
+            if (trigger) {
+                trigger.classList.remove('active');
+                trigger.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
+                trigger.setAttribute('title', 'Buscar productos');
+                trigger.setAttribute('aria-label', 'Buscar productos');
+            }
             if (input) input.blur();
+            closeLiveSearch();
         }
     }
 
-    // Cerrar el buscador al hacer click en cualquier otro lado de la pantalla
+    // Buscador predictivo en vivo con Fetch / AJAX (Muestra hasta 3 productos al escribir)
+    const searchInput = document.getElementById('headerSearchInput');
+    const searchDropdown = document.getElementById('liveSearchDropdown');
+    const searchClearBtn = document.getElementById('headerSearchClearBtn');
+    let searchDebounceTimer = null;
+    let searchAbortController = null;
+    let selectedResultIndex = -1;
+
+    function closeLiveSearch() {
+        if (searchDropdown) {
+            searchDropdown.classList.remove('active');
+            searchDropdown.innerHTML = '';
+        }
+        selectedResultIndex = -1;
+    }
+
+    if (searchClearBtn && searchInput) {
+        searchClearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchClearBtn.style.display = 'none';
+            closeLiveSearch();
+            searchInput.focus();
+        });
+    }
+
+    if (searchInput && searchDropdown) {
+        const updateClearBtnVisibility = () => {
+            if (searchClearBtn) {
+                searchClearBtn.style.display = searchInput.value.trim().length > 0 ? 'inline-flex' : 'none';
+            }
+        };
+
+        const executeLiveSearch = async (term) => {
+            const query = term.trim();
+            if (query.length < 2) {
+                closeLiveSearch();
+                return;
+            }
+
+            // Mostrar estado de cargando
+            searchDropdown.classList.add('active');
+            searchDropdown.innerHTML = `
+                <div class="live-search-loading">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Buscando coincidencias...
+                </div>
+            `;
+
+            // Cancelar peticiones anteriores en curso
+            if (searchAbortController) {
+                searchAbortController.abort();
+            }
+            searchAbortController = new AbortController();
+
+            try {
+                const response = await fetch(`/api/buscar/?q=${encodeURIComponent(query)}`, {
+                    signal: searchAbortController.signal
+                });
+                
+                if (!response.ok) throw new Error('Error en búsqueda');
+                const data = await response.json();
+
+                if (searchInput.value.trim() !== query) {
+                    return; // Si el texto ya cambió, ignorar
+                }
+
+                renderLiveSearchResults(data, query);
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                console.error("Error buscando productos:", err);
+                searchDropdown.innerHTML = `
+                    <div class="live-search-empty">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>Ocurrió un error al buscar. Intenta de nuevo.</span>
+                    </div>
+                `;
+            }
+        };
+
+        const renderLiveSearchResults = (data, query) => {
+            const items = data.productos || [];
+            selectedResultIndex = -1;
+
+            if (items.length === 0) {
+                searchDropdown.innerHTML = `
+                    <div class="live-search-empty">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <div>No encontramos productos con "<strong>${escapeHtml(query)}</strong>"</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="live-search-header">
+                    <span><i class="fa-solid fa-bolt"></i> Coincidencias rápidas (${items.length})</span>
+                    <span style="font-weight: 500; font-size: 11px; color: #94a3b8;">${data.total_coincidencias} disponible(s)</span>
+                </div>
+                <ul class="live-search-list">
+            `;
+
+            items.forEach((item, index) => {
+                const oldPriceBadge = item.precio_anterior ? `<span class="live-search-oldprice">S/. ${item.precio_anterior}</span>` : '';
+                const discountBadge = item.porcentaje_descuento ? `<span class="live-search-discount">-${item.porcentaje_descuento}%</span>` : '';
+
+                html += `
+                    <li>
+                        <a href="${item.url}" class="live-search-item" data-index="${index}">
+                            <div class="live-search-thumb">
+                                <img src="${item.imagen}" alt="${escapeHtml(item.nombre)}" loading="lazy" onerror="this.src='/static/inicio/images/placeholder.png'">
+                            </div>
+                            <div class="live-search-info">
+                                <span class="live-search-tag">${escapeHtml(item.categoria)}</span>
+                                <div class="live-search-title">${highlightMatch(escapeHtml(item.nombre), query)}</div>
+                                <div class="live-search-pricing">
+                                    <span class="live-search-price">S/. ${item.precio}</span>
+                                    ${oldPriceBadge}
+                                    ${discountBadge}
+                                </div>
+                            </div>
+                            <div class="live-search-action-btn">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </a>
+                    </li>
+                `;
+            });
+
+            html += `
+                </ul>
+                <div class="live-search-footer">
+                    <a href="{% url 'inicio' %}?q=${encodeURIComponent(query)}">
+                        <span>Ver todos los resultados para "<strong>${escapeHtml(query)}</strong>"</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            `;
+
+            searchDropdown.innerHTML = html;
+        };
+
+        // Escuchar cuando el usuario escribe en el input
+        searchInput.addEventListener('input', (e) => {
+            updateClearBtnVisibility();
+            clearTimeout(searchDebounceTimer);
+            const val = e.target.value;
+            if (val.trim().length >= 2) {
+                // Debounce de 250ms para rapidez sin saturar el servidor
+                searchDebounceTimer = setTimeout(() => {
+                    executeLiveSearch(val);
+                }, 250);
+            } else {
+                closeLiveSearch();
+            }
+        });
+
+        // Al enfocar, si ya hay texto, mostrar sugerencias
+        searchInput.addEventListener('focus', () => {
+            updateClearBtnVisibility();
+            if (searchInput.value.trim().length >= 2 && !searchDropdown.classList.contains('active')) {
+                executeLiveSearch(searchInput.value);
+            }
+        });
+
+        // Soporte de navegación con el teclado (Flecha Arriba/Abajo, Enter, Escape)
+        searchInput.addEventListener('keydown', (e) => {
+            if (!searchDropdown.classList.contains('active')) return;
+
+            const items = searchDropdown.querySelectorAll('.live-search-item');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedResultIndex = (selectedResultIndex + 1) % items.length;
+                updateSelectedItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedResultIndex = (selectedResultIndex - 1 + items.length) % items.length;
+                updateSelectedItem(items);
+            } else if (e.key === 'Enter') {
+                if (selectedResultIndex >= 0 && items[selectedResultIndex]) {
+                    e.preventDefault();
+                    items[selectedResultIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                closeLiveSearch();
+            }
+        });
+
+        function updateSelectedItem(items) {
+            items.forEach((item, idx) => {
+                if (idx === selectedResultIndex) {
+                    item.classList.add('selected');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        function highlightMatch(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<mark style="background: #fef08a; color: #1e293b; padding: 0 2px; border-radius: 2px;">$1</mark>');
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, (m) => {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+            });
+        }
+    }
+
+    // Control del menú de usuario desplegable
+    function toggleUserDropdown(forceState) {
+        const menu = document.getElementById('userDropdownMenu');
+        const trigger = document.getElementById('userMenuTrigger');
+        if (!menu) return;
+        const willOpen = typeof forceState === 'boolean' ? forceState : !menu.classList.contains('active');
+        if (willOpen) {
+            menu.classList.add('active');
+            if (trigger) trigger.classList.add('menu-open');
+        } else {
+            menu.classList.remove('active');
+            if (trigger) trigger.classList.remove('menu-open');
+        }
+    }
+
+    // Cerrar buscador, user dropdown y live search al hacer click fuera
     document.addEventListener('click', (e) => {
         const box = document.getElementById('headerSearchBox');
         const trigger = document.getElementById('mobileSearchTrigger');
-        if (!box || !box.classList.contains('active-mobile')) return;
+        const userWrapper = document.getElementById('headerUserWrapper');
 
-        // Si el click no fue ni dentro del buscador ni en el botón de la lupa, se cierra
-        if (!box.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
-            toggleMobileSearch(false);
+        if (box && !box.contains(e.target)) {
+            closeLiveSearch();
+        }
+
+        if (box && box.classList.contains('active-mobile')) {
+            if (!box.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
+                toggleMobileSearch(false);
+            }
+        }
+
+        if (userWrapper && !userWrapper.contains(e.target)) {
+            toggleUserDropdown(false);
         }
     });
     </script>
@@ -1101,6 +1653,120 @@
     }
     .promo-ad-btn-secondary:hover {
         color: #0f172a;
+    }
+
+    /* ESTILOS DE PAGINACIÓN SINCRÓNICA ARMONIZADOS CON LA IDENTIDAD DE LA PÁGINA (AZUL TECH + AMARILLO FULL PILOTO) */
+    .pagination-container {
+        margin-top: 45px;
+        margin-bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+    .pagination-list {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        list-style: none;
+        padding: 6px 10px;
+        margin: 0;
+        gap: 8px;
+        flex-wrap: wrap;
+        background: #ffffff;
+        border: 1.5px solid rgba(45, 50, 119, 0.12);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+    .pagination-list .page-item {
+        margin: 0;
+    }
+    .pagination-list .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 14px;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #2d3277;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        border: 1px solid #e2e8f0;
+        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+    .pagination-list .page-link:hover {
+        background: #fffbe6;
+        border-color: #ffe600;
+        color: #2d3277;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 230, 0, 0.35);
+    }
+    /* Página Activa: Amarillo distintivo Full Piloto / Mercado Libre con texto azul marino de contraste */
+    .pagination-list .page-item.active .page-link,
+    .pagination-list .page-link.current-page {
+        background: #ffe600;
+        color: #2d3277 !important;
+        font-weight: 900;
+        border-color: #ffd100;
+        box-shadow: 0 4px 14px rgba(255, 230, 0, 0.55), inset 0 0 0 1px #e6cf00;
+        cursor: default;
+        transform: scale(1.05);
+    }
+    .pagination-list .page-item.disabled .page-link {
+        background: #f1f5f9;
+        color: #cbd5e1;
+        border-color: #f1f5f9;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+    .pagination-list .page-prev-next {
+        font-weight: 800;
+        padding: 0 16px;
+        color: #2d3277;
+    }
+    .pagination-list .page-prev-next i {
+        color: #3483fa;
+        transition: transform 0.2s ease;
+    }
+    .pagination-list .page-link:hover .fa-chevron-left {
+        transform: translateX(-3px);
+    }
+    .pagination-list .page-link:hover .fa-chevron-right {
+        transform: translateX(3px);
+    }
+    .pagination-info-text {
+        font-size: 13px;
+        font-weight: 700;
+        color: #2d3277;
+        background: #fffbe6;
+        padding: 7px 18px;
+        border-radius: 20px;
+        border: 1px solid #ffe600;
+        box-shadow: 0 2px 6px rgba(255, 230, 0, 0.15);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    @media (max-width: 576px) {
+        .pagination-list {
+            padding: 4px 6px;
+            gap: 5px;
+        }
+        .pagination-list .page-link {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+            font-size: 13px;
+        }
+        .pagination-list .page-prev-next {
+            padding: 0 10px;
+        }
     }
     </style>
 

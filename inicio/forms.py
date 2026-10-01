@@ -27,7 +27,7 @@ class RegistroClienteForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Ej: Juan'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Ej: Pérez'}),
             'email': forms.EmailInput(attrs={'class': 'form-input-field', 'placeholder': 'nombre@correo.com'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': '943 000 000'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': '961 081 784'}),
             'direccion': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Jr. Sucre 715, Caraz'}),
             'referencia': forms.TextInput(attrs={'class': 'form-input-field', 'placeholder': 'Ej: Frente a Pollería Mayli'}),
         }
@@ -93,6 +93,22 @@ class LoginClienteForm(forms.Form):
 
 from .models import Producto, Categoria
 
+class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput(attrs={'class': 'form-input-field', 'accept': 'image/*'}))
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
 class ProductoForm(forms.ModelForm):
     categoria = forms.ModelChoiceField(
         queryset=Categoria.objects.all(),
@@ -100,19 +116,43 @@ class ProductoForm(forms.ModelForm):
         empty_label="-- Seleccionar Categoría --",
         widget=forms.Select(attrs={'class': 'form-input-field'})
     )
+    imagen_archivo = forms.ImageField(
+        required=False,
+        label='Subir Foto de Portada desde tu equipo',
+        widget=forms.FileInput(attrs={'class': 'form-input-field', 'accept': 'image/*'})
+    )
+    imagenes_secundarias_archivos = MultipleFileField(
+        required=False,
+        label='Subir Fotos de Galería (puedes seleccionar varias)'
+    )
+
+
+
+    imagen_url = forms.CharField(
+        required=False,
+        label='O pegar URL externa de Imagen Principal',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input-field',
+            'placeholder': 'https://... o /media/... o /static/...'
+        })
+    )
 
     class Meta:
         model = Producto
-        fields = ['nombre', 'categoria', 'precio', 'stock', 'imagen_url', 'disponible', 'descripcion']
+        fields = ['nombre', 'categoria', 'precio', 'precio_tachado', 'stock', 'imagen_url', 'imagenes_secundarias', 'disponible', 'descripcion']
         labels = {
             'nombre': 'Nombre / Modelo de la Laptop o Producto',
             'categoria': 'Categoría',
-            'precio': 'Precio de Venta (S/.)',
+            'precio': 'Precio de Oferta / Venta (S/.)',
+            'precio_tachado': 'Precio Normal Tachado (S/.) (Opcional)',
             'stock': 'Stock Disponible en Caraz',
-            'imagen_url': 'URL de Imagen (Enlace Web o Ruta Local)',
+            'imagen_url': 'O pegar URL externa de Imagen Principal',
+            'imagenes_secundarias': 'O pegar URLs Secundarias (una por línea)',
             'disponible': '¿Producto Activo para la Venta?',
             'descripcion': 'Descripción y Especificaciones Técnicas',
         }
+
+
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-input-field',
@@ -124,14 +164,26 @@ class ProductoForm(forms.ModelForm):
                 'step': '0.01',
                 'min': '1'
             }),
+            'precio_tachado': forms.NumberInput(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'Ej: 2899.00 (Mayor al precio de oferta)',
+                'step': '0.01',
+                'min': '1'
+            }),
             'stock': forms.NumberInput(attrs={
                 'class': 'form-input-field',
                 'placeholder': 'Ej: 8',
                 'min': '0'
             }),
-            'imagen_url': forms.URLInput(attrs={
+            'imagen_url': forms.TextInput(attrs={
                 'class': 'form-input-field',
-                'placeholder': 'https://ejemplo.com/laptop.jpg o /static/inicio/images/...'
+                'placeholder': 'https://infotec.com.pe/... o /media/... o /static/...'
+            }),
+
+            'imagenes_secundarias': forms.Textarea(attrs={
+                'class': 'form-input-field',
+                'placeholder': 'https://infotec.com.pe/foto2.jpg\nhttps://infotec.com.pe/foto3.jpg\n(Una URL por línea)',
+                'rows': 3
             }),
             'disponible': forms.CheckboxInput(attrs={
                 'class': 'form-checkbox-custom'
@@ -148,6 +200,12 @@ class ProductoForm(forms.ModelForm):
         if precio is not None and precio <= 0:
             raise forms.ValidationError('El precio debe ser mayor a 0.')
         return precio
+
+    def clean_precio_tachado(self):
+        precio_tachado = self.cleaned_data.get('precio_tachado')
+        if precio_tachado is not None and precio_tachado <= 0:
+            raise forms.ValidationError('El precio tachado debe ser mayor a 0.')
+        return precio_tachado
 
     def clean_stock(self):
         stock = self.cleaned_data.get('stock')

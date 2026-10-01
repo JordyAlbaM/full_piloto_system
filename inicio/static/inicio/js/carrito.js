@@ -34,11 +34,15 @@
             items.forEach(item => {
                 const sub = item.price * item.qty;
                 subtotal += sub;
+                const itemThumbHtml = item.image 
+                    ? `<img src="${item.image}" alt="${item.name}" class="product-thumb-img" onerror="this.outerHTML='<i class=\\'${item.icon || 'fa-solid fa-laptop'}\\'></i>'">`
+                    : `<i class="${item.icon || 'fa-solid fa-laptop'}"></i>`;
+
                 html += `
                     <div class="cart-table-row">
                         <div class="row-left">
                             <div class="product-thumb">
-                                <i class="${item.icon}"></i>
+                                ${itemThumbHtml}
                             </div>
                             <div>
                                 <div class="row-title">${item.name}</div>
@@ -58,9 +62,14 @@
                             <div style="font-weight: 900; color: #dc2626; min-width: 80px; text-align: right; font-size:15px;">
                                 S/. ${sub.toFixed(2)}
                             </div>
-                            <button type="button" class="item-delete-btn" onclick="CartManager.removeItem('${item.id}'); renderFullCartPage();">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                            <div class="row-actions-group">
+                                <button type="button" class="item-whatsapp-btn" onclick="CartManager.buyItemViaWhatsApp('${item.id}')" title="Pedir este producto por WhatsApp" aria-label="Pedir por WhatsApp">
+                                    <i class="fa-brands fa-whatsapp"></i> <span class="wa-btn-text">Pedir</span>
+                                </button>
+                                <button type="button" class="item-delete-btn" onclick="CartManager.removeItem('${item.id}'); renderFullCartPage();" title="Eliminar producto" aria-label="Eliminar producto">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
