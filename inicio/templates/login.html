@@ -702,11 +702,12 @@
                                 Estado de Imágenes Cloudinary
                             </div>
                             <div style="font-size: 12px; color: #15803d;">
-                                <strong>{{ estado_cloudinary.en_cloudinary }}</strong> de <strong>{{ estado_cloudinary.total }}</strong> productos alojados en Cloudinary.
                                 {% if estado_cloudinary.pendientes > 0 %}
-                                <span style="color: #b45309; font-weight: 600;">({{ estado_cloudinary.pendientes }} pendientes de migrar)</span>
+                                <strong>{{ estado_cloudinary.en_cloudinary }}</strong> de <strong>{{ estado_cloudinary.con_imagen }}</strong> productos con foto están en Cloudinary.
+                                <span style="color: #b45309; font-weight: 600;">({{ estado_cloudinary.pendientes }} pendientes de migrar{% if estado_cloudinary.sin_imagen > 0 %}, {{ estado_cloudinary.sin_imagen }} productos sin foto{% endif %})</span>
                                 {% else %}
-                                <span style="color: #15803d; font-weight: 600;">(¡Todas las imágenes están seguras en la nube!)</span>
+                                <strong>{{ estado_cloudinary.en_cloudinary }}</strong> productos con foto asegurados en Cloudinary.
+                                <span style="color: #15803d; font-weight: 600;">(¡Todas las imágenes están en la nube!{% if estado_cloudinary.sin_imagen > 0 %} {{ estado_cloudinary.sin_imagen }} sin foto{% endif %})</span>
                                 {% endif %}
                             </div>
                         </div>

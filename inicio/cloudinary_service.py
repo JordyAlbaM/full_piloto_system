@@ -184,17 +184,25 @@ def obtener_estado_migracion_imagenes():
     pendientes_locales = 0
     pendientes_externas = 0
 
+    sin_imagen = 0
+
     for p in Producto.objects.all():
         url = (p.imagen_url or '').strip()
-        if 'res.cloudinary.com' in url:
+        if not url:
+            sin_imagen += 1
+        elif 'res.cloudinary.com' in url:
             cloudinary_count += 1
         elif url.startswith(('/media/', 'media/')):
             pendientes_locales += 1
         elif url.startswith(('http://', 'https://')):
             pendientes_externas += 1
 
+    con_imagen = cloudinary_count + pendientes_locales + pendientes_externas
+
     return {
         'total': total_prods,
+        'con_imagen': con_imagen,
+        'sin_imagen': sin_imagen,
         'en_cloudinary': cloudinary_count,
         'pendientes': pendientes_locales + pendientes_externas,
         'pendientes_locales': pendientes_locales,
