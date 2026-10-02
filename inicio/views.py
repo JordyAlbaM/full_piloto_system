@@ -16,6 +16,12 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Categoria, Producto
 from .forms import RegistroClienteForm, LoginClienteForm, ProductoForm
+from .cloudinary_service import (
+    procesar_y_subir_imagen,
+    procesar_lineas_galeria,
+    obtener_estado_migracion_imagenes,
+    migrar_todas_las_imagenes_a_cloudinary
+)
 
 
 def obtener_datos_infotec(url):
@@ -310,30 +316,30 @@ def login_view(request):
             if producto_form.is_valid():
                 nuevo_prod = producto_form.save(commit=False)
 
-                # Si el usuario subió una imagen principal desde su equipo
+                # Si el usuario subió una imagen principal desde su equipo o ingresó URL
                 if 'imagen_archivo' in request.FILES:
-                    img_file = request.FILES['imagen_archivo']
-                    file_ext = os.path.splitext(img_file.name)[1].lower() or '.jpg'
-                    safe_filename = f"prod_{uuid.uuid4().hex[:8]}{file_ext}"
-                    saved_path = default_storage.save(f"productos/{safe_filename}", img_file)
-                    nuevo_prod.imagen_url = default_storage.url(saved_path)
+                    nuevo_prod.imagen_url = procesar_y_subir_imagen(request.FILES['imagen_archivo'], subfolder="productos")
+                elif nuevo_prod.imagen_url:
+                    nuevo_prod.imagen_url = procesar_y_subir_imagen(nuevo_prod.imagen_url, subfolder="productos")
 
-                # Si el usuario subió fotos secundarias/galería desde su equipo
+                # Procesar fotos de galería (archivos y/o URLs de texto)
+                urls_nuevas = []
                 if 'imagenes_secundarias_archivos' in request.FILES:
                     sec_files = request.FILES.getlist('imagenes_secundarias_archivos')
-                    urls_nuevas = []
                     for f in sec_files:
-                        f_ext = os.path.splitext(f.name)[1].lower() or '.jpg'
-                        f_name = f"gallery_{uuid.uuid4().hex[:8]}{f_ext}"
-                        s_path = default_storage.save(f"productos/galeria/{f_name}", f)
-                        urls_nuevas.append(default_storage.url(s_path))
-                    
-                    if urls_nuevas:
-                        existentes = nuevo_prod.imagenes_secundarias.strip()
-                        if existentes:
-                            nuevo_prod.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
-                        else:
-                            nuevo_prod.imagenes_secundarias = "\n".join(urls_nuevas)
+                        url_sec = procesar_y_subir_imagen(f, subfolder="productos/galeria")
+                        if url_sec:
+                            urls_nuevas.append(url_sec)
+
+                if nuevo_prod.imagenes_secundarias:
+                    nuevo_prod.imagenes_secundarias = procesar_lineas_galeria(nuevo_prod.imagenes_secundarias, subfolder="productos/galeria")
+
+                if urls_nuevas:
+                    existentes = (nuevo_prod.imagenes_secundarias or '').strip()
+                    if existentes:
+                        nuevo_prod.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
+                    else:
+                        nuevo_prod.imagenes_secundarias = "\n".join(urls_nuevas)
 
                 nuevo_prod.save()
                 messages.success(request, f'✨ ¡Producto "{nuevo_prod.nombre}" registrado exitosamente en la tienda!')
@@ -354,30 +360,30 @@ def login_view(request):
             if producto_form.is_valid():
                 prod_guardado = producto_form.save(commit=False)
 
-                # Si sube nueva foto principal
+                # Si sube nueva foto principal o editó la URL
                 if 'imagen_archivo' in request.FILES:
-                    img_file = request.FILES['imagen_archivo']
-                    file_ext = os.path.splitext(img_file.name)[1].lower() or '.jpg'
-                    safe_filename = f"prod_{uuid.uuid4().hex[:8]}{file_ext}"
-                    saved_path = default_storage.save(f"productos/{safe_filename}", img_file)
-                    prod_guardado.imagen_url = default_storage.url(saved_path)
+                    prod_guardado.imagen_url = procesar_y_subir_imagen(request.FILES['imagen_archivo'], subfolder="productos")
+                elif prod_guardado.imagen_url:
+                    prod_guardado.imagen_url = procesar_y_subir_imagen(prod_guardado.imagen_url, subfolder="productos")
 
-                # Si sube nuevas fotos de galería
+                # Si sube nuevas fotos de galería o editó URLs existentes
+                urls_nuevas = []
                 if 'imagenes_secundarias_archivos' in request.FILES:
                     sec_files = request.FILES.getlist('imagenes_secundarias_archivos')
-                    urls_nuevas = []
                     for f in sec_files:
-                        f_ext = os.path.splitext(f.name)[1].lower() or '.jpg'
-                        f_name = f"gallery_{uuid.uuid4().hex[:8]}{f_ext}"
-                        s_path = default_storage.save(f"productos/galeria/{f_name}", f)
-                        urls_nuevas.append(default_storage.url(s_path))
-                    
-                    if urls_nuevas:
-                        existentes = prod_guardado.imagenes_secundarias.strip()
-                        if existentes:
-                            prod_guardado.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
-                        else:
-                            prod_guardado.imagenes_secundarias = "\n".join(urls_nuevas)
+                        url_sec = procesar_y_subir_imagen(f, subfolder="productos/galeria")
+                        if url_sec:
+                            urls_nuevas.append(url_sec)
+
+                if prod_guardado.imagenes_secundarias:
+                    prod_guardado.imagenes_secundarias = procesar_lineas_galeria(prod_guardado.imagenes_secundarias, subfolder="productos/galeria")
+
+                if urls_nuevas:
+                    existentes = (prod_guardado.imagenes_secundarias or '').strip()
+                    if existentes:
+                        prod_guardado.imagenes_secundarias = existentes + "\n" + "\n".join(urls_nuevas)
+                    else:
+                        prod_guardado.imagenes_secundarias = "\n".join(urls_nuevas)
 
                 prod_guardado.save()
                 messages.success(request, f'✅ ¡Producto "{prod_guardado.nombre}" actualizado con éxito!')
@@ -399,6 +405,18 @@ def login_view(request):
             nombre_del = prod_instance.nombre
             prod_instance.delete()
             messages.info(request, f'🗑️ El producto "{nombre_del}" ha sido eliminado del catálogo.')
+            return redirect('/login/?tab=recent_products')
+
+        # Acción 2.3: Migrar todas las imágenes a Cloudinary (Solo Superusuario / Admin)
+        elif action == 'migrate_cloudinary':
+            if not request.user.is_authenticated or not (request.user.is_superuser or request.user.rol == 'admin'):
+                messages.error(request, '⛔ Solo el Administrador tiene permisos para realizar esta migración.')
+                return redirect('login')
+            res = migrar_todas_las_imagenes_a_cloudinary()
+            if res.get('success'):
+                messages.success(request, f"☁️ ¡Migración completada! Se subieron {res['total_fotos_migradas']} fotos a tu cuenta de Cloudinary.")
+            else:
+                messages.error(request, f"Error en la migración: {res.get('error')}")
             return redirect('/login/?tab=recent_products')
 
         # Acción 3: Login estándar
@@ -424,12 +442,18 @@ def login_view(request):
             else:
                 messages.error(request, 'Correo electrónico o contraseña incorrectos.')
 
+    # Estado de imágenes para el panel de administración
+    estado_cloudinary = None
+    if request.user.is_authenticated and (request.user.is_superuser or getattr(request.user, 'rol', '') == 'admin'):
+        estado_cloudinary = obtener_estado_migracion_imagenes()
+
     return render(request, 'login.html', {
         'login_form': login_form,
         'register_form': register_form,
         'producto_form': producto_form,
         'productos_recientes': productos_admin,
         'producto_a_editar': producto_a_editar,
+        'estado_cloudinary': estado_cloudinary,
         'active_tab': active_tab,
         'next': request.GET.get('next', ''),
         'return_url': return_url

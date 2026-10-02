@@ -36,7 +36,7 @@
                 <div class="brand-name">Full Piloto <span>System</span></div>
             </a>
 
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="header-actions">
                 <!-- Icono / Botón de Usuario con Menú Desplegable -->
                 <div class="header-user-wrapper" id="headerUserWrapper" style="position: relative;">
                     {% if user.is_authenticated %}
@@ -103,19 +103,18 @@
                     {% endif %}
                 </div>
 
-                <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" style="display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-color); cursor: pointer;">
+                <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" title="Ver Carrito de Compras">
                     <div style="position: relative; color: var(--primary); font-size: 18px;">
                         <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="cart-badge" style="position: absolute; top: -7px; right: -9px; background: #ef4444; color: white; font-size: 10px; font-weight: 800; border-radius: 10px; padding: 1px 5px;">0</span>
+                        <span class="cart-badge">0</span>
                     </div>
-                    <span class="main-value" style="font-weight: 800; color: #0f172a; font-size: 13.5px;">S/. 0.00</span>
+                    <span class="main-value">S/. 0.00</span>
                 </div>
 
-                <a href="{% url 'inicio' %}" class="btn-back-nav">
-                    <i class="fa-solid fa-arrow-left"></i> Catálogo
+                <a href="{% url 'inicio' %}" class="btn-back-nav" title="Volver al catálogo">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Catálogo</span>
                 </a>
             </div>
-        </div>
         </div>
     </header>
 

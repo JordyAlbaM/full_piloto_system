@@ -14,22 +14,12 @@ urlpatterns = [
     # Rutas de la rama feature/terms
     path('cookies/', pagina_cookies, name='pagina_cookies'), 
     path('politica-privacidad/', pagina_politica_privacidad, name='politica_privacidad'),
-<<<<<<< HEAD
-    path('terminos-condiciones/', terminos_condiciones,name='terminos_condiciones'),
-    path('terminos-uso/', terminos_uso,name='terminos_uso'),
-    path('ruc/', ruc, name='ruc'),
- ]
-
-
-
-
-
-=======
     path('terminos-condiciones/', terminos_condiciones, name='terminos_condiciones'),
     path('terminos-uso/', terminos_uso, name='terminos_uso'),
+    path('ruc/', ruc, name='ruc'),
     # Rutas de la rama main
     path('api/importar-infotec/', views.api_importar_infotec, name='api_importar_infotec'),
     path('pedidos/', views.pedidos_view, name='pedidos'),
     path('pedidos/actualizar-estado/', views.actualizar_estado_pedido, name='actualizar_estado_pedido'),
 ]
->>>>>>> 72498827bfac2aa9039bbe503c9713f4da52c860
+

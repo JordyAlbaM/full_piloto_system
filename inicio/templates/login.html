@@ -690,6 +690,39 @@
 
             <!-- VISTA DE PRODUCTOS EN LA BASE DE DATOS CON EDICIÓN (SOLO ADMIN) -->
             <div id="viewRecentProducts" style="{% if active_tab != 'recent_products' %}display: none;{% endif %} margin-top: 10px;">
+                {% if estado_cloudinary %}
+                <!-- BANNER DE SINCRONIZACIÓN Y MIGRACIÓN CON CLOUDINARY -->
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 38px; height: 38px; border-radius: 8px; background: #16a34a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                            <i class="fa-solid fa-cloud"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 13.5px; font-weight: 700; color: #166534;">
+                                Estado de Imágenes Cloudinary
+                            </div>
+                            <div style="font-size: 12px; color: #15803d;">
+                                <strong>{{ estado_cloudinary.en_cloudinary }}</strong> de <strong>{{ estado_cloudinary.total }}</strong> productos alojados en Cloudinary.
+                                {% if estado_cloudinary.pendientes > 0 %}
+                                <span style="color: #b45309; font-weight: 600;">({{ estado_cloudinary.pendientes }} pendientes de migrar)</span>
+                                {% else %}
+                                <span style="color: #15803d; font-weight: 600;">(¡Todas las imágenes están seguras en la nube!)</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% if estado_cloudinary.pendientes > 0 %}
+                    <form method="POST" action="{% url 'login' %}?tab=recent_products" style="margin: 0;" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerHTML='<i class=\'fa-solid fa-spinner fa-spin\'></i> Migrando imágenes...';">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="migrate_cloudinary">
+                        <button type="submit" style="background: #0284c7; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(2,132,199,0.25);">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Migrar {{ estado_cloudinary.pendientes }} a Cloudinary
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+
                 <div class="admin-recent-header">
                     <h3><i class="fa-solid fa-boxes-stacked"></i> Catálogo Completo ({{ productos_recientes|length }} productos):</h3>
                     <a href="{% url 'inicio' %}" target="_blank" class="admin-view-all-link">Ir a la tienda <i class="fa-solid fa-external-link"></i></a>
@@ -707,7 +740,18 @@
                                 {% endif %}
                             </div>
                             <div class="admin-product-row-info" style="min-width: 0;">
-                                <div class="title" style="font-weight: 700; font-size: 13.5px; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ p.nombre }}</div>
+                                <div class="title" style="font-weight: 700; font-size: 13.5px; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px;">
+                                    <span>{{ p.nombre }}</span>
+                                    {% if 'res.cloudinary.com' in p.imagen_url %}
+                                    <span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0;">
+                                        <i class="fa-solid fa-cloud"></i> Cloudinary
+                                    </span>
+                                    {% elif p.imagen_url %}
+                                    <span style="background: #fef3c7; color: #b45309; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0;" title="{% if '/media/' in p.imagen_url %}Guardada localmente en el servidor{% else %}Enlace web externo{% endif %}">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> {% if '/media/' in p.imagen_url %}Local{% else %}Externa{% endif %}
+                                    </span>
+                                    {% endif %}
+                                </div>
                                 <div class="meta" style="font-size: 12px; color: #64748b; display: flex; gap: 10px; align-items: center; margin-top: 2px;">
                                     <span class="badge-cat" style="background: #e0f2fe; color: #0284c7; padding: 1px 6px; border-radius: 4px; font-weight: 600;">{{ p.categoria.nombre|default:"General" }}</span>
                                     <span class="stock">Stock: <strong>{{ p.stock }}</strong></span>
