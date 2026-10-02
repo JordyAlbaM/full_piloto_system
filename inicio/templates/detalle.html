@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/detalle.css' %}?v=5.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/detalle.css' %}?v=5.1">
     <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.0">
 </head>
 <body>
@@ -103,12 +103,15 @@
                     {% endif %}
                 </div>
 
-                <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" title="Ver Carrito de Compras">
-                    <div style="position: relative; color: var(--primary); font-size: 18px;">
+                <div class="action-button cart-trigger-btn" onclick="CartManager.openCart()" role="button" tabindex="0" title="Ver Carrito de Compras">
+                    <div class="action-icon-circle cart-icon-circle">
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span class="cart-badge">0</span>
                     </div>
-                    <span class="main-value">S/. 0.00</span>
+                    <div class="action-label-box cart-label-box">
+                        <span class="small-title">Mi Carrito</span>
+                        <span class="main-value">S/. 0.00</span>
+                    </div>
                 </div>
 
                 <a href="{% url 'inicio' %}" class="btn-back-nav" title="Volver al catálogo">
@@ -116,7 +119,8 @@
                 </a>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <div class="container">
         <!-- Breadcrumbs -->
