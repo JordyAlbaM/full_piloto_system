@@ -711,9 +711,17 @@
                                 {% endif %}
                             </div>
                         </div>
+                    {% if migracion_en_progreso %}
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Subiendo a Cloudinary en segundo plano...
+                        </span>
+                        <a href="{% url 'login' %}?tab=recent_products" style="background: #ffffff; color: #0284c7; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Actualizar
+                        </a>
                     </div>
-                    {% if estado_cloudinary.pendientes > 0 %}
-                    <form method="POST" action="{% url 'login' %}?tab=recent_products" style="margin: 0;" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerHTML='<i class=\'fa-solid fa-spinner fa-spin\'></i> Migrando imágenes...';">
+                    {% elif estado_cloudinary.pendientes > 0 %}
+                    <form method="POST" action="{% url 'login' %}?tab=recent_products" style="margin: 0;" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerHTML='<i class=\'fa-solid fa-spinner fa-spin\'></i> Iniciando...';">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="migrate_cloudinary">
                         <button type="submit" style="background: #0284c7; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(2,132,199,0.25);">

@@ -117,6 +117,7 @@ def procesar_y_subir_imagen(archivo_o_url, subfolder="productos"):
                         url,
                         folder=folder_path,
                         resource_type="image",
+                        timeout=8,
                         transformation=[
                             {'width': MAX_DIMENSION, 'height': MAX_DIMENSION, 'crop': 'limit'},
                             {'quality': 'auto', 'fetch_format': 'auto'}
@@ -287,3 +288,51 @@ def migrar_todas_las_imagenes_a_cloudinary(progress_callback=None):
         'total_fotos_migradas': fotos_principales_migradas + fotos_galeria_migradas,
         'errores': errores
     }
+
+import threading
+
+_MIGRACION_LOCK = threading.Lock()
+_MIGRACION_ESTADO = {
+    'en_progreso': False,
+    'mensaje': '',
+    'total_fotos_migradas': 0,
+    'errores': []
+}
+
+def esta_migrando():
+    return _MIGRACION_ESTADO['en_progreso']
+
+def obtener_info_migracion_activa():
+    return _MIGRACION_ESTADO
+
+def iniciar_migracion_segundo_plano():
+    """
+    Inicia la migración de imágenes en un hilo independiente (background thread).
+    Retorna inmediatamente en milisegundos evitando WORKER TIMEOUT en Gunicorn/Render.
+    """
+    with _MIGRACION_LOCK:
+        if _MIGRACION_ESTADO['en_progreso']:
+            return False, "Ya hay una migración en curso en segundo plano."
+
+        _MIGRACION_ESTADO['en_progreso'] = True
+        _MIGRACION_ESTADO['mensaje'] = "Migrando imágenes a Cloudinary..."
+        _MIGRACION_ESTADO['errores'] = []
+
+    def _tarea_en_hilo():
+        from django.db import connections
+        try:
+            connections.close_all()
+            res = migrar_todas_las_imagenes_a_cloudinary()
+            _MIGRACION_ESTADO['total_fotos_migradas'] = res.get('total_fotos_migradas', 0)
+            _MIGRACION_ESTADO['errores'] = res.get('errores', [])
+            _MIGRACION_ESTADO['mensaje'] = f"Completado: {res.get('total_fotos_migradas', 0)} fotos migradas."
+        except Exception as e:
+            logger.error(f"Error en hilo de migración: {e}")
+            _MIGRACION_ESTADO['mensaje'] = f"Error: {e}"
+        finally:
+            connections.close_all()
+            _MIGRACION_ESTADO['en_progreso'] = False
+
+    hilo = threading.Thread(target=_tarea_en_hilo, daemon=True)
+    hilo.start()
+    return True, "Migración iniciada en segundo plano."

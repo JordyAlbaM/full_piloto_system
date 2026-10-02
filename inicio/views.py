@@ -20,7 +20,10 @@ from .cloudinary_service import (
     procesar_y_subir_imagen,
     procesar_lineas_galeria,
     obtener_estado_migracion_imagenes,
-    migrar_todas_las_imagenes_a_cloudinary
+    migrar_todas_las_imagenes_a_cloudinary,
+    iniciar_migracion_segundo_plano,
+    esta_migrando,
+    obtener_info_migracion_activa
 )
 
 
@@ -412,11 +415,11 @@ def login_view(request):
             if not request.user.is_authenticated or not (request.user.is_superuser or request.user.rol == 'admin'):
                 messages.error(request, '⛔ Solo el Administrador tiene permisos para realizar esta migración.')
                 return redirect('login')
-            res = migrar_todas_las_imagenes_a_cloudinary()
-            if res.get('success'):
-                messages.success(request, f"☁️ ¡Migración completada! Se subieron {res['total_fotos_migradas']} fotos a tu cuenta de Cloudinary.")
+            ok, msg = iniciar_migracion_segundo_plano()
+            if ok:
+                messages.success(request, '🚀 ¡Migración iniciada en segundo plano! Las fotos se están procesando y subiendo a Cloudinary sin bloquear el servidor. Recarga la página en unos momentos para ver los avances.')
             else:
-                messages.error(request, f"Error en la migración: {res.get('error')}")
+                messages.warning(request, f'⏳ {msg}')
             return redirect('/login/?tab=recent_products')
 
         # Acción 3: Login estándar
@@ -444,8 +447,10 @@ def login_view(request):
 
     # Estado de imágenes para el panel de administración
     estado_cloudinary = None
+    migracion_en_progreso = False
     if request.user.is_authenticated and (request.user.is_superuser or getattr(request.user, 'rol', '') == 'admin'):
         estado_cloudinary = obtener_estado_migracion_imagenes()
+        migracion_en_progreso = esta_migrando()
 
     return render(request, 'login.html', {
         'login_form': login_form,
@@ -454,6 +459,7 @@ def login_view(request):
         'productos_recientes': productos_admin,
         'producto_a_editar': producto_a_editar,
         'estado_cloudinary': estado_cloudinary,
+        'migracion_en_progreso': migracion_en_progreso,
         'active_tab': active_tab,
         'next': request.GET.get('next', ''),
         'return_url': return_url
