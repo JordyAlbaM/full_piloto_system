@@ -96,11 +96,11 @@
                 </h4>
                 <ul class="fps-footer-menu">
                     <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Quiénes Somos</a></li>
-                    <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Términos y Condiciones</a></li>
-                    <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Política de Privacidad</a></li>
-                    <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Términos de Uso</a></li>
-                    <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Política de Cookies</a></li>
-                    <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Información de la Empresa (RUC)</a></li>
+                    <li><a href="{% url 'terminos_condiciones' %}"><i class="fa-solid fa-chevron-right"></i> Términos y Condiciones</a></li>
+                    <li><a href="{% url 'politica_privacidad' %}"><i class="fa-solid fa-chevron-right"></i> Política de Privacidad</a></li>
+                    <li><a href="{% url 'terminos_uso' %}"><i class="fa-solid fa-chevron-right"></i> Términos de Uso</a></li>
+                    <li><a href="{% url 'pagina_cookies' %}"><i class="fa-solid fa-chevron-right"></i> Política de Cookies</a></li>
+                    <li><a href="{% url 'ruc' %}"><i class="fa-solid fa-chevron-right"></i> Información de la Empresa (RUC)</a></li>
                     <li><a href="#"><i class="fa-solid fa-chevron-right"></i> Compra 100% Segura</a></li>
                 </ul>
             </div>
@@ -492,4 +492,422 @@
         width: 100%;
     }
 }
+
+/* ========================================================
+   MODAL / VENTANA FLOTANTE DE COOKIES (DISEÑO AGRADABLE)
+   ======================================================== */
+.fps-cookie-banner-wrap {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    max-width: 420px;
+    width: calc(100% - 32px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(35px) scale(0.96);
+    transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.45s;
+    pointer-events: none;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.fps-cookie-banner-wrap.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.fps-cookie-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 22px 22px 20px 22px;
+    box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.28),
+                0 0 0 1px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    overflow: hidden;
+}
+
+/* Barra superior decorativa */
+.fps-cookie-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ffe600, #3483fa, #00a650);
+}
+
+.fps-cookie-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fps-cookie-close-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: rotate(90deg);
+}
+
+.fps-cookie-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    padding-right: 28px;
+}
+
+.fps-cookie-icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #fcd34d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #d97706;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.15);
+    animation: fpsCookieWiggle 2.5s ease-in-out infinite;
+}
+
+@keyframes fpsCookieWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(12deg); }
+    30% { transform: rotate(-10deg); }
+    45% { transform: rotate(6deg); }
+    60% { transform: rotate(0deg); }
+}
+
+.fps-cookie-title-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.fps-cookie-brand-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #3483fa;
+    margin-bottom: 2px;
+}
+
+.fps-cookie-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.fps-cookie-body {
+    margin-bottom: 14px;
+}
+
+.fps-cookie-body p {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #475569;
+    margin: 0;
+}
+
+.fps-cookie-link-wrapper {
+    margin: 10px 0 16px 0;
+}
+
+.fps-cookie-detail-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #2563eb;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.fps-cookie-detail-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+    transform: translateX(2px);
+}
+
+.fps-cookie-detail-link i {
+    font-size: 12px;
+}
+
+.fps-cookie-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fps-cookie-btn {
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 11px 16px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-family: inherit;
+    text-decoration: none;
+}
+
+.fps-cookie-btn-reject {
+    flex: 1;
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+.fps-cookie-btn-reject:hover {
+    background: #f1f5f9;
+    color: #334155;
+    border-color: #94a3b8;
+}
+
+.fps-cookie-btn-accept {
+    flex: 1.4;
+    background: #3483fa;
+    color: #ffffff;
+    border: 1px solid #2968c8;
+    box-shadow: 0 4px 12px rgba(52, 131, 250, 0.32);
+}
+
+.fps-cookie-btn-accept:hover {
+    background: #2563eb;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+    transform: translateY(-1px);
+}
+
+.fps-cookie-btn-accept:active {
+    transform: translateY(0);
+}
+
+/* Notificación discreta de guardado */
+.fps-cookie-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100000;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.fps-cookie-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fps-cookie-toast i {
+    color: #22c55e;
+    font-size: 16px;
+}
+
+@media (max-width: 480px) {
+    .fps-cookie-banner-wrap {
+        bottom: 12px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-width: none;
+    }
+
+    .fps-cookie-card {
+        padding: 18px 16px 16px 16px;
+    }
+
+    .fps-cookie-header {
+        gap: 11px;
+    }
+
+    .fps-cookie-icon-box {
+        width: 40px;
+        height: 40px;
+        font-size: 19px;
+    }
+
+    .fps-cookie-title {
+        font-size: 15px;
+    }
+
+    .fps-cookie-body p {
+        font-size: 12.8px;
+    }
+}
 </style>
+
+<!-- ========================================================
+     ESTRUCTURA DE LA VENTANA / POPUP DE COOKIES
+     ======================================================== -->
+<div id="fpsCookieBanner" class="fps-cookie-banner-wrap" role="dialog" aria-modal="false" aria-labelledby="fpsCookieTitle" aria-describedby="fpsCookieDesc">
+    <div class="fps-cookie-card">
+        <button type="button" class="fps-cookie-close-btn" id="fpsCookieCloseBtn" title="Cerrar aviso" aria-label="Cerrar aviso de cookies">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="fps-cookie-header">
+            <div class="fps-cookie-icon-box">
+                <i class="fa-solid fa-cookie-bite"></i>
+            </div>
+            <div class="fps-cookie-title-area">
+                <span class="fps-cookie-brand-badge">Full Piloto System</span>
+                <h4 class="fps-cookie-title" id="fpsCookieTitle">¿Aceptas nuestras cookies?</h4>
+            </div>
+        </div>
+
+        <div class="fps-cookie-body">
+            <p id="fpsCookieDesc">
+                Utilizamos cookies para garantizar el funcionamiento del sitio, recordar tus preferencias y ofrecerte la mejor experiencia de compra en tecnología.
+            </p>
+            <div class="fps-cookie-link-wrapper">
+                <a href="{% url 'pagina_cookies' %}" class="fps-cookie-detail-link" id="fpsCookieGoPolicy">
+                    <i class="fa-solid fa-file-shield"></i> Ver política de cookies completa
+                </a>
+            </div>
+        </div>
+
+        <div class="fps-cookie-actions">
+            <button type="button" class="fps-cookie-btn fps-cookie-btn-reject" id="fpsCookieRejectBtn">
+                Rechazar
+            </button>
+            <button type="button" class="fps-cookie-btn fps-cookie-btn-accept" id="fpsCookieAcceptBtn">
+                <i class="fa-solid fa-check"></i> Aceptar cookies
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="fpsCookieToast" class="fps-cookie-toast" role="status" aria-live="polite">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="fpsCookieToastMsg">Preferencias de cookies guardadas.</span>
+</div>
+
+<script>
+(function() {
+    const COOKIE_STORAGE_KEY = 'fps_cookies_consent_status';
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('fpsCookieToast');
+        const toastMsg = document.getElementById('fpsCookieToastMsg');
+        if (!toast) return;
+        if (toastMsg) toastMsg.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3200);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const banner = document.getElementById('fpsCookieBanner');
+        if (!banner) return;
+
+        // No mostrar la ventana emergente si ya está dentro de la página de cookies
+        if (window.location.pathname.indexOf('/cookies') !== -1) {
+            return;
+        }
+
+        const currentConsent = localStorage.getItem(COOKIE_STORAGE_KEY) || getCookie(COOKIE_STORAGE_KEY);
+
+        // Si el usuario aún no ha aceptado o rechazado, mostrar la ventana con suave retraso
+        if (!currentConsent) {
+            setTimeout(function() {
+                banner.classList.add('show');
+            }, 650);
+        }
+
+        function handleConsent(decision) {
+            banner.classList.remove('show');
+            localStorage.setItem(COOKIE_STORAGE_KEY, decision);
+            setCookie(COOKIE_STORAGE_KEY, decision, decision === 'accepted' ? 365 : 30);
+
+            if (decision === 'accepted') {
+                showToast('Has aceptado el uso de cookies en Full Piloto System.');
+            } else if (decision === 'rejected') {
+                showToast('Has rechazado las cookies opcionales.');
+            }
+        }
+
+        const btnAccept = document.getElementById('fpsCookieAcceptBtn');
+        const btnReject = document.getElementById('fpsCookieRejectBtn');
+        const btnClose = document.getElementById('fpsCookieCloseBtn');
+
+        if (btnAccept) {
+            btnAccept.addEventListener('click', function() {
+                handleConsent('accepted');
+            });
+        }
+
+        if (btnReject) {
+            btnReject.addEventListener('click', function() {
+                handleConsent('rejected');
+            });
+        }
+
+        if (btnClose) {
+            btnClose.addEventListener('click', function() {
+                banner.classList.remove('show');
+                // Al cerrar temporalmente, guardar en la sesión actual
+                sessionStorage.setItem('fps_cookie_temp_dismiss', '1');
+            });
+        }
+    });
+})();
+</script>
