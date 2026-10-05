@@ -2,6 +2,7 @@ import os
 import io
 import uuid
 import logging
+import urllib.request
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from PIL import Image, ImageOps
@@ -13,6 +14,31 @@ logger = logging.getLogger(__name__)
 # Configuración de optimización recomendada para e-commerce
 MAX_DIMENSION = 1200  # Ancho o alto máximo en píxeles (ideal para pantallas y móviles)
 JPEG_QUALITY = 82     # Calidad óptima: excelente nitidez con mínimo peso (100-200 KB)
+
+
+def descargar_imagen_remota(url, timeout=12):
+    """
+    Descarga los bytes de una imagen remota utilizando headers de navegador real.
+    Permite descargar imágenes de servidores protegidos contra hotlinking o bots
+    (ej. Ripley, Falabella, Mercado Libre, etc.) que rechazan a Cloudinary con HTTP 403 Forbidden.
+    """
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Accept-Language': 'es-PE,es;q=0.9,en;q=0.8',
+    }
+
+    url_lower = url.lower()
+    if 'ripley.com' in url_lower:
+        headers['Referer'] = 'https://simple.ripley.com.pe/'
+    elif 'falabella.com' in url_lower:
+        headers['Referer'] = 'https://www.falabella.com.pe/'
+    elif 'mercadolibre' in url_lower or 'mercadopago' in url_lower:
+        headers['Referer'] = 'https://www.mercadolibre.com.pe/'
+
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read()
 
 def optimizar_archivo_imagen(archivo_subido):
     """
@@ -109,24 +135,43 @@ def procesar_y_subir_imagen(archivo_o_url, subfolder="productos"):
                         return url
             return url
 
-        # Si es una URL web externa (ej. de Infotec, Unsplash o cualquier proveedor)
+        # Si es una URL web externa (ej. de Ripley, Falabella, Infotec, Unsplash o cualquier proveedor)
         if url.startswith(("http://", "https://")):
             if is_cloudinary_configured():
+                # 1. Intentar descargar primero los bytes con headers de navegador
+                # Esto soluciona el bloqueo 403 Forbidden de tiendas como Ripley, Falabella, etc.
                 try:
-                    res = cloudinary.uploader.upload(
-                        url,
-                        folder=folder_path,
-                        resource_type="image",
-                        timeout=8,
-                        transformation=[
-                            {'width': MAX_DIMENSION, 'height': MAX_DIMENSION, 'crop': 'limit'},
-                            {'quality': 'auto', 'fetch_format': 'auto'}
-                        ]
-                    )
-                    return res.get("secure_url", url)
-                except Exception as e:
-                    logger.warning(f"Error subiendo URL remota a Cloudinary ({url}): {e}")
-                    return url
+                    raw_bytes = descargar_imagen_remota(url, timeout=12)
+                    if raw_bytes:
+                        buffer = io.BytesIO(raw_bytes)
+                        archivo_optimizado = optimizar_archivo_imagen(buffer)
+                        res = cloudinary.uploader.upload(
+                            archivo_optimizado,
+                            folder=folder_path,
+                            resource_type="image",
+                            transformation=[
+                                {'quality': 'auto', 'fetch_format': 'auto'}
+                            ]
+                        )
+                        return res.get("secure_url", url)
+                except Exception as e_descarga:
+                    logger.warning(f"Descarga con headers falló para {url}: {e_descarga}. Intentando subida directa Cloudinary...")
+                    # 2. Fallback: Subida directa por URL en Cloudinary
+                    try:
+                        res = cloudinary.uploader.upload(
+                            url,
+                            folder=folder_path,
+                            resource_type="image",
+                            timeout=10,
+                            transformation=[
+                                {'width': MAX_DIMENSION, 'height': MAX_DIMENSION, 'crop': 'limit'},
+                                {'quality': 'auto', 'fetch_format': 'auto'}
+                            ]
+                        )
+                        return res.get("secure_url", url)
+                    except Exception as e:
+                        logger.warning(f"Error subiendo URL remota a Cloudinary ({url}): {e}")
+                        return url
             return url
 
         return url

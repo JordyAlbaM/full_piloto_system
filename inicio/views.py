@@ -1,6 +1,7 @@
 import os
 import uuid
 import urllib.request
+import urllib.parse
 import re
 import json
 import html
@@ -25,6 +26,81 @@ from .cloudinary_service import (
     esta_migrando,
     obtener_info_migracion_activa
 )
+
+
+def normalizar_url_infotec(url):
+    """Estandariza una URL de Infotec para comparaciones precisas (elimina parámetros extras, trailing slash, unifica www/https)."""
+    if not url:
+        return ''
+    u = url.strip().strip('\'"<> \t\n\r')
+    if not u.startswith('http://') and not u.startswith('https://'):
+        u = 'https://' + u
+    try:
+        parsed = urllib.parse.urlparse(u)
+        netloc = parsed.netloc.lower()
+        if netloc.startswith('www.'):
+            netloc = netloc[4:]
+        path = parsed.path.rstrip('/')
+        return f"https://{netloc}{path}"
+    except Exception:
+        return u.rstrip('/')
+
+
+def extraer_id_producto_infotec(url):
+    """Extrae el ID numérico del producto en URLs de Infotec (ej: /110519-nombre-laptop.html -> 110519)"""
+    if not url:
+        return None
+    match = re.search(r'/(\d+)-', url)
+    if match:
+        return match.group(1)
+    return None
+
+
+def buscar_producto_duplicado(url, nombre_extraido=None, modelo_extraido=None):
+    """
+    Busca si ya existe un producto registrado en la base de datos que coincida
+    con este enlace de Infotec, su ID numérico, su nombre o modelo.
+    Retorna la instancia de Producto si existe, o None si es nuevo.
+    """
+    url_norm = normalizar_url_infotec(url)
+    if not url_norm:
+        return None
+
+    # 1. Búsqueda directa por enlace de origen exacto o normalizado
+    prod = Producto.objects.filter(url_origen=url_norm).first()
+    if prod:
+        return prod
+
+    # 2. Búsqueda por ID numérico de Infotec (ej: 110519)
+    infotec_id = extraer_id_producto_infotec(url_norm)
+    if infotec_id:
+        prod = Producto.objects.filter(url_origen__icontains=f"/{infotec_id}-").first()
+        if prod:
+            return prod
+        prod = Producto.objects.filter(imagen_url__icontains=f"/{infotec_id}-").first()
+        if prod:
+            return prod
+        prod = Producto.objects.filter(imagenes_secundarias__icontains=f"/{infotec_id}-").first()
+        if prod:
+            return prod
+
+    # 3. Búsqueda por coincidencia de nombre si se proporcionó
+    if nombre_extraido:
+        nombre_clean = nombre_extraido.strip()
+        if len(nombre_clean) > 5:
+            prod = Producto.objects.filter(nombre__iexact=nombre_clean).first()
+            if prod:
+                return prod
+
+    # 4. Búsqueda por modelo específico
+    if modelo_extraido:
+        mod_clean = modelo_extraido.strip()
+        if len(mod_clean) >= 6:
+            prod = Producto.objects.filter(modelo_codigo__iexact=mod_clean).first()
+            if prod:
+                return prod
+
+    return None
 
 
 def obtener_datos_infotec(url):
@@ -315,9 +391,20 @@ def login_view(request):
                 messages.error(request, '⛔ Solo el Administrador / Superusuario tiene permisos para agregar productos.')
                 return redirect('login')
             
+            # Verificación de seguridad para evitar duplicados por enlace
+            url_origen_post = request.POST.get('url_origen', '').strip()
+            if url_origen_post:
+                url_norm = normalizar_url_infotec(url_origen_post)
+                prod_dup = buscar_producto_duplicado(url_norm)
+                if prod_dup:
+                    messages.error(request, f'⛔ No se guardó el producto: el enlace ya fue importado para "{prod_dup.nombre}" (ID: #{prod_dup.id}). Evita registrar productos duplicados.')
+                    return redirect('/login/?tab=add_product')
+
             producto_form = ProductoForm(request.POST, request.FILES)
             if producto_form.is_valid():
                 nuevo_prod = producto_form.save(commit=False)
+                if url_origen_post:
+                    nuevo_prod.url_origen = normalizar_url_infotec(url_origen_post)
 
                 # Si el usuario subió una imagen principal desde su equipo o ingresó URL
                 if 'imagen_archivo' in request.FILES:
@@ -362,6 +449,9 @@ def login_view(request):
             producto_form = ProductoForm(request.POST, request.FILES, instance=prod_instance)
             if producto_form.is_valid():
                 prod_guardado = producto_form.save(commit=False)
+                url_origen_post = request.POST.get('url_origen', '').strip()
+                if url_origen_post:
+                    prod_guardado.url_origen = normalizar_url_infotec(url_origen_post)
 
                 # Si sube nueva foto principal o editó la URL
                 if 'imagen_archivo' in request.FILES:
@@ -472,15 +562,76 @@ def logout_view(request):
     return redirect('inicio')
 
 def api_importar_infotec(request):
-    """Endpoint AJAX para extraer datos de Infotec y autocompletar el formulario"""
+    """Endpoint AJAX para validar enlace, detectar duplicados y autocompletar el formulario"""
     if not request.user.is_authenticated or not (request.user.is_superuser or request.user.rol == 'admin'):
         return JsonResponse({'success': False, 'error': 'No autorizado'}, status=403)
     
     url = request.GET.get('url', '').strip()
+    check_only = request.GET.get('check_only', '0') == '1'
+
     if not url:
         return JsonResponse({'success': False, 'error': 'Debes ingresar una URL válida de Infotec.'}, status=400)
     
-    data = obtener_datos_infotec(url)
+    url_norm = normalizar_url_infotec(url)
+    if 'infotec.com.pe' not in url_norm:
+        return JsonResponse({'success': False, 'error': 'El enlace ingresado no corresponde a infotec.com.pe.'}, status=400)
+
+    # 1. Verificación previa por URL o ID Infotec antes de scrapear
+    prod_existente = buscar_producto_duplicado(url_norm)
+    if prod_existente:
+        return JsonResponse({
+            'success': False,
+            'duplicado': True,
+            'error': f'¡Este enlace ya fue importado anteriormente! Corresponde al producto: "{prod_existente.nombre}" (ID: #{prod_existente.id}).',
+            'mensaje': f'Ya existe un producto registrado en la tienda con este mismo enlace.',
+            'producto_existente': {
+                'id': prod_existente.id,
+                'nombre': prod_existente.nombre,
+                'precio': str(prod_existente.precio),
+                'modelo_codigo': prod_existente.modelo_codigo or '',
+                'imagen_url': prod_existente.imagen_url or '',
+                'url_ver': f'/producto/{prod_existente.id}/',
+                'url_editar': f'/login/?tab=edit_product&producto_id={prod_existente.id}'
+            }
+        })
+
+    if check_only:
+        return JsonResponse({'success': True, 'duplicado': False, 'mensaje': 'Enlace disponible para importar.'})
+
+    # 2. Extraer datos desde Infotec
+    data = obtener_datos_infotec(url_norm)
+    if not data.get('success'):
+        return JsonResponse(data)
+
+    # 3. Verificación posterior con nombre/modelo oficial extraído de Infotec
+    nombre_extraido = data.get('nombre', '').strip()
+    modelo_extraido = data.get('modelo_codigo', '').strip()
+    prod_por_nombre = buscar_producto_duplicado(url_norm, nombre_extraido=nombre_extraido, modelo_extraido=modelo_extraido)
+    if prod_por_nombre:
+        # Enlazar la url_origen para futuras búsquedas directas e instantáneas
+        if not prod_por_nombre.url_origen:
+            prod_por_nombre.url_origen = url_norm
+            prod_por_nombre.save(update_fields=['url_origen'])
+
+        return JsonResponse({
+            'success': False,
+            'duplicado': True,
+            'error': f'¡Este producto ya existe en tu catálogo! Corresponde a: "{prod_por_nombre.nombre}" (ID: #{prod_por_nombre.id}).',
+            'mensaje': f'El producto extraído de este enlace ya se encuentra en tu base de datos.',
+            'producto_existente': {
+                'id': prod_por_nombre.id,
+                'nombre': prod_por_nombre.nombre,
+                'precio': str(prod_por_nombre.precio),
+                'modelo_codigo': prod_por_nombre.modelo_codigo or '',
+                'imagen_url': prod_por_nombre.imagen_url or '',
+                'url_ver': f'/producto/{prod_por_nombre.id}/',
+                'url_editar': f'/login/?tab=edit_product&producto_id={prod_por_nombre.id}'
+            }
+        })
+
+    # Si todo es nuevo y válido
+    data['url_origen'] = url_norm
+    data['duplicado'] = False
     return JsonResponse(data)
 
 def api_buscar_productos(request):

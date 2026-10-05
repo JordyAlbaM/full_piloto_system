@@ -306,6 +306,7 @@
                 {% csrf_token %}
 
                 <input type="hidden" name="action" id="formProductAction" value="{% if active_tab == 'edit_product' %}edit_product{% else %}add_product{% endif %}">
+                <input type="hidden" name="url_origen" id="id_url_origen" value="{{ producto_form.url_origen.value|default:'' }}">
                 {% if producto_a_editar %}
                 <input type="hidden" name="producto_id" value="{{ producto_a_editar.id }}">
                 {% endif %}
@@ -353,6 +354,30 @@
                         </div>
                         <div id="importSuccessBadge" style="display: none; margin-top: 10px; font-size: 12.5px; color: #15803d; font-weight: 800; background: #dcfce7; padding: 8px 14px; border-radius: 8px; border: 1px solid #86efac;">
                             <i class="fa-solid fa-circle-check"></i> <span id="importSuccessText"></span>
+                        </div>
+                        <div id="importDuplicateWarning" style="display: none; margin-top: 12px; background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 12px; padding: 14px 16px; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.08);">
+                            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                <div style="width: 38px; height: 38px; border-radius: 10px; background: #ffe4e6; color: #e11d48; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 800; font-size: 13.5px; color: #9f1239; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                                        <span>¡ALERTA: Enlace o Producto Duplicado!</span>
+                                        <span style="font-size: 11px; background: #ffe4e6; color: #be123c; padding: 2px 8px; border-radius: 6px; font-weight: 700;">No se importará</span>
+                                    </div>
+                                    <p id="importDuplicateText" style="font-size: 12.5px; color: #4c0519; margin: 0 0 10px 0; line-height: 1.5;">
+                                        El enlace que estás poniendo ya fue registrado con otro producto en tu catálogo.
+                                    </p>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                        <a id="btnVerProductoExistente" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #e11d48; color: #ffffff; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);">
+                                            <i class="fa-solid fa-eye"></i> Ver producto en tienda
+                                        </a>
+                                        <a id="btnEditarProductoExistente" href="#" style="display: inline-flex; align-items: center; gap: 6px; background: #ffffff; color: #9f1239; border: 1px solid #fca5a5; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none;">
+                                            <i class="fa-solid fa-pen-to-square"></i> Editar este producto
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </details>
@@ -923,13 +948,37 @@
             statusBox.style.display = 'block';
             successBadge.style.display = 'none';
 
+            const dupWarning = document.getElementById('importDuplicateWarning');
+            if (dupWarning) dupWarning.style.display = 'none';
+
             try {
                 const res = await fetch(`/api/importar-infotec/?url=${encodeURIComponent(url)}`);
                 const data = await res.json();
 
+                // Si se detectó producto duplicado
+                if (data.duplicado) {
+                    const dupText = document.getElementById('importDuplicateText');
+                    const btnVer = document.getElementById('btnVerProductoExistente');
+                    const btnEdit = document.getElementById('btnEditarProductoExistente');
+                    if (dupWarning && dupText) {
+                        dupText.innerHTML = `El enlace que pusiste ya corresponde al producto: <strong>"${data.producto_existente.nombre}"</strong> (ID: #${data.producto_existente.id}) registrado en tu catálogo. <strong>No se importará para evitar duplicados.</strong>`;
+                        if (btnVer) btnVer.href = data.producto_existente.url_ver || '#';
+                        if (btnEdit) btnEdit.href = data.producto_existente.url_editar || '#';
+                        dupWarning.style.display = 'block';
+                    }
+                    alert(`⚠️ ¡ATENCIÓN: ENLACE DUPLICADO!\n\nEste producto ya existe en tu tienda:\n"${data.producto_existente.nombre}" (ID: #${data.producto_existente.id})\n\nNo se importará para evitar duplicados.`);
+                    return;
+                }
+
                 if (!data.success) {
                     alert('Error: ' + (data.error || 'No se pudo importar el producto'));
                     return;
+                }
+
+                // Guardar la URL original normalizada en el campo oculto
+                const urlOrigenInp = document.getElementById('id_url_origen');
+                if (urlOrigenInp) {
+                    urlOrigenInp.value = data.url_origen || url;
                 }
 
                 // Autocompletar campos básicos
@@ -1062,6 +1111,63 @@
             if (addForm) {
                 addForm.setAttribute('novalidate', 'novalidate');
                 addForm.noValidate = true;
+            }
+
+            // Detección en vivo de enlace duplicado al escribir o pegar en infotecUrlInput
+            const infotecInput = document.getElementById('infotecUrlInput');
+            let checkLinkTimeout = null;
+            if (infotecInput) {
+                infotecInput.addEventListener('input', function() {
+                    clearTimeout(checkLinkTimeout);
+                    const rawUrl = (this.value || '').trim().replace(/^['"]+|['"]+$/g, '');
+                    const dupWarning = document.getElementById('importDuplicateWarning');
+                    const dupText = document.getElementById('importDuplicateText');
+                    const btnVer = document.getElementById('btnVerProductoExistente');
+                    const btnEdit = document.getElementById('btnEditarProductoExistente');
+                    const btn = document.getElementById('btnImportarInfotec');
+
+                    if (!rawUrl || !rawUrl.includes('infotec.com.pe')) {
+                        if (dupWarning) dupWarning.style.display = 'none';
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                            btn.style.background = '#16a34a';
+                            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Extraer y Autocompletar</span>';
+                        }
+                        return;
+                    }
+
+                    checkLinkTimeout = setTimeout(async () => {
+                        try {
+                            const res = await fetch(`/api/importar-infotec/?url=${encodeURIComponent(rawUrl)}&check_only=1`);
+                            const checkData = await res.json();
+                            if (checkData.duplicado) {
+                                if (dupWarning && dupText) {
+                                    dupText.innerHTML = `⚠️ <strong>¡Enlace ya registrado!</strong> Este link ya fue importado anteriormente para: <strong>"${checkData.producto_existente.nombre}"</strong> (ID: #${checkData.producto_existente.id}). <strong>No se permite duplicar este producto.</strong>`;
+                                    if (btnVer) btnVer.href = checkData.producto_existente.url_ver || '#';
+                                    if (btnEdit) btnEdit.href = checkData.producto_existente.url_editar || '#';
+                                    dupWarning.style.display = 'block';
+                                }
+                                if (btn) {
+                                    btn.disabled = true;
+                                    btn.style.opacity = '0.9';
+                                    btn.style.background = '#e11d48';
+                                    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>Enlace ya importado</span>';
+                                }
+                            } else {
+                                if (dupWarning) dupWarning.style.display = 'none';
+                                if (btn) {
+                                    btn.disabled = false;
+                                    btn.style.opacity = '1';
+                                    btn.style.background = '#16a34a';
+                                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Extraer y Autocompletar</span>';
+                                }
+                            }
+                        } catch (e) {
+                            // Ignorar error temporal en verificación preliminar
+                        }
+                    }, 400);
+                });
             }
 
             // Vista previa en vivo para Portada (Archivo local)

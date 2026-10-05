@@ -144,7 +144,7 @@ class ProductoForm(forms.ModelForm):
             'marca', 'modelo_codigo', 'procesador', 'ram', 'almacenamiento',
             'pantalla', 'grafica', 'garantia', 'estado_producto',
             'especificaciones_adicionales', 'descripcion',
-            'imagen_url', 'imagenes_secundarias', 'disponible'
+            'imagen_url', 'imagenes_secundarias', 'url_origen', 'disponible'
         ]
         labels = {
             'nombre': 'Nombre / Título del Producto',
@@ -165,10 +165,12 @@ class ProductoForm(forms.ModelForm):
             'descripcion': 'Descripción General / Reseña Comercial',
             'imagen_url': 'O pegar URL externa de Imagen Principal',
             'imagenes_secundarias': 'O pegar URLs Secundarias (una por línea)',
+            'url_origen': 'Enlace de Origen (Infotec)',
             'disponible': '¿Producto Activo para la Venta?',
         }
 
         widgets = {
+            'url_origen': forms.HiddenInput(),
             'nombre': forms.TextInput(attrs={
                 'class': 'form-input-field',
                 'placeholder': 'Ej: Lenovo IdeaPad Slim 3 Core i5 16GB 512GB SSD'
@@ -267,3 +269,17 @@ class ProductoForm(forms.ModelForm):
         if stock is not None and stock < 0:
             raise forms.ValidationError('El stock no puede ser negativo.')
         return stock
+
+    def clean_url_origen(self):
+        url = self.cleaned_data.get('url_origen')
+        if url:
+            url = url.strip()
+            qs = Producto.objects.filter(url_origen=url)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                p_dup = qs.first()
+                raise forms.ValidationError(
+                    f'Este producto ya fue importado con anterioridad ("{p_dup.nombre}", ID #{p_dup.id}). No se puede registrar duplicado.'
+                )
+        return url

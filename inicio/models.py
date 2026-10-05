@@ -91,6 +91,7 @@ class Producto(models.Model):
     garantia = models.CharField('Garantía', max_length=150, blank=True, default='12 Meses Oficial en tienda Caraz')
     estado_producto = models.CharField('Condición / Estado', max_length=50, blank=True, default='Nuevo Sellado', help_text="Ej: Nuevo Sellado, Reacondicionado Certificado")
     especificaciones_adicionales = models.TextField('Especificaciones Adicionales (Clave: Valor)', blank=True, help_text="Una especificación por línea en formato 'Característica: Detalle' (ej: Teclado: Español con pad numérico)")
+    url_origen = models.CharField('Enlace de Origen / Infotec', max_length=600, blank=True, null=True, help_text="Enlace web original desde donde se importó el producto (Infotec)")
 
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
