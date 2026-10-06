@@ -20,3 +20,9 @@ else:
 
 
 
+
+def ultrapat(request):
+    if request.METHOD == 'POST':
+        print("mensaje enviado")
+    else:
+        print("Mensaje enviado")
