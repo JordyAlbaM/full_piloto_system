@@ -12,8 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=5.7">
-    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.7">
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=6.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.8">
 </head>
 <body>
 
@@ -768,8 +768,8 @@
                             {% else %}
                             <i class="fa-solid fa-laptop" style="font-size:65px; color:#9ca3af;"></i>
                             {% endif %}
-                            <button type="button" class="btn-quick-view-hover" onclick="event.stopPropagation(); QuickViewManager.open({{ prod.id }});" title="Vista rápida">
-                                <i class="fa-solid fa-eye"></i> Vista Rápida
+                            <button type="button" class="btn-quick-view-hover" onclick="event.stopPropagation(); QuickViewManager.open({{ prod.id }});" title="Vista rápida" aria-label="Vista rápida de {{ prod.nombre|escapejs }}">
+                                <i class="fa-solid fa-eye"></i> <span>Vista Rápida</span>
                             </button>
                             <!-- INSIGNIAS DE CONFIANZA Y FACILIDAD DE COMPRA -->
                             <div class="floating-store-trust-badges">
@@ -892,30 +892,67 @@
          MODAL DE VISTA RÁPIDA (QUICK VIEW) CON ZOOM Y MINIATURAS
          ======================================================== -->
     <div class="quickview-modal-overlay" id="quickViewModal" onclick="if(event.target === this) QuickViewManager.close();">
-        <div class="quickview-modal-card" role="dialog" aria-modal="true">
-            <button type="button" class="quickview-close-btn" onclick="QuickViewManager.close()" title="Cerrar vista rápida">
+        <div class="quickview-modal-card" role="dialog" aria-modal="true" aria-labelledby="qvTitle">
+            <button type="button" class="quickview-close-btn" onclick="QuickViewManager.close()" title="Cerrar vista rápida" aria-label="Cerrar vista rápida">
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
             <div class="quickview-modal-body">
-                <!-- Columna Izquierda: Galería con efecto Lupa / Zoom -->
+                <!-- Columna Izquierda: Galería con efecto Lupa / Zoom y Navegación Carrusel -->
                 <div class="quickview-gallery-col">
                     <div class="quickview-main-image-wrap" id="qvImageWrap">
-                        <img id="qvMainImg" src="" alt="Laptop">
-                        <div class="quickview-zoom-hint">
-                            <i class="fa-solid fa-magnifying-glass-plus"></i> Pasa el cursor para hacer zoom
+                        <!-- Spinner de carga -->
+                        <div class="qv-image-loader" id="qvImageLoader" style="display:none;">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                        </div>
+
+                        <!-- Flechas de navegación rápida en imagen principal -->
+                        <button type="button" class="qv-nav-arrow qv-nav-prev" id="qvNavPrev" aria-label="Foto anterior" onclick="event.stopPropagation(); QuickViewManager.prevImage();" title="Foto anterior" style="display:none;">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+
+                        <img id="qvMainImg" src="" alt="Producto">
+
+                        <button type="button" class="qv-nav-arrow qv-nav-next" id="qvNavNext" aria-label="Foto siguiente" onclick="event.stopPropagation(); QuickViewManager.nextImage();" title="Foto siguiente" style="display:none;">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+
+                        <!-- Contador dinámico de fotos (ej. 1 / 11) -->
+                        <div class="qv-image-counter" id="qvImageCounter" style="display:none;">
+                            <i class="fa-regular fa-images"></i> <span id="qvCurrentImgNum">1</span> / <span id="qvTotalImgNum">1</span>
+                        </div>
+
+                        <!-- Indicador de zoom en pantalla grande -->
+                        <div class="quickview-zoom-hint" id="qvZoomHint">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i> Pasa el cursor para zoom
                         </div>
                     </div>
 
-                    <div class="quickview-thumbs-strip" id="qvThumbsStrip">
-                        <!-- Las miniaturas se inyectan dinámicamente -->
+                    <!-- Carrusel responsivo de miniaturas con flechas de navegación -->
+                    <div class="quickview-thumbs-wrapper" id="qvThumbsWrapper" style="display:none;">
+                        <button type="button" class="qv-thumb-scroll-btn qv-thumb-scroll-prev" id="qvThumbScrollPrev" onclick="QuickViewManager.scrollThumbs(-1)" aria-label="Ver fotos anteriores" title="Ver anteriores">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        
+                        <div class="quickview-thumbs-strip" id="qvThumbsStrip">
+                            <!-- Las miniaturas se inyectan dinámicamente -->
+                        </div>
+
+                        <button type="button" class="qv-thumb-scroll-btn qv-thumb-scroll-next" id="qvThumbScrollNext" onclick="QuickViewManager.scrollThumbs(1)" aria-label="Ver fotos siguientes" title="Ver siguientes">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Indicador textual de miniaturas disponibles -->
+                    <div class="quickview-thumbs-meta" id="qvThumbsMeta" style="display:none;">
+                        <span id="qvThumbsMetaText"><i class="fa-solid fa-camera"></i> 0 fotos disponibles</span>
                     </div>
                 </div>
 
                 <!-- Columna Derecha: Información, Specs y Compra -->
                 <div class="quickview-info-col">
                     <div class="quickview-tag-row">
-                        <span class="quickview-brand-tag" id="qvBrandTag">Lenovo 2026</span>
+                        <span class="quickview-brand-tag" id="qvBrandTag">Full Piloto</span>
                         <span class="quickview-stock-tag" id="qvStockTag"><i class="fa-solid fa-check"></i> Stock en Caraz</span>
                     </div>
 
@@ -923,12 +960,12 @@
 
                     <div class="quickview-pricing-box">
                         <div>
-                            <span style="font-size:11px; font-weight:700; color:#64748b; display:block; text-transform:uppercase;">Precio de Oferta</span>
-                            <div style="display:flex; align-items:baseline; gap:8px;">
-                                <span style="font-size:13px; color:#94a3b8; text-decoration:line-through; font-weight:600;" id="qvPriceOld">S/. 0.00</span>
+                            <span class="quickview-price-label">Precio de Oferta</span>
+                            <div class="quickview-price-row">
+                                <span class="quickview-price-old" id="qvPriceOld">S/. 0.00</span>
                                 <span class="quickview-price-main" id="qvPrice">S/. 0.00</span>
-                                <span id="qvDiscountBadge" style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca; font-weight:800; font-size:11px; padding:2px 7px; border-radius:6px;">
-                                    -18% OFF
+                                <span id="qvDiscountBadge" class="quickview-discount-badge" style="display:none;">
+                                    -0% OFF
                                 </span>
                             </div>
                         </div>
@@ -963,17 +1000,54 @@
     <script>
     const QuickViewManager = {
         currentProduct: null,
+        currentImages: [],
+        currentIndex: 0,
+        touchStartX: 0,
+        touchStartY: 0,
 
         async open(productId) {
             const modal = document.getElementById('quickViewModal');
             if (!modal) return;
 
             // Limpieza inicial de estados
+            this.currentProduct = null;
+            this.currentImages = [];
+            this.currentIndex = 0;
+
             document.getElementById('qvTitle').textContent = 'Cargando equipo...';
             document.getElementById('qvPrice').textContent = 'S/. ...';
+            const qvOldEl = document.getElementById('qvPriceOld');
+            if (qvOldEl) qvOldEl.textContent = '';
+            const qvDiscountBadge = document.getElementById('qvDiscountBadge');
+            if (qvDiscountBadge) qvDiscountBadge.style.display = 'none';
+
             document.getElementById('qvSpecsTable').innerHTML = '<tr><td colspan="2" style="text-align:center; padding:18px;"><i class="fa-solid fa-spinner fa-spin" style="color:#3483fa;"></i> Obteniendo detalles...</td></tr>';
-            document.getElementById('qvThumbsStrip').innerHTML = '';
-            document.getElementById('qvMainImg').src = '';
+            
+            const thumbsStrip = document.getElementById('qvThumbsStrip');
+            if (thumbsStrip) thumbsStrip.innerHTML = '';
+            
+            const thumbsWrapper = document.getElementById('qvThumbsWrapper');
+            if (thumbsWrapper) thumbsWrapper.style.display = 'none';
+            
+            const thumbsMeta = document.getElementById('qvThumbsMeta');
+            if (thumbsMeta) thumbsMeta.style.display = 'none';
+
+            const counter = document.getElementById('qvImageCounter');
+            if (counter) counter.style.display = 'none';
+
+            const prevArrow = document.getElementById('qvNavPrev');
+            const nextArrow = document.getElementById('qvNavNext');
+            if (prevArrow) prevArrow.style.display = 'none';
+            if (nextArrow) nextArrow.style.display = 'none';
+
+            const mainImg = document.getElementById('qvMainImg');
+            if (mainImg) {
+                mainImg.src = '';
+                mainImg.style.transform = 'scale(1)';
+            }
+            
+            const loader = document.getElementById('qvImageLoader');
+            if (loader) loader.style.display = 'flex';
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -986,35 +1060,74 @@
                 this.render(data);
             } catch (err) {
                 console.error(err);
+                if (loader) loader.style.display = 'none';
                 document.getElementById('qvTitle').textContent = 'No se pudo cargar la vista rápida';
                 document.getElementById('qvSpecsTable').innerHTML = '<tr><td colspan="2" style="color:#ef4444; padding:12px;">Por favor abre la ficha completa para más información.</td></tr>';
             }
         },
 
         render(data) {
+            const loader = document.getElementById('qvImageLoader');
+            if (loader) loader.style.display = 'none';
+
             document.getElementById('qvTitle').textContent = data.nombre;
+            
+            // Marca o tag personalizado
+            const brandTag = document.getElementById('qvBrandTag');
+            if (brandTag) {
+                const nameLower = (data.nombre || '').toLowerCase();
+                if (nameLower.includes('lenovo')) {
+                    brandTag.textContent = 'Lenovo';
+                } else if (nameLower.includes('hp')) {
+                    brandTag.textContent = 'HP Series';
+                } else if (nameLower.includes('asus')) {
+                    brandTag.textContent = 'ASUS';
+                } else if (nameLower.includes('kingston')) {
+                    brandTag.textContent = 'Kingston';
+                } else if (nameLower.includes('logitech')) {
+                    brandTag.textContent = 'Logitech';
+                } else if (nameLower.includes('samsung')) {
+                    brandTag.textContent = 'Samsung';
+                } else {
+                    brandTag.textContent = 'Full Piloto';
+                }
+            }
+
+            // Precios y Descuento
             const oldPriceVal = data.precio_anterior || (data.precio * 1.20);
             const qvOldEl = document.getElementById('qvPriceOld');
             if (qvOldEl) {
                 qvOldEl.textContent = `S/. ${oldPriceVal.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             }
+
             const qvDiscountBadge = document.getElementById('qvDiscountBadge');
-            if (qvDiscountBadge && data.porcentaje_descuento) {
-                qvDiscountBadge.textContent = `-${data.porcentaje_descuento}% OFF`;
+            if (qvDiscountBadge) {
+                if (data.porcentaje_descuento && data.porcentaje_descuento > 0) {
+                    qvDiscountBadge.textContent = `-${data.porcentaje_descuento}% OFF`;
+                    qvDiscountBadge.style.display = 'inline-block';
+                } else {
+                    qvDiscountBadge.style.display = 'none';
+                }
             }
+
             document.getElementById('qvPrice').textContent = `S/. ${data.precio.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('qvStockTag').innerHTML = `<i class="fa-solid fa-check"></i> ${data.stock} unidades en Caraz`;
+            
+            const stockTag = document.getElementById('qvStockTag');
+            if (stockTag) {
+                stockTag.innerHTML = `<i class="fa-solid fa-check"></i> ${data.stock} un. en Caraz`;
+            }
+
             document.getElementById('qvBtnFullDetail').href = data.detalle_url;
             document.getElementById('qvBtnWhatsApp').href = `https://wa.me/51961081784?text=${encodeURIComponent(`Hola Full Piloto System! Me interesa la ${data.nombre} al precio de S/.${data.precio}. ¿Tienen stock disponible en tienda?`)}`;
 
-            // Configurar botón Agregar al Carrito
+            // Botón Agregar al Carrito
             const btnAdd = document.getElementById('qvBtnAddToCart');
             btnAdd.onclick = () => {
                 CartManager.addItem({
                     id: `prod_${data.id}`,
                     name: data.nombre,
                     price: data.precio,
-                    image: data.imagen_url || (data.fotos && data.fotos.length ? data.fotos[0] : ''),
+                    image: (this.currentImages && this.currentImages.length > 0) ? this.currentImages[0] : (data.imagen_url || ''),
                     icon: 'fa-solid fa-laptop',
                     qty: 1,
                     maxStock: data.stock
@@ -1022,32 +1135,23 @@
                 this.close();
             };
 
-            // Galería de fotos
-            const mainImg = document.getElementById('qvMainImg');
-            const thumbsStrip = document.getElementById('qvThumbsStrip');
-            thumbsStrip.innerHTML = '';
-
-            if (data.imagenes && data.imagenes.length > 0) {
-                mainImg.src = data.imagenes[0];
-
-                data.imagenes.forEach((imgUrl, index) => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = `quickview-thumb-btn ${index === 0 ? 'active' : ''}`;
-                    btn.innerHTML = `<img src="${imgUrl}" alt="Foto ${index + 1}">`;
-                    btn.onclick = () => {
-                        mainImg.src = imgUrl;
-                        document.querySelectorAll('.quickview-thumb-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                    };
-                    thumbsStrip.appendChild(btn);
-                });
+            // Lista de imágenes normalizada
+            let images = [];
+            if (Array.isArray(data.imagenes) && data.imagenes.length > 0) {
+                images = data.imagenes;
+            } else if (data.imagen_url) {
+                images = [data.imagen_url];
             } else {
-                mainImg.src = '/static/inicio/images/placeholder.png';
+                images = ['/static/inicio/images/placeholder.png'];
             }
+            this.currentImages = images;
+            this.currentIndex = 0;
 
-            // Configurar lupa / zoom interactivo
-            this.setupZoom();
+            // Renderizar galería principal y miniaturas
+            this.setupGalleryUI();
+
+            // Configurar zoom y gestos táctiles (Swipe)
+            this.setupInteractiveMedia();
 
             // Renderizar tabla de especificaciones
             const table = document.getElementById('qvSpecsTable');
@@ -1058,26 +1162,196 @@
                     row.innerHTML = `<td>${label}</td><td>${value}</td>`;
                     table.appendChild(row);
                 });
+            } else if (data.descripcion) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>Descripción</td><td>${data.descripcion.substring(0, 150)}...</td>`;
+                table.appendChild(row);
             }
         },
 
-        setupZoom() {
+        setupGalleryUI() {
+            const mainImg = document.getElementById('qvMainImg');
+            const thumbsStrip = document.getElementById('qvThumbsStrip');
+            const thumbsWrapper = document.getElementById('qvThumbsWrapper');
+            const thumbsMeta = document.getElementById('qvThumbsMeta');
+            const counter = document.getElementById('qvImageCounter');
+            const prevArrow = document.getElementById('qvNavPrev');
+            const nextArrow = document.getElementById('qvNavNext');
+            const total = this.currentImages.length;
+
+            thumbsStrip.innerHTML = '';
+
+            // Mostrar imagen principal
+            mainImg.src = this.currentImages[0];
+            mainImg.alt = this.currentProduct ? this.currentProduct.nombre : 'Producto';
+
+            if (total > 1) {
+                // Hay múltiples fotos (p.ej. 5, 8, 11)
+                if (thumbsWrapper) thumbsWrapper.style.display = 'flex';
+                if (counter) {
+                    counter.style.display = 'inline-flex';
+                    document.getElementById('qvCurrentImgNum').textContent = '1';
+                    document.getElementById('qvTotalImgNum').textContent = total;
+                }
+                if (prevArrow) prevArrow.style.display = 'flex';
+                if (nextArrow) nextArrow.style.display = 'flex';
+                
+                if (total >= 4 && thumbsMeta) {
+                    thumbsMeta.style.display = 'block';
+                    document.getElementById('qvThumbsMetaText').innerHTML = `<i class="fa-solid fa-camera"></i> Galería completa (${total} fotos)`;
+                }
+
+                this.currentImages.forEach((imgUrl, index) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `quickview-thumb-btn ${index === 0 ? 'active' : ''}`;
+                    btn.setAttribute('aria-label', `Ver foto ${index + 1} de ${total}`);
+                    btn.title = `Foto ${index + 1} de ${total}`;
+                    btn.innerHTML = `<img src="${imgUrl}" alt="Miniatura ${index + 1}" loading="lazy">`;
+                    btn.onclick = () => this.goToImage(index);
+                    thumbsStrip.appendChild(btn);
+                });
+
+                // Escuchar scroll para actualizar flechas del carrusel de miniaturas
+                thumbsStrip.onscroll = () => this.updateThumbScrollBtns();
+                setTimeout(() => this.updateThumbScrollBtns(), 80);
+            } else {
+                // Solo hay 1 imagen: Ocultar controles innecesarios
+                if (thumbsWrapper) thumbsWrapper.style.display = 'none';
+                if (thumbsMeta) thumbsMeta.style.display = 'none';
+                if (counter) counter.style.display = 'none';
+                if (prevArrow) prevArrow.style.display = 'none';
+                if (nextArrow) nextArrow.style.display = 'none';
+            }
+        },
+
+        goToImage(index) {
+            if (index < 0 || index >= this.currentImages.length) return;
+            this.currentIndex = index;
+
+            const mainImg = document.getElementById('qvMainImg');
+            if (mainImg) {
+                mainImg.src = this.currentImages[index];
+                mainImg.style.transform = 'scale(1)';
+                mainImg.style.transformOrigin = 'center center';
+            }
+
+            // Actualizar número en contador
+            const currentNumEl = document.getElementById('qvCurrentImgNum');
+            if (currentNumEl) currentNumEl.textContent = index + 1;
+
+            // Actualizar botones de miniaturas
+            const thumbBtns = document.querySelectorAll('.quickview-thumb-btn');
+            thumbBtns.forEach((btn, idx) => {
+                if (idx === index) {
+                    btn.classList.add('active');
+                    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            this.updateThumbScrollBtns();
+        },
+
+        nextImage() {
+            if (this.currentImages.length <= 1) return;
+            const nextIdx = (this.currentIndex + 1) % this.currentImages.length;
+            this.goToImage(nextIdx);
+        },
+
+        prevImage() {
+            if (this.currentImages.length <= 1) return;
+            const prevIdx = (this.currentIndex - 1 + this.currentImages.length) % this.currentImages.length;
+            this.goToImage(prevIdx);
+        },
+
+        scrollThumbs(direction) {
+            const strip = document.getElementById('qvThumbsStrip');
+            if (!strip) return;
+            const scrollStep = 190 * direction;
+            strip.scrollBy({ left: scrollStep, behavior: 'smooth' });
+            setTimeout(() => this.updateThumbScrollBtns(), 220);
+        },
+
+        updateThumbScrollBtns() {
+            const strip = document.getElementById('qvThumbsStrip');
+            const btnPrev = document.getElementById('qvThumbScrollPrev');
+            const btnNext = document.getElementById('qvThumbScrollNext');
+            if (!strip || !btnPrev || !btnNext) return;
+
+            const maxScroll = strip.scrollWidth - strip.clientWidth;
+            if (maxScroll <= 4) {
+                btnPrev.style.display = 'none';
+                btnNext.style.display = 'none';
+                return;
+            } else {
+                btnPrev.style.display = 'flex';
+                btnNext.style.display = 'flex';
+            }
+
+            const atStart = strip.scrollLeft <= 4;
+            const atEnd = strip.scrollLeft >= maxScroll - 4;
+
+            btnPrev.disabled = atStart;
+            btnPrev.style.opacity = atStart ? '0.35' : '1';
+            btnPrev.style.pointerEvents = atStart ? 'none' : 'auto';
+
+            btnNext.disabled = atEnd;
+            btnNext.style.opacity = atEnd ? '0.35' : '1';
+            btnNext.style.pointerEvents = atEnd ? 'none' : 'auto';
+        },
+
+        setupInteractiveMedia() {
             const wrap = document.getElementById('qvImageWrap');
             const img = document.getElementById('qvMainImg');
+            const zoomHint = document.getElementById('qvZoomHint');
             if (!wrap || !img) return;
 
-            wrap.onmousemove = (e) => {
-                const rect = wrap.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                img.style.transformOrigin = `${x}% ${y}%`;
-                img.style.transform = 'scale(1.9)';
+            // Soporte para gestos táctiles (Swipe móvil)
+            wrap.ontouchstart = (e) => {
+                if (e.touches && e.touches.length === 1) {
+                    this.touchStartX = e.touches[0].clientX;
+                    this.touchStartY = e.touches[0].clientY;
+                }
             };
 
-            wrap.onmouseleave = () => {
-                img.style.transformOrigin = 'center center';
-                img.style.transform = 'scale(1)';
+            wrap.ontouchend = (e) => {
+                if (e.changedTouches && e.changedTouches.length === 1) {
+                    const deltaX = e.changedTouches[0].clientX - this.touchStartX;
+                    const deltaY = e.changedTouches[0].clientY - this.touchStartY;
+                    // Solo disparar swipe si el movimiento horizontal supera 40px y es mayor al vertical
+                    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                        if (deltaX < 0) {
+                            this.nextImage();
+                        } else {
+                            this.prevImage();
+                        }
+                    }
+                }
             };
+
+            // Zoom sólo en pantallas de escritorio con ratón/cursor de precisión
+            const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            if (supportsHover) {
+                if (zoomHint) zoomHint.style.display = 'flex';
+                wrap.onmousemove = (e) => {
+                    const rect = wrap.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    img.style.transformOrigin = `${x}% ${y}%`;
+                    img.style.transform = 'scale(2.2)';
+                };
+
+                wrap.onmouseleave = () => {
+                    img.style.transformOrigin = 'center center';
+                    img.style.transform = 'scale(1)';
+                };
+            } else {
+                if (zoomHint) zoomHint.style.display = 'none';
+                wrap.onmousemove = null;
+                wrap.onmouseleave = null;
+            }
         },
 
         close() {
@@ -1086,16 +1360,39 @@
                 modal.classList.remove('active');
                 document.body.style.overflow = '';
             }
+            const img = document.getElementById('qvMainImg');
+            if (img) {
+                img.style.transform = 'scale(1)';
+            }
         }
     };
 
-    // Cerrar modal con tecla Escape
+    // Navegación con teclado: Escape cierra, flechas izquierda/derecha cambian fotos
     document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('quickViewModal');
+        const isModalOpen = modal && modal.classList.contains('active');
+
         if (e.key === 'Escape') {
             QuickViewManager.close();
             toggleMobileSearch(false);
+        } else if (isModalOpen) {
+            if (e.key === 'ArrowRight') {
+                QuickViewManager.nextImage();
+            } else if (e.key === 'ArrowLeft') {
+                QuickViewManager.prevImage();
+            }
         }
     });
+
+    // Abrir vista rápida automáticamente si viene parámetro en URL (?qv=101)
+    try {
+        const qvParam = new URLSearchParams(window.location.search).get('qv');
+        if (qvParam) {
+            window.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => QuickViewManager.open(parseInt(qvParam, 10)), 300);
+            });
+        }
+    } catch (e) {}
 
     // Control del buscador desplegable inteligente en móvil (Abrir y cerrar con el mismo botón)
     function toggleMobileSearch(forceState) {
