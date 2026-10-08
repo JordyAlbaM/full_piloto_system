@@ -785,7 +785,7 @@
   "model": "inicio.producto",
   "pk": 116,
   "fields": {
-    "categoria": 1,
+    "categoria": 7,
     "nombre": "SETUP GAMER RIKA ULTRA 7-265 16GB 1TB SSD GEFORCE RTX 5060 TI 16GB",
     "descripcion": "Linea : ULTRA Producto : PC Gamer Procesador : Intel Ultra 7-265 20 Núcleos Tarjeta de video: Geforce RTX 5060TI 16GB Mainboard : PRIME B860M-A Memoria RAM : 16GB DDR5 - 5600MHz Almacenamiento : 1TB(SSD) M.2  Case: BLACKWARRIOR Fuente de Poder: UD750GM ICE V2 750W Enfriamiento Liquido: LE360 WH V2 GARANTIA : 2 AÑOS IMPORTANTE : *Las configuraciones están sujetos a cambios y a disponibilidad de Stock*  Ver más características",
     "precio": "7879.00",

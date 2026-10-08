@@ -1053,8 +1053,14 @@
                         } else if ((nombreLower.includes('audio') || nombreLower.includes('audifono') || nombreLower.includes('headset')) && t.includes('audio')) {
                             catSelect.value = opt.value;
                             break;
-                        } else if ((nombreLower.includes('setup') || nombreLower.includes('computadora') || nombreLower.includes('pc gamer') || (nombreLower.includes('pc') && !nombreLower.includes('laptop')))) {
-                            // Buscar Computadoras & PCs o Zona Gamer
+                        } else if (nombreLower.includes('setup gamer') || nombreLower.includes('pc gamer') || (nombreLower.includes('setup') && nombreLower.includes('gamer'))) {
+                            // Priorizar Zona Gamer para Setups y PCs Gamer
+                            if (t.includes('gamer')) {
+                                catSelect.value = opt.value;
+                                break;
+                            }
+                        } else if ((nombreLower.includes('setup') || nombreLower.includes('computadora') || (nombreLower.includes('pc') && !nombreLower.includes('laptop')))) {
+                            // Buscar Computadoras & PCs
                             if (t.includes('computadora') || t.includes('pc') || t.includes('escritorio')) {
                                 catSelect.value = opt.value;
                                 break;

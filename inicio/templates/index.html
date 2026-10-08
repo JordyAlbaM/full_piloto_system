@@ -23,7 +23,7 @@
         <div class="container">
             <div class="top-promo-content">
                 <div class="top-promo-left">
-                    <span class="promo-fire-tag"><i class="fa-solid fa-fire"></i> ZONA GAMER & TECH</span>
+                    <a href="{% url 'inicio' %}?categoria=zona-gamer" class="promo-fire-tag" style="text-decoration:none;" title="Ver Zona Gamer"><i class="fa-solid fa-fire"></i> ZONA GAMER & TECH</a>
                     <span class="top-promo-text">¡Hasta <strong>35% OFF</strong> en Laptops Lenovo, Periféricos y Repotenciación SSD en Caraz!</span>
                 </div>
                 <div class="top-promo-right">
@@ -296,10 +296,11 @@
                         <div class="subpopover-grid">
                             <div class="subpopover-col">
                                 <span class="subpopover-subtitle">Setup Gamer</span>
-                                <a href="{% url 'inicio' %}?q=Gamer"><i class="fa-solid fa-laptop"></i> Laptops Gamer TUF / LOQ</a>
+                                <a href="{% url 'inicio' %}?categoria={{ cat.slug }}"><i class="fa-solid fa-gamepad"></i> Todos los Productos Gamer</a>
+                                <a href="{% url 'inicio' %}?categoria={{ cat.slug }}"><i class="fa-solid fa-laptop"></i> Laptops Gamer TUF / LOQ / Victus</a>
+                                <a href="{% url 'inicio' %}?categoria={{ cat.slug }}"><i class="fa-solid fa-desktop"></i> Setups & PCs Gamer</a>
                                 <a href="{% url 'inicio' %}?q=Mecanico"><i class="fa-solid fa-keyboard"></i> Teclados Mecánicos RGB</a>
                                 <a href="{% url 'inicio' %}?q=Mouse+Gamer"><i class="fa-solid fa-computer-mouse"></i> Mouse Gamer Ultraligero</a>
-                                <a href="{% url 'inicio' %}?q=Pad"><i class="fa-solid fa-rug"></i> Mousepads XXL Gamer</a>
                             </div>
                             <div class="subpopover-col">
                                 <span class="subpopover-subtitle">Audio & Ambiente</span>
@@ -723,8 +724,12 @@
             <div class="filter-results-bar" style="background:#ffffff; border:1.5px solid #ffe600; border-radius:12px; padding:16px 22px; margin-bottom:28px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); flex-wrap:wrap; gap:12px;">
                 <div>
                     <h2 style="font-size:19px; font-weight:900; color:#2d3277; margin:0; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-magnifying-glass" style="color:#3483fa;"></i>
-                        {% if query %}Resultados para: "{{ query }}"{% else %}Categoría: {{ categoria_seleccionada|title }}{% endif %}
+                        {% if categoria_seleccionada == 'zona-gamer' or 'gamer' in categoria_seleccionada %}
+                            <i class="fa-solid fa-gamepad" style="color:#7c3aed;"></i>
+                        {% else %}
+                            <i class="fa-solid fa-magnifying-glass" style="color:#3483fa;"></i>
+                        {% endif %}
+                        {% if query %}Resultados para: "{{ query }}"{% elif categoria_actual %}Categoría: {{ categoria_actual.nombre }}{% else %}Categoría: {{ categoria_seleccionada|title }}{% endif %}
                     </h2>
                     <span style="font-size:13px; color:#666666;">Se encontraron {{ total_productos|default:productos|length }} productos disponibles</span>
                 </div>
@@ -806,9 +811,9 @@
                 </div>
                 {% empty %}
                 <div style="text-align:center; padding:50px 20px; grid-column: 1 / -1; background:#ffffff; border-radius:14px; border:1px solid #e5e7eb;">
-                    <i class="fa-solid fa-laptop" style="font-size:45px; color:#cbd5e1; margin-bottom:15px;"></i>
-                    <h3 style="font-size:20px; font-weight:800; color:#2d3277; margin-bottom:8px;">No hay laptops disponibles en este momento</h3>
-                    <p style="color:#666; font-size:14px;">Visítanos pronto o consúltanos por WhatsApp.</p>
+                    <i class="fa-solid fa-box-open" style="font-size:45px; color:#cbd5e1; margin-bottom:15px;"></i>
+                    <h3 style="font-size:20px; font-weight:800; color:#2d3277; margin-bottom:8px;">No se encontraron productos disponibles en esta sección</h3>
+                    <p style="color:#666; font-size:14px;">Explora otras categorías o consúltanos por WhatsApp para pedidos especiales.</p>
                 </div>
                 {% endfor %}
             </div>

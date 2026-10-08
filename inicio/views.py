@@ -283,13 +283,35 @@ def inicio(request):
 
     # Si hay filtro de categoría, se aplica; si no, se muestran todos los productos disponibles
     productos = Producto.objects.filter(disponible=True).select_related('categoria').order_by('-id')
+    categoria_actual = None
     if categoria_slug:
-        productos = productos.filter(categoria__slug=categoria_slug)
+        categoria_actual = Categoria.objects.filter(slug=categoria_slug).first()
+        if categoria_slug == 'zona-gamer' or 'gamer' in categoria_slug:
+            # En Zona Gamer se agrupan los productos asignados a la categoría o con nombres gamer/juegos
+            productos = productos.filter(
+                Q(categoria__slug=categoria_slug) |
+                Q(nombre__icontains='gamer') |
+                Q(nombre__icontains='gaming') |
+                Q(nombre__icontains='juego') |
+                Q(nombre__icontains='juegos')
+            )
+        else:
+            productos = productos.filter(categoria__slug=categoria_slug)
 
     if query:
-        productos = productos.filter(
-            Q(nombre__icontains=query) | Q(descripcion__icontains=query)
-        )
+        q_lower = query.lower()
+        if q_lower in ['zona gamer', 'zona-gamer', 'zona_gamer']:
+            productos = productos.filter(
+                Q(categoria__slug='zona-gamer') |
+                Q(nombre__icontains='gamer') |
+                Q(nombre__icontains='gaming') |
+                Q(nombre__icontains='juego') |
+                Q(nombre__icontains='juegos')
+            )
+        else:
+            productos = productos.filter(
+                Q(nombre__icontains=query) | Q(descripcion__icontains=query)
+            )
 
     categorias = Categoria.objects.all()
     producto_destacado = productos.first() or Producto.objects.filter(disponible=True).select_related('categoria').first()
@@ -310,6 +332,7 @@ def inicio(request):
         'categorias': categorias,
         'query': query,
         'categoria_seleccionada': categoria_slug,
+        'categoria_actual': categoria_actual,
         'producto_destacado': producto_destacado,
     })
 
@@ -318,8 +341,29 @@ def detalle_producto(request, producto_id):
     productos_relacionados = Producto.objects.filter(
         disponible=True
     ).exclude(id=producto.id).select_related('categoria')
-    if producto.categoria:
+
+    # Si es un producto gamer, priorizar otros productos gamer relacionados
+    es_gamer = (
+        'gamer' in producto.nombre.lower() or
+        'gaming' in producto.nombre.lower() or
+        'juego' in producto.nombre.lower() or
+        (producto.categoria and 'gamer' in producto.categoria.slug)
+    )
+    if es_gamer:
+        gamer_rel = productos_relacionados.filter(
+            Q(categoria__slug='zona-gamer') |
+            Q(nombre__icontains='gamer') |
+            Q(nombre__icontains='gaming') |
+            Q(nombre__icontains='juego') |
+            Q(nombre__icontains='juegos')
+        )
+        if gamer_rel.exists():
+            productos_relacionados = gamer_rel
+        elif producto.categoria:
+            productos_relacionados = productos_relacionados.filter(categoria=producto.categoria)
+    elif producto.categoria:
         productos_relacionados = productos_relacionados.filter(categoria=producto.categoria)
+
     productos_relacionados = productos_relacionados[:4]
     
     # Galería dinámica para el producto
@@ -641,10 +685,22 @@ def api_buscar_productos(request):
         return JsonResponse({'productos': [], 'total_coincidencias': 0, 'query': q})
 
     # Buscar por nombre o descripción en productos disponibles
+    q_lower = q.lower()
+    if q_lower in ['zona gamer', 'zona-gamer', 'zona_gamer', 'gamer', 'gaming', 'juegos', 'juego']:
+        filtro_q = (
+            Q(categoria__slug='zona-gamer') |
+            Q(nombre__icontains='gamer') |
+            Q(nombre__icontains='gaming') |
+            Q(nombre__icontains='juego') |
+            Q(nombre__icontains='juegos')
+        )
+    else:
+        filtro_q = Q(nombre__icontains=q) | Q(descripcion__icontains=q) | Q(categoria__nombre__icontains=q)
+
     qs = Producto.objects.filter(
         disponible=True
     ).filter(
-        Q(nombre__icontains=q) | Q(descripcion__icontains=q) | Q(categoria__nombre__icontains=q)
+        filtro_q
     ).select_related('categoria').order_by('-creado')
 
     total_coincidencias = qs.count()
