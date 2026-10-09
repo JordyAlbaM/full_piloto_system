@@ -5247,6 +5247,12 @@
     box-shadow: 0 3px 12px rgba(45, 50, 119, 0.05);
     flex-wrap: wrap;
 }
+.catalog-controls-right-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
 .btn-open-lateral-filters {
     background: #2d3277;
     color: #ffffff;
@@ -5842,25 +5848,25 @@ body.mobile-cat-sheet-open {
     }
     .catalog-top-controls-bar {
         padding: 10px 12px;
-        gap: 8px;
+        gap: 10px;
     }
     .btn-open-lateral-filters {
         flex: 1 1 100%;
         justify-content: center;
-        order: 1;
     }
-    .catalog-search-inline {
-        flex: 1 1 100%;
-        order: 2;
+    .catalog-controls-right-group {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
     }
     .catalog-order-inline {
-        flex: 1 1 48%;
-        order: 3;
+        flex: 1 1 auto;
     }
     .catalog-switches-inline {
-        flex: 1 1 48%;
+        flex: 0 0 auto;
         justify-content: flex-end;
-        order: 4;
     }
 }
 

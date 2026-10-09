@@ -49,9 +49,20 @@ const CatalogFilterManager = (() => {
 
         syncControls();
 
-        // Vincular inputs de búsqueda (tanto en la barra del catálogo como en el drawer)
-        setupSearchInput('filterInputSearch', 'filterSearchClear');
-        setupSearchInput('drawerInputSearch', 'drawerSearchClear');
+        // Vincular input de búsqueda principal del header
+        const headerInput = document.getElementById('headerSearchInput');
+        if (headerInput) {
+            headerInput.addEventListener('input', (e) => {
+                const clearBtn = document.getElementById('headerSearchClearBtn');
+                if (clearBtn) clearBtn.style.display = e.target.value.trim() ? 'block' : 'none';
+            });
+        }
+        const headerClear = document.getElementById('headerSearchClearBtn');
+        if (headerClear) {
+            headerClear.addEventListener('click', () => {
+                clearSearch();
+            });
+        }
 
         // Permitir que las entradas de precio apliquen con Enter
         const minInput = document.getElementById('inputPrecioMin');
@@ -158,16 +169,11 @@ const CatalogFilterManager = (() => {
      * Sincronizar controles del DOM con el estado interno
      */
     function syncControls() {
-        // Inputs de búsqueda
-        ['filterInputSearch', 'drawerInputSearch'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el && el.value !== state.q) el.value = state.q;
-        });
-
-        ['filterSearchClear', 'drawerSearchClear'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = state.q ? 'block' : 'none';
-        });
+        // Sincronizar input de búsqueda del header
+        const headerInput = document.getElementById('headerSearchInput');
+        if (headerInput && headerInput.value !== state.q) headerInput.value = state.q;
+        const headerClear = document.getElementById('headerSearchClearBtn');
+        if (headerClear) headerClear.style.display = state.q ? 'block' : 'none';
 
         // Selector de Categoría
         const catSelect = document.getElementById('filterSelectCategoria');
@@ -430,14 +436,10 @@ const CatalogFilterManager = (() => {
 
     function clearSearch() {
         state.q = '';
-        ['filterInputSearch', 'drawerInputSearch'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-        });
-        ['filterSearchClear', 'drawerSearchClear'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = 'none';
-        });
+        const headerInput = document.getElementById('headerSearchInput');
+        if (headerInput) headerInput.value = '';
+        const headerClear = document.getElementById('headerSearchClearBtn');
+        if (headerClear) headerClear.style.display = 'none';
         fetchProducts({ resetPage: true });
     }
 

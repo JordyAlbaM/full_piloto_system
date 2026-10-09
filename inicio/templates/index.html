@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=9.1">
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=9.2">
     <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.8">
 </head>
 <body>
@@ -1498,35 +1498,31 @@
                     <span class="btn-filter-pill-badge" id="btnFilterPillBadge" style="{% if filtros_activos_count == 0 %}display:none;{% endif %}">{{ filtros_activos_count }}</span>
                 </button>
 
-                <!-- Buscador rápido en vivo -->
-                <div class="catalog-search-inline">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="filterInputSearch" placeholder="Buscar por modelo, marca, specs..." value="{{ query }}" autocomplete="off">
-                    <button type="button" class="search-clear-inline" id="filterSearchClear" style="{% if not query %}display:none;{% endif %}" onclick="CatalogFilterManager.clearSearch()">&times;</button>
-                </div>
+                <!-- Controles agrupados a la derecha: Orden y Disponibilidad -->
+                <div class="catalog-controls-right-group">
+                    <!-- Selector de Orden -->
+                    <div class="catalog-order-inline">
+                        <i class="fa-solid fa-arrow-down-short-wide"></i>
+                        <select id="filterSelectOrden" onchange="CatalogFilterManager.onOrderChange(this.value)">
+                            <option value="recientes" {% if orden_seleccionado == 'recientes' or not orden_seleccionado %}selected{% endif %}>Más recientes</option>
+                            <option value="precio_asc" {% if orden_seleccionado == 'precio_asc' %}selected{% endif %}>Menor precio</option>
+                            <option value="precio_desc" {% if orden_seleccionado == 'precio_desc' %}selected{% endif %}>Mayor precio</option>
+                            <option value="nombre_asc" {% if orden_seleccionado == 'nombre_asc' %}selected{% endif %}>Nombre A-Z</option>
+                            <option value="descuento" {% if orden_seleccionado == 'descuento' %}selected{% endif %}>Mayor descuento</option>
+                        </select>
+                    </div>
 
-                <!-- Selector de Orden -->
-                <div class="catalog-order-inline">
-                    <i class="fa-solid fa-arrow-down-short-wide"></i>
-                    <select id="filterSelectOrden" onchange="CatalogFilterManager.onOrderChange(this.value)">
-                        <option value="recientes" {% if orden_seleccionado == 'recientes' or not orden_seleccionado %}selected{% endif %}>Más recientes</option>
-                        <option value="precio_asc" {% if orden_seleccionado == 'precio_asc' %}selected{% endif %}>Menor precio</option>
-                        <option value="precio_desc" {% if orden_seleccionado == 'precio_desc' %}selected{% endif %}>Mayor precio</option>
-                        <option value="nombre_asc" {% if orden_seleccionado == 'nombre_asc' %}selected{% endif %}>Nombre A-Z</option>
-                        <option value="descuento" {% if orden_seleccionado == 'descuento' %}selected{% endif %}>Mayor descuento</option>
-                    </select>
-                </div>
-
-                <!-- Switches rápidos de disponibilidad -->
-                <div class="catalog-switches-inline">
-                    <label class="switch-chip-inline {% if en_stock in '1 true on si' %}active{% endif %}">
-                        <input type="checkbox" id="filterCheckStock" {% if en_stock in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onStockChange(this.checked)">
-                        <i class="fa-solid fa-check"></i> En Stock
-                    </label>
-                    <label class="switch-chip-inline {% if solo_ofertas in '1 true on si' %}active{% endif %}">
-                        <input type="checkbox" id="filterCheckOfertas" {% if solo_ofertas in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onOfertasChange(this.checked)">
-                        <i class="fa-solid fa-bolt"></i> Ofertas
-                    </label>
+                    <!-- Switches rápidos de disponibilidad -->
+                    <div class="catalog-switches-inline">
+                        <label class="switch-chip-inline {% if en_stock in '1 true on si' %}active{% endif %}">
+                            <input type="checkbox" id="filterCheckStock" {% if en_stock in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onStockChange(this.checked)">
+                            <i class="fa-solid fa-check"></i> En Stock
+                        </label>
+                        <label class="switch-chip-inline {% if solo_ofertas in '1 true on si' %}active{% endif %}">
+                            <input type="checkbox" id="filterCheckOfertas" {% if solo_ofertas in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onOfertasChange(this.checked)">
+                            <i class="fa-solid fa-bolt"></i> Ofertas
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -1550,14 +1546,6 @@
                 <!-- Cuerpo con Scroll del Drawer -->
                 <div class="drawer-scroll-body">
                     
-                    <!-- Búsqueda en el Drawer -->
-                    <div class="drawer-filter-group">
-                        <label class="drawer-group-label"><i class="fa-solid fa-magnifying-glass"></i> Buscar producto</label>
-                        <div class="catalog-search-inline" style="background:#ffffff;">
-                            <input type="text" id="drawerInputSearch" placeholder="Ej: Lenovo Ryzen, SSD 1TB..." value="{{ query }}">
-                            <button type="button" class="search-clear-inline" id="drawerSearchClear" style="{% if not query %}display:none;{% endif %}" onclick="CatalogFilterManager.clearSearch()">&times;</button>
-                        </div>
-                    </div>
 
                     <!-- Selector de Categoría -->
                     <div class="drawer-filter-group">
@@ -3080,6 +3068,6 @@
     <!-- SCRIPT DEL CARRUSEL PRO & COUNTDOWN -->
     <script src="{% static 'inicio/js/hero-slider.js' %}"></script>
     <!-- SCRIPT DE FILTROS DINÁMICOS CON FETCH -->
-    <script src="{% static 'inicio/js/catalog-filters.js' %}?v=9.1"></script>
+    <script src="{% static 'inicio/js/catalog-filters.js' %}?v=9.2"></script>
 </body>
 </html>
