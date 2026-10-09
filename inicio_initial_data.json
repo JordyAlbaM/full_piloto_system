@@ -99,7 +99,7 @@
     "stock": 5,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963736/full_piloto/productos/mfcuoa9c67sqphejllei.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Lenovo",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -109,6 +109,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-07T19:59:10.557Z"
   }
@@ -125,7 +126,7 @@
     "stock": 14,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963738/full_piloto/productos/mxejlnm7benovwvqf63o.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Logitech",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -135,6 +136,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-07T19:59:10.565Z"
   }
@@ -151,7 +153,7 @@
     "stock": 8,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963739/full_piloto/productos/v7rpeqkmti9px2lqgdoh.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Redragon",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -161,6 +163,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-07T19:59:10.573Z"
   }
@@ -177,7 +180,7 @@
     "stock": 12,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963740/full_piloto/productos/wiyfsyb6phjiw5omriau.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Kingston",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -187,6 +190,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-07T19:59:10.579Z"
   }
@@ -203,7 +207,7 @@
     "stock": 7,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963741/full_piloto/productos/jiaf1faqsz06gf7unzub.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "HyperX",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -213,6 +217,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-07T19:59:10.585Z"
   }
@@ -229,7 +234,7 @@
     "stock": 4,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963742/full_piloto/productos/qkh6ctmyx6cx4w4nx6ge.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Seagate",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -239,6 +244,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-07T19:59:10.595Z"
   }
@@ -255,7 +261,7 @@
     "stock": 6,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963743/full_piloto/productos/vvaakv6vu0zb6j9wz1rn.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "ASUS",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -265,6 +271,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-08T23:45:30.341Z"
   }
@@ -281,7 +288,7 @@
     "stock": 8,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963744/full_piloto/productos/dohdnhgpyz0zkbihcfhl.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "HP",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -291,6 +298,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-08T23:45:30.356Z"
   }
@@ -307,7 +315,7 @@
     "stock": 8,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963745/full_piloto/productos/fk4ttnppbhdo9uyh3z5y.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "ASUS",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -317,6 +325,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-09T20:21:32.498Z"
   }
@@ -333,7 +342,7 @@
     "stock": 8,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963747/full_piloto/productos/htx8qsttalhiogelxauv.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Redragon",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -343,6 +352,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-09T20:21:32.518Z"
   }
@@ -359,7 +369,7 @@
     "stock": 8,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963747/full_piloto/productos/hbf9ikjgu6q28kclb2u9.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Redragon",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -369,6 +379,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-09T20:21:32.526Z"
   }
@@ -385,7 +396,7 @@
     "stock": 8,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963748/full_piloto/productos/kckl24duuwvmqv5s68jq.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Kingston",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -395,6 +406,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": false,
     "creado": "2026-09-09T20:21:32.540Z"
   }
@@ -411,7 +423,7 @@
     "stock": 8,
     "imagen_url": "/static/inicio/images/lenovo_v15/lenovo_v15_1.png",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Lenovo",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -421,6 +433,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-09T21:06:34.188Z"
   }
@@ -437,7 +450,7 @@
     "stock": 4,
     "imagen_url": "/static/inicio/images/nuevas_laptops/101_v15_r3.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Lenovo",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -447,6 +460,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-09T21:06:34.206Z"
   }
@@ -463,7 +477,7 @@
     "stock": 5,
     "imagen_url": "/static/inicio/images/nuevas_laptops/103_v15_g5_i3.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Lenovo",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -473,6 +487,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-09T21:06:34.217Z"
   }
@@ -489,7 +504,7 @@
     "stock": 7,
     "imagen_url": "/static/inicio/images/lenovo_slim3_i5/lenovo_slim3_i5_1.png",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Lenovo",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -499,6 +514,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-09T21:06:34.239Z"
   }
@@ -515,7 +531,7 @@
     "stock": 25,
     "imagen_url": "/static/inicio/images/eset_nod32.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "ESET",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -525,6 +541,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-10T20:47:19.387Z"
   }
@@ -541,7 +558,7 @@
     "stock": 5,
     "imagen_url": "/static/inicio/images/nuevas_laptops/106_hp_r7.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "HP",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -551,6 +568,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-14T14:05:17.308Z"
   }
@@ -567,7 +585,7 @@
     "stock": 4,
     "imagen_url": "/static/inicio/images/nuevas_laptops/107_hp_core7.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "HP",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -577,6 +595,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-14T14:05:17.320Z"
   }
@@ -593,7 +612,7 @@
     "stock": 3,
     "imagen_url": "/static/inicio/images/nuevas_laptops/108_lenovo_yoga_r7.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Lenovo",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -603,6 +622,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-14T14:05:17.328Z"
   }
@@ -619,7 +639,7 @@
     "stock": 4,
     "imagen_url": "/static/inicio/images/nuevas_laptops/109_hp_omnibook.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "HP",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -629,6 +649,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-14T15:12:10.319Z"
   }
@@ -645,7 +666,7 @@
     "stock": 3,
     "imagen_url": "/static/inicio/images/nuevas_laptops/110_lenovo_loq.jpg",
     "imagenes_secundarias": "",
-    "marca": "",
+    "marca": "Lenovo",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -655,6 +676,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-14T15:12:10.337Z"
   }
@@ -671,7 +693,7 @@
     "stock": 10,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963749/full_piloto/productos/drfenjymmuwmtqrugpt7.jpg",
     "imagenes_secundarias": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963751/full_piloto/productos/galeria/rsutirbfifaqolvayb0w.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963752/full_piloto/productos/galeria/y9tpbnokzhmsx7rdrs5g.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963754/full_piloto/productos/galeria/wfb8ejzrizo473syqasl.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963755/full_piloto/productos/galeria/ewkg8q5vkkev0vyve10x.jpg",
-    "marca": "",
+    "marca": "PNY",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -681,6 +703,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-22T22:33:04.595Z"
   }
@@ -697,7 +720,7 @@
     "stock": 10,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963756/full_piloto/productos/ybesmdtgiloqparyo8or.jpg",
     "imagenes_secundarias": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963758/full_piloto/productos/galeria/cahcz0nyrrebbvf6nvqn.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963759/full_piloto/productos/galeria/cgsjhcjlkht8pl8iah6r.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963761/full_piloto/productos/galeria/xrrz4igjbunjxigs1fmd.jpg",
-    "marca": "",
+    "marca": "Hiksemi",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -707,6 +730,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-22T23:02:56.559Z"
   }
@@ -723,7 +747,7 @@
     "stock": 10,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963762/full_piloto/productos/dudscrlqa5df8xwuhhe7.jpg",
     "imagenes_secundarias": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963764/full_piloto/productos/galeria/vm8cdediyex5r54139rw.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963765/full_piloto/productos/galeria/e5ohxpw2hgjgtl9b67ex.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963766/full_piloto/productos/galeria/ya4augiwquallawkvivm.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963768/full_piloto/productos/galeria/b6jxeeuakufohchtgtfl.jpg",
-    "marca": "",
+    "marca": "Hiksemi",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -733,6 +757,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-22T23:10:36.792Z"
   }
@@ -749,7 +774,7 @@
     "stock": 10,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963769/full_piloto/productos/nuzcpwzbj0tbh8imybw4.jpg",
     "imagenes_secundarias": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963770/full_piloto/productos/galeria/jkvnhlrdcvrvwwxzbnj6.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963771/full_piloto/productos/galeria/lez4k6ldqvq7weqbnnum.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963773/full_piloto/productos/galeria/mzkp5ijvz0nnyzqj8vem.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963774/full_piloto/productos/galeria/zhszxm6twaudjznvhvyo.jpg",
-    "marca": "",
+    "marca": "Samsung",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -759,6 +784,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-23T17:33:57.813Z"
   }
@@ -775,7 +801,7 @@
     "stock": 10,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963775/full_piloto/productos/xtgmjnaisdjiabthhu1o.jpg",
     "imagenes_secundarias": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963776/full_piloto/productos/galeria/xfcuivkvqgndaafqoyqw.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963777/full_piloto/productos/galeria/mki7ldttppcxshgxxh31.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963778/full_piloto/productos/galeria/exbmt3n6ucyvvjtktc8j.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963780/full_piloto/productos/galeria/lt4hcoh3dfd83dgaucix.jpg",
-    "marca": "",
+    "marca": "Samsung",
     "modelo_codigo": "",
     "procesador": "",
     "ram": "",
@@ -785,6 +811,7 @@
     "garantia": "12 Meses Oficial en tienda Caraz",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-23T20:20:45.503Z"
   }
@@ -801,7 +828,7 @@
     "stock": 10,
     "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963781/full_piloto/productos/kxdsv3ihacjbc5bqyofa.jpg",
     "imagenes_secundarias": "https://res.cloudinary.com/kh8yafbx/image/upload/v1790963783/full_piloto/productos/galeria/febteahprfgb5ctcdmxa.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963784/full_piloto/productos/galeria/gyxir5vdyiav94uvmxct.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963786/full_piloto/productos/galeria/sxzugv566g53e3agmtav.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963787/full_piloto/productos/galeria/osg4bw5xgvcoqlbmdvhy.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963789/full_piloto/productos/galeria/qp2ubbcwdfgwur6bwiaj.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963790/full_piloto/productos/galeria/byw6gqkanacgwuockehg.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963792/full_piloto/productos/galeria/oyj7e4pdnemnt9hercpr.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963794/full_piloto/productos/galeria/mez4fnd5r38ptkupoeua.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963795/full_piloto/productos/galeria/ajvbncc8vkhom40hgr0e.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963797/full_piloto/productos/galeria/ibtboeitrwqwkzahbzvo.jpg",
-    "marca": "",
+    "marca": "ASUS",
     "modelo_codigo": "ULTRA",
     "procesador": "Intel Ultra 7-265 20 Núcleos",
     "ram": "16GB DDR5 - 5600MHz",
@@ -811,6 +838,7 @@
     "garantia": "1 AÑO",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "Placa Madre (Mainboard): PRIME B860M-A\r\nRefrigeración Líquida: LE360 WH V2\r\nCase / Gabinete: BLACKWARRIOR\r\nFuente de Poder: UD750GM ICE V2 750W\r\nTipo de Producto: PC Gamer\r\nFuente: 750W",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-29T16:49:49.098Z"
   }
@@ -827,7 +855,7 @@
     "stock": 3,
     "imagen_url": "https://infotec.com.pe/110519-home_default/laptop-lenovo-v15-g5-irl-i7-13620h-16gb-ddr5-1tb-ssd-156-fhd-freedos-83gw005fld.jpg",
     "imagenes_secundarias": "https://infotec.com.pe/110519-thickbox_default/laptop-lenovo-v15-g5-irl-i7-13620h-16gb-ddr5-1tb-ssd-156-fhd-freedos-83gw005fld.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963799/full_piloto/productos/galeria/geeh7shczj5szohiwej1.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963801/full_piloto/productos/galeria/sjgxys8gs2f2jswwd3yi.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963802/full_piloto/productos/galeria/oohpcpdczrockduotdvu.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963804/full_piloto/productos/galeria/gvvwfheid760nyycbcmt.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963805/full_piloto/productos/galeria/i20vh5emc1noderqdoig.png\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1790963807/full_piloto/productos/galeria/iejtllalr1cpqtgfvkk3.png",
-    "marca": "LENOVO",
+    "marca": "Lenovo",
     "modelo_codigo": "V15 G5 IRL",
     "procesador": "Intel Core I7-13620H, 10 Núcleos",
     "ram": "16GB DDR5 - 5200 MHz",
@@ -837,8 +865,36 @@
     "garantia": "1 AÑO",
     "estado_producto": "Nuevo Sellado",
     "especificaciones_adicionales": "Tipo de Producto: Laptop\r\nTeclado: Español\r\nSistema operativo: FreeDOS\r\nTáctil: No\r\nConvertible 360°: No\r\nIncluye: Mochila y Mouse inalámbrico de regalo",
+    "url_origen": null,
     "disponible": true,
     "creado": "2026-09-29T17:34:28.984Z"
+  }
+},
+{
+  "model": "inicio.producto",
+  "pk": 118,
+  "fields": {
+    "categoria": 1,
+    "nombre": "LAPTOP GAMER HP VICTUS 15-FB3009LA RYZEN 5-8645HS 8GB 512GB SSD GEFORCE RTX 3050 6GB 15.6 FHD 144HZ FREEDOS (BA1U9LA-ABM)",
+    "descripcion": "Compra HP 15-FB3009LA: Ryzen 5-8645HS, RTX 3050 6GB, 8GB RAM, SSD 512GB y pantalla 15.6 FHD 144Hz. Garantía y envíos a todo Perú.",
+    "precio": "3099.00",
+    "precio_tachado": null,
+    "stock": 10,
+    "imagen_url": "https://res.cloudinary.com/kh8yafbx/image/upload/v1791234943/full_piloto/productos/wpj9721zhxg7mn6mevyp.jpg",
+    "imagenes_secundarias": "https://res.cloudinary.com/kh8yafbx/image/upload/v1791234944/full_piloto/productos/galeria/cbvriojlkknv1bcsixs0.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1791234946/full_piloto/productos/galeria/ilywlzy5dobc6xmupjms.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1791234947/full_piloto/productos/galeria/kw1rrszasgn7hqjubsjf.jpg\nhttps://res.cloudinary.com/kh8yafbx/image/upload/v1791234949/full_piloto/productos/galeria/vwo0qcyunyp8bewnqgu6.jpg",
+    "marca": "HP",
+    "modelo_codigo": "VICTUS 15-FB3009LA",
+    "procesador": "Ryzen 5-8645HS, 6 Núcleos",
+    "ram": "8GB DDR5 - 5600 MHz",
+    "almacenamiento": "512GB SSD M.2",
+    "pantalla": "15.6\" FHD 144Hz",
+    "grafica": "GeForce RTX 3050 6GB",
+    "garantia": "1 AÑO",
+    "estado_producto": "Nuevo Sellado",
+    "especificaciones_adicionales": "Tipo de Producto: Laptop Gaming\r\nTeclado: Español - Retroiluminado\r\nSistema operativo: FREEDOS",
+    "url_origen": "https://infotec.com.pe/laptop-gamer/32006-laptop-gamer-hp-victus-15-fb3009la-ryzen-5-8645hs-8gb-512gb-ssd-geforce-rtx-3050-6gb-156-fhd-144hz-freedos-ba1u9la-abm.html",
+    "disponible": true,
+    "creado": "2026-10-05T21:15:50.283Z"
   }
 }
 ]

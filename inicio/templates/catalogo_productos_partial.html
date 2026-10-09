@@ -1,0 +1,268 @@
+{% load l10n %}
+<!-- BARRA DE RESULTADOS Y CHIPS DE FILTROS ACTIVOS -->
+<div class="filter-results-bar" id="filterResultsBar">
+    <div class="filter-results-info">
+        <h2 class="filter-results-title">
+            {% if categoria_seleccionada == 'zona-gamer' or 'gamer' in categoria_seleccionada %}
+                <i class="fa-solid fa-gamepad" style="color:#7c3aed;"></i>
+            {% elif categoria_actual %}
+                <i class="fa-solid fa-tag" style="color:#2563eb;"></i>
+            {% elif query %}
+                <i class="fa-solid fa-magnifying-glass" style="color:#3483fa;"></i>
+            {% else %}
+                <i class="fa-solid fa-boxes-stacked" style="color:#2d3277;"></i>
+            {% endif %}
+
+            {% if query %}
+                Resultados para: <span class="highlight-query">"{{ query }}"</span>
+            {% elif categoria_actual %}
+                Categoría: <span>{{ categoria_actual.nombre }}</span>
+            {% elif categoria_seleccionada and categoria_seleccionada != 'todas' %}
+                Categoría: <span>{{ categoria_seleccionada|title }}</span>
+            {% else %}
+                Catálogo de Productos
+            {% endif %}
+        </h2>
+        <span class="filter-results-count">
+            Se encontraron <strong>{{ total_productos }}</strong> producto{{ total_productos|pluralize }} disponible{{ total_productos|pluralize }}
+        </span>
+    </div>
+
+    {% if filtros_activos_count > 0 %}
+    <div class="active-filters-actions">
+        <button type="button" class="btn-clear-all-filters" onclick="CatalogFilterManager.clearAllFilters()">
+            <i class="fa-solid fa-trash-can"></i> Limpiar filtros
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- CHIPS DE FILTROS APLICADOS -->
+{% if filtros_activos_count > 0 %}
+<div class="active-filter-chips-list" id="activeFilterChips">
+    {% if query %}
+    <span class="active-chip">
+        <i class="fa-solid fa-magnifying-glass"></i> "{{ query }}"
+        <button type="button" onclick="CatalogFilterManager.removeFilter('q')" title="Quitar búsqueda">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if categoria_actual %}
+    <span class="active-chip">
+        <i class="fa-solid fa-folder"></i> {{ categoria_actual.nombre }}
+        <button type="button" onclick="CatalogFilterManager.removeFilter('categoria')" title="Quitar categoría">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if precio_min or precio_max %}
+    <span class="active-chip">
+        <i class="fa-solid fa-coins"></i> 
+        {% if precio_min and precio_max %}
+            S/. {{ precio_min }} - S/. {{ precio_max }}
+        {% elif precio_min %}
+            Desde S/. {{ precio_min }}
+        {% elif precio_max %}
+            Hasta S/. {{ precio_max }}
+        {% endif %}
+        <button type="button" onclick="CatalogFilterManager.removeFilter('precio')" title="Quitar filtro de precio">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if marca_seleccionada and marca_seleccionada != 'todas' %}
+    <span class="active-chip">
+        <i class="fa-solid fa-copyright"></i> Marca: {{ marca_seleccionada }}
+        <button type="button" onclick="CatalogFilterManager.removeFilter('marca')" title="Quitar marca">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if procesador_seleccionado and procesador_seleccionado != 'todos' %}
+    <span class="active-chip">
+        <i class="fa-solid fa-microchip"></i> CPU: {{ procesador_seleccionado }}
+        <button type="button" onclick="CatalogFilterManager.removeFilter('procesador')" title="Quitar procesador">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if ram_seleccionada and ram_seleccionada != 'todas' %}
+    <span class="active-chip">
+        <i class="fa-solid fa-memory"></i> RAM: {{ ram_seleccionada }}
+        <button type="button" onclick="CatalogFilterManager.removeFilter('ram')" title="Quitar RAM">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if almacenamiento_seleccionado and almacenamiento_seleccionado != 'todos' %}
+    <span class="active-chip">
+        <i class="fa-solid fa-hard-drive"></i> Disco: {{ almacenamiento_seleccionado }}
+        <button type="button" onclick="CatalogFilterManager.removeFilter('almacenamiento')" title="Quitar almacenamiento">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if en_stock in '1 true on si' %}
+    <span class="active-chip">
+        <i class="fa-solid fa-check"></i> En Stock
+        <button type="button" onclick="CatalogFilterManager.removeFilter('en_stock')" title="Quitar solo en stock">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if solo_ofertas in '1 true on si' %}
+    <span class="active-chip">
+        <i class="fa-solid fa-bolt"></i> Con Descuento
+        <button type="button" onclick="CatalogFilterManager.removeFilter('solo_ofertas')" title="Quitar solo ofertas">&times;</button>
+    </span>
+    {% endif %}
+
+    {% if orden_seleccionado and orden_seleccionado != 'recientes' %}
+    <span class="active-chip">
+        <i class="fa-solid fa-arrow-down-short-wide"></i> 
+        {% if orden_seleccionado == 'precio_asc' %}Menor Precio
+        {% elif orden_seleccionado == 'precio_desc' %}Mayor Precio
+        {% elif orden_seleccionado == 'nombre_asc' %}Nombre A-Z
+        {% elif orden_seleccionado == 'descuento' %}Mayor Descuento{% endif %}
+        <button type="button" onclick="CatalogFilterManager.removeFilter('orden')" title="Quitar orden">&times;</button>
+    </span>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- GRID DE PRODUCTOS -->
+<div class="promos-grid" id="catalogProductsGrid">
+    {% for prod in productos %}
+    <div class="promo-card blue clickable-product-card" onclick="location.href='{% url 'detalle_producto' prod.id %}'" style="cursor: pointer;">
+        <div>
+            <div class="promo-top-meta">
+                <span class="promo-tag">{{ prod.categoria.nombre|default:"Full Piloto" }}</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
+                    <a href="{% url 'login' %}?edit={{ prod.id }}&tab=edit_product&return_url={{ request.get_full_path }}" 
+                       onclick="event.stopPropagation();" 
+                       title="Editar producto" 
+                       style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar
+                    </a>
+                    {% endif %}
+                    {% if prod.stock <= 4 %}
+                    <span class="promo-discount-badge" style="background:#f59e0b;"><i class="fa-solid fa-bolt"></i> Pocas unidades</span>
+                    {% else %}
+                    <span class="promo-discount-badge" style="background:#00a650;"><i class="fa-solid fa-check"></i> Disponible</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="promo-image-box">
+                <div class="floating-badges-row">
+                    <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> Stock: {{ prod.stock }} un.</span>
+                    <span class="glass-badge glass-badge-feature warranty"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
+                </div>
+                {% if prod.imagen_url %}
+                <img src="{{ prod.imagen_url }}" alt="{{ prod.nombre }}" loading="lazy">
+                {% else %}
+                <i class="fa-solid fa-laptop" style="font-size:65px; color:#9ca3af;"></i>
+                {% endif %}
+                <button type="button" class="btn-quick-view-hover" onclick="event.stopPropagation(); QuickViewManager.open({{ prod.id }});" title="Vista rápida" aria-label="Vista rápida de {{ prod.nombre|escapejs }}">
+                    <i class="fa-solid fa-eye"></i> <span>Vista Rápida</span>
+                </button>
+                <div class="floating-store-trust-badges">
+                    <span class="trust-chip trust-chip-free-delivery"><i class="fa-solid fa-truck-fast"></i> Envío Gratis</span>
+                    <span class="trust-chip trust-chip-yape"><i class="fa-solid fa-qrcode"></i> Yape / Plin</span>
+                    <span class="trust-chip trust-chip-new"><i class="fa-solid fa-sparkles"></i> Nuevo</span>
+                </div>
+            </div>
+
+            <h2 class="promo-name"><a href="{% url 'detalle_producto' prod.id %}" class="product-title-link">{{ prod.nombre }}</a></h2>
+            <p class="promo-desc">{{ prod.descripcion|truncatewords:24 }}</p>
+        </div>
+
+        <div>
+            <div class="promo-pricing-box">
+                <div class="price-label-col">
+                    <span class="price-old">S/. {{ prod.precio_anterior }}</span>
+                    <span style="color:#00a650; font-weight:800; font-size:9.5px; letter-spacing:-0.2px;">
+                        <i class="fa-solid fa-arrow-down"></i> {{ prod.porcentaje_descuento }}% OFF
+                    </span>
+                </div>
+                <div style="text-align:right;">
+                    <span style="display:block; font-size:10px; color:#64748b; font-weight:700; text-transform:uppercase;">Oferta Caraz</span>
+                    <div class="price-main">S/. {{ prod.precio }}</div>
+                </div>
+            </div>
+
+            <div class="promo-card-actions-group">
+                <button type="button" class="btn-promo-action" onclick="event.preventDefault(); event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio|unlocalize }}, image:'{{ prod.imagen_url|default:''|escapejs }}', icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock|unlocalize }} }, this);">
+                    <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="no-results-box" style="text-align:center; padding:55px 20px; grid-column: 1 / -1; background:#ffffff; border-radius:16px; border:2px dashed #cbd5e1; box-shadow:0 4px 14px rgba(0,0,0,0.03);">
+        <div style="width:72px; height:72px; margin:0 auto 18px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:32px;">
+            <i class="fa-solid fa-filter-circle-xmark"></i>
+        </div>
+        <h3 style="font-size:20px; font-weight:800; color:#2d3277; margin-bottom:8px;">No encontramos productos con estos filtros</h3>
+        <p style="color:#64748b; font-size:14px; max-width:440px; margin:0 auto 20px;">
+            Intenta ajustar el rango de precios, borrar la búsqueda o seleccionar otra categoría para ver más opciones en Caraz.
+        </p>
+        <button type="button" class="btn-reset-filters-empty" onclick="CatalogFilterManager.clearAllFilters()" style="background:#ffe600; color:#2d3277; border:none; padding:10px 22px; border-radius:8px; font-weight:800; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:all 0.2s;">
+            <i class="fa-solid fa-rotate-left"></i> Restablecer todos los filtros
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- PAGINACIÓN -->
+{% if productos.has_other_pages %}
+<nav class="pagination-container" aria-label="Páginas de productos">
+    <ul class="pagination-list">
+        <!-- Botón Anterior -->
+        {% if productos.has_previous %}
+        <li class="page-item">
+            <a href="?{{ filtros_querystring }}&page={{ productos.previous_page_number }}#promosCatalog" 
+               class="page-link page-prev-next" 
+               onclick="event.preventDefault(); CatalogFilterManager.setPage({{ productos.previous_page_number }});"
+               title="Página anterior">
+                <i class="fa-solid fa-chevron-left"></i> Anterior
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link page-prev-next"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
+        </li>
+        {% endif %}
+
+        <!-- Números de Página -->
+        {% for num in productos.paginator.page_range %}
+            {% if productos.number == num %}
+            <li class="page-item active">
+                <span class="page-link current-page">{{ num }}</span>
+            </li>
+            {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
+            <li class="page-item">
+                <a href="?{{ filtros_querystring }}&page={{ num }}#promosCatalog" 
+                   class="page-link"
+                   onclick="event.preventDefault(); CatalogFilterManager.setPage({{ num }});">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Botón Siguiente -->
+        {% if productos.has_next %}
+        <li class="page-item">
+            <a href="?{{ filtros_querystring }}&page={{ productos.next_page_number }}#promosCatalog" 
+               class="page-link page-prev-next" 
+               onclick="event.preventDefault(); CatalogFilterManager.setPage({{ productos.next_page_number }});"
+               title="Página siguiente">
+                Siguiente <i class="fa-solid fa-chevron-right"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link page-prev-next">Siguiente <i class="fa-solid fa-chevron-right"></i></span>
+        </li>
+        {% endif %}
+    </ul>
+    <div class="pagination-info-text">
+        Página {{ productos.number }} de {{ productos.paginator.num_pages }} • Mostrando {{ productos|length }} de {{ total_productos }} productos
+    </div>
+</nav>
+{% endif %}

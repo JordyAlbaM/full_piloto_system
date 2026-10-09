@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=6.0">
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=9.1">
     <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.8">
 </head>
 <body>
@@ -201,19 +201,31 @@
         <div class="container">
             <div class="category-bubbles-list">
                 
-                <a href="{% url 'inicio' %}" class="category-bubble-card {% if not categoria_seleccionada %}active{% endif %}">
-                    <div class="category-bubble-circle">
-                        <i class="fa-solid fa-border-all"></i>
-                        <span class="bubble-badge-hot">TODO</span>
-                    </div>
-                    <span class="category-bubble-label">Ver Todo</span>
-                </a>
+                <div class="category-bubble-item-wrapper" data-cat="todo">
+                    <a href="{% url 'inicio' %}" class="category-bubble-card {% if not categoria_seleccionada %}active{% endif %}">
+                        <div class="category-bubble-circle">
+                            <i class="fa-solid fa-border-all"></i>
+                            <span class="bubble-badge-hot">TODO</span>
+                        </div>
+                        <span class="category-bubble-label">Ver Todo</span>
+                    </a>
+                </div>
+
+                <div class="category-bubble-item-wrapper" data-cat="filtros">
+                    <a href="#promosCatalog" class="category-bubble-card filter-highlight-bubble" onclick="event.preventDefault(); CatalogFilterManager.openFilterDrawer();" title="Abrir Filtros por Marcas y Precios">
+                        <div class="category-bubble-circle">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span class="bubble-badge-hot">PRO</span>
+                        </div>
+                        <span class="category-bubble-label">Filtros</span>
+                    </a>
+                </div>
 
                 {% for cat in categorias %}
                 <div class="category-bubble-item-wrapper" data-cat="{{ cat.slug }}">
-                    <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="category-bubble-card {% if categoria_seleccionada == cat.slug %}active{% endif %}">
+                    <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="category-bubble-card {% if categoria_seleccionada == cat.slug %}active{% endif %}" onclick="MobileCategoryManager.handleBubbleClick('{{ cat.slug }}', event)">
                         <div class="category-bubble-circle">
-                            {% if 'escritorio' in cat.slug or 'pc' in cat.slug and not 'laptop' in cat.slug %}
+                            {% if 'escritorio' in cat.slug or 'pc' in cat.slug and not 'laptop' in cat.slug and not 'parte' in cat.slug %}
                                 <i class="fa-solid fa-computer"></i>
                             {% elif 'laptop' in cat.slug %}
                                 <i class="fa-solid fa-laptop"></i>
@@ -437,16 +449,60 @@
                             </div>
                         </div>
                     </div>
+                    {% elif 'escritorio' in cat.slug or 'pc' in cat.slug and not 'laptop' in cat.slug and not 'parte' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-computer"></i> Computadoras & All in One</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Por Formato</span>
+                                <a href="{% url 'inicio' %}?q=All+in+One"><i class="fa-solid fa-desktop"></i> PCs All in One (Todo en Uno)</a>
+                                <a href="{% url 'inicio' %}?q=Oficina"><i class="fa-solid fa-briefcase"></i> PCs para Oficina / Trabajo</a>
+                                <a href="{% url 'inicio' %}?q=Gamer"><i class="fa-solid fa-gamepad"></i> Computadoras Gamer Armadas</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Procesadores</span>
+                                <a href="{% url 'inicio' %}?q=Core+i5"><i class="fa-solid fa-microchip"></i> Intel Core i5 / i7</a>
+                                <a href="{% url 'inicio' %}?q=Ryzen"><i class="fa-solid fa-bolt"></i> AMD Ryzen 5 / Ryzen 7</a>
+                                <a href="{% url 'inicio' %}?q=Core+i3"><i class="fa-solid fa-microchip"></i> Intel Core i3 Económicas</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif 'televisor' in cat.slug or 'tv' in cat.slug %}
+                    <div class="category-subpopover">
+                        <div class="subpopover-header">
+                            <span class="subpopover-title"><i class="fa-solid fa-tv"></i> Televisores Smart TV</span>
+                            <a href="{% url 'inicio' %}?categoria={{ cat.slug }}" class="subpopover-all">Ver todo <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                        <div class="subpopover-grid">
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Por Tamaño</span>
+                                <a href="{% url 'inicio' %}?q=32"><i class="fa-solid fa-tv"></i> Smart TV 32" HD</a>
+                                <a href="{% url 'inicio' %}?q=43"><i class="fa-solid fa-tv"></i> Smart TV 43" Full HD / 4K</a>
+                                <a href="{% url 'inicio' %}?q=55"><i class="fa-solid fa-tv"></i> Smart TV 50" y 55" 4K UHD</a>
+                            </div>
+                            <div class="subpopover-col">
+                                <span class="subpopover-subtitle">Sistemas & Marcas</span>
+                                <a href="{% url 'inicio' %}?q=Google+TV"><i class="fa-solid fa-play"></i> Google TV / Android TV</a>
+                                <a href="{% url 'inicio' %}?q=Samsung"><i class="fa-solid fa-angle-right"></i> Samsung Crystal UHD</a>
+                                <a href="{% url 'inicio' %}?q=LG"><i class="fa-solid fa-angle-right"></i> LG ThinQ AI</a>
+                            </div>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
                 {% endfor %}
 
-                <a href="https://wa.me/51961081784?text=Hola%20deseo%20servicio%20tecnico%20y%20mantenimiento%20de%20laptop%20en%20Caraz" target="_blank" class="category-bubble-card">
-                    <div class="category-bubble-circle">
-                        <i class="fa-solid fa-screwdriver-wrench"></i>
-                    </div>
-                    <span class="category-bubble-label">Soporte Técnico</span>
-                </a>
+                <div class="category-bubble-item-wrapper" data-cat="soporte">
+                    <a href="https://wa.me/51961081784?text=Hola%20deseo%20servicio%20tecnico%20y%20mantenimiento%20de%20laptop%20en%20Caraz" target="_blank" class="category-bubble-card">
+                        <div class="category-bubble-circle">
+                            <i class="fa-solid fa-screwdriver-wrench"></i>
+                        </div>
+                        <span class="category-bubble-label">Soporte Técnico</span>
+                    </a>
+                </div>
 
             </div>
         </div>
@@ -743,159 +799,940 @@
                 </div>
             </div>
 
-            {% if query or categoria_seleccionada %}
-            <div class="filter-results-bar" style="background:#ffffff; border:1.5px solid #ffe600; border-radius:12px; padding:16px 22px; margin-bottom:28px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); flex-wrap:wrap; gap:12px;">
-                <div>
-                    <h2 style="font-size:19px; font-weight:900; color:#2d3277; margin:0; display:flex; align-items:center; gap:8px;">
-                        {% if categoria_seleccionada == 'zona-gamer' or 'gamer' in categoria_seleccionada %}
-                            <i class="fa-solid fa-gamepad" style="color:#7c3aed;"></i>
-                        {% else %}
-                            <i class="fa-solid fa-magnifying-glass" style="color:#3483fa;"></i>
-                        {% endif %}
-                        {% if query %}Resultados para: "{{ query }}"{% elif categoria_actual %}Categoría: {{ categoria_actual.nombre }}{% else %}Categoría: {{ categoria_seleccionada|title }}{% endif %}
-                    </h2>
-                    <span style="font-size:13px; color:#666666;">Se encontraron {{ total_productos|default:productos|length }} productos disponibles</span>
+            <!-- ESTILOS PARA PANEL LATERAL DESLIZANTE, BOTÓN AL COSTADO Y MENÚS RESPONSIVE -->
+            <style>
+                /* BOTÓN FLOTANTE AL COSTADO DE LA PANTALLA (SIDE TAB) */
+                .side-floating-filter-tab {
+                    position: fixed;
+                    left: 0;
+                    top: 48%;
+                    transform: translateY(-50%);
+                    z-index: 99990;
+                    background: #2d3277;
+                    color: #ffffff;
+                    border: 2px solid #ffe600;
+                    border-left: none;
+                    border-radius: 0 14px 14px 0;
+                    padding: 12px 10px;
+                    box-shadow: 4px 6px 20px rgba(45, 50, 119, 0.35);
+                    cursor: pointer;
+                    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 6px;
+                    user-select: none;
+                }
+                .side-floating-filter-tab:hover {
+                    background: #1e2254;
+                    transform: translateY(-50%) translateX(4px);
+                    box-shadow: 6px 8px 25px rgba(45, 50, 119, 0.45);
+                }
+                .side-tab-icon {
+                    font-size: 16px;
+                    color: #ffe600;
+                }
+                .side-tab-text {
+                    font-size: 11px;
+                    font-weight: 900;
+                    letter-spacing: 0.8px;
+                    text-transform: uppercase;
+                    writing-mode: vertical-rl;
+                    text-orientation: mixed;
+                    transform: rotate(180deg);
+                }
+                .side-tab-badge {
+                    background: #ffe600;
+                    color: #2d3277;
+                    font-size: 10px;
+                    font-weight: 900;
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                /* BARRA COMPACTA SUPERIOR DEL CATÁLOGO */
+                .catalog-top-controls-bar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 20px;
+                    background: #ffffff;
+                    border: 1.5px solid #e2e8f0;
+                    border-radius: 14px;
+                    padding: 12px 16px;
+                    box-shadow: 0 3px 12px rgba(45, 50, 119, 0.05);
+                    flex-wrap: wrap;
+                }
+                .btn-open-lateral-filters {
+                    background: #2d3277;
+                    color: #ffffff;
+                    border: 2px solid #ffe600;
+                    border-radius: 10px;
+                    padding: 9px 18px;
+                    font-size: 13.5px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    box-shadow: 0 2px 8px rgba(45, 50, 119, 0.2);
+                    user-select: none;
+                }
+                .btn-open-lateral-filters:hover {
+                    background: #ffe600;
+                    color: #2d3277;
+                    border-color: #2d3277;
+                    transform: translateY(-1px);
+                }
+                .btn-filter-pill-badge {
+                    background: #ffe600;
+                    color: #2d3277;
+                    font-size: 11px;
+                    font-weight: 900;
+                    padding: 2px 7px;
+                    border-radius: 20px;
+                }
+                .catalog-search-inline {
+                    flex: 1 1 240px;
+                    display: flex;
+                    align-items: center;
+                    background: #f8fafc;
+                    border: 1.5px solid #cbd5e1;
+                    border-radius: 10px;
+                    padding: 0 12px;
+                    height: 42px;
+                    transition: all 0.2s;
+                }
+                .catalog-search-inline:focus-within {
+                    border-color: #2d3277;
+                    background: #ffffff;
+                    box-shadow: 0 0 0 3px rgba(45, 50, 119, 0.1);
+                }
+                .catalog-search-inline i {
+                    color: #64748b;
+                    margin-right: 8px;
+                }
+                .catalog-search-inline input {
+                    border: none;
+                    outline: none;
+                    background: transparent;
+                    width: 100%;
+                    font-size: 13.5px;
+                    color: #1e293b;
+                    font-weight: 600;
+                }
+                .catalog-search-inline .search-clear-inline {
+                    background: none;
+                    border: none;
+                    color: #94a3b8;
+                    font-size: 18px;
+                    cursor: pointer;
+                }
+                .catalog-order-inline {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: #f8fafc;
+                    border: 1.5px solid #cbd5e1;
+                    border-radius: 10px;
+                    padding: 0 10px;
+                    height: 42px;
+                }
+                .catalog-order-inline i {
+                    color: #64748b;
+                    font-size: 13px;
+                }
+                .catalog-order-inline select {
+                    border: none;
+                    outline: none;
+                    background: transparent;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #2d3277;
+                    cursor: pointer;
+                }
+                .catalog-switches-inline {
+                    display: flex;
+                    gap: 8px;
+                }
+                .switch-chip-inline {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    height: 40px;
+                    padding: 0 12px;
+                    background: #f8fafc;
+                    border: 1.5px solid #cbd5e1;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 800;
+                    color: #475569;
+                    cursor: pointer;
+                    user-select: none;
+                    transition: all 0.2s;
+                }
+                .switch-chip-inline input { display: none; }
+                .switch-chip-inline.active {
+                    background: #2d3277;
+                    color: #ffffff;
+                    border-color: #2d3277;
+                }
+
+                /* PANEL LATERAL DE FILTROS DESLIZANTE (OFFCANVAS DRAWER) */
+                .catalog-lateral-backdrop {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.65);
+                    backdrop-filter: blur(4px);
+                    z-index: 999998;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.28s ease;
+                }
+                .catalog-lateral-backdrop.open {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+                .catalog-lateral-drawer {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    bottom: 0;
+                    width: 400px;
+                    max-width: 90vw;
+                    height: 100vh;
+                    background: #ffffff;
+                    z-index: 999999;
+                    box-shadow: 10px 0 35px rgba(15, 23, 42, 0.35);
+                    transform: translateX(-105%);
+                    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+                    display: flex;
+                    flex-direction: column;
+                }
+                .catalog-lateral-drawer.open {
+                    transform: translateX(0);
+                }
+                body.filter-drawer-open {
+                    overflow: hidden !important;
+                }
+                .drawer-top-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 16px 20px;
+                    background: #2d3277;
+                    color: #ffffff;
+                    border-bottom: 3px solid #ffe600;
+                }
+                .drawer-title-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                }
+                .drawer-badge-mini {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    background: #ffe600;
+                    color: #2d3277;
+                    font-size: 10px;
+                    font-weight: 900;
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    letter-spacing: 0.5px;
+                    width: fit-content;
+                }
+                .drawer-heading {
+                    margin: 0;
+                    font-size: 17px;
+                    font-weight: 900;
+                    color: #ffffff;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .drawer-btn-close {
+                    background: rgba(255, 255, 255, 0.15);
+                    border: none;
+                    color: #ffffff;
+                    width: 34px;
+                    height: 34px;
+                    border-radius: 50%;
+                    font-size: 18px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                }
+                .drawer-btn-close:hover {
+                    background: #ef4444;
+                    color: #ffffff;
+                    transform: rotate(90deg);
+                }
+                .drawer-scroll-body {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 18px 20px;
+                    -webkit-overflow-scrolling: touch;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 18px;
+                }
+                .drawer-filter-group {
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 12px 14px;
+                }
+                .drawer-group-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 7px;
+                    font-size: 13px;
+                    font-weight: 900;
+                    color: #2d3277;
+                    margin-bottom: 8px;
+                }
+                .drawer-label-flex {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 8px;
+                }
+                .drawer-label-flex .drawer-group-label {
+                    margin-bottom: 0;
+                }
+                .drawer-subhint {
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #64748b;
+                }
+                .drawer-select {
+                    width: 100%;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    border: 1.5px solid #cbd5e1;
+                    background: #ffffff;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #2d3277;
+                    cursor: pointer;
+                    outline: none;
+                }
+                .drawer-chips-wrap {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                }
+                .drawer-chip {
+                    background: #ffffff;
+                    border: 1.5px solid #cbd5e1;
+                    border-radius: 8px;
+                    padding: 5px 11px;
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: #334155;
+                    cursor: pointer;
+                    transition: all 0.18s;
+                }
+                .drawer-chip:hover {
+                    border-color: #2d3277;
+                    background: #eff6ff;
+                    color: #1e40af;
+                }
+                .drawer-chip.active {
+                    background: #2d3277;
+                    color: #ffffff;
+                    border-color: #2d3277;
+                    box-shadow: 0 2px 6px rgba(45, 50, 119, 0.2);
+                }
+                .drawer-custom-price-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    margin-top: 10px;
+                    padding-top: 10px;
+                    border-top: 1px dashed #cbd5e1;
+                }
+                .drawer-price-input-mini {
+                    display: flex;
+                    align-items: center;
+                    background: #ffffff;
+                    border: 1.5px solid #cbd5e1;
+                    border-radius: 6px;
+                    padding: 0 6px;
+                    height: 32px;
+                    flex: 1;
+                }
+                .drawer-price-input-mini span {
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #64748b;
+                    margin-right: 3px;
+                }
+                .drawer-price-input-mini input {
+                    width: 100%;
+                    border: none;
+                    outline: none;
+                    font-size: 12.5px;
+                    font-weight: 800;
+                    color: #1e293b;
+                }
+                .drawer-price-dash { color: #94a3b8; font-weight: 700; }
+                .drawer-btn-apply-price {
+                    background: #ffe600;
+                    color: #2d3277;
+                    border: 1.5px solid #e6cf00;
+                    border-radius: 6px;
+                    width: 32px;
+                    height: 32px;
+                    font-size: 13px;
+                    font-weight: 900;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                    flex-shrink: 0;
+                }
+                .drawer-btn-apply-price:hover {
+                    background: #2d3277;
+                    color: #ffffff;
+                    border-color: #2d3277;
+                }
+                .drawer-switches-col {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+                .drawer-switch-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background: #ffffff;
+                    border: 1.5px solid #cbd5e1;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    font-size: 12.5px;
+                    font-weight: 800;
+                    color: #334155;
+                    cursor: pointer;
+                    user-select: none;
+                    transition: all 0.2s;
+                }
+                .drawer-switch-item input { display: none; }
+                .drawer-switch-item.active {
+                    background: #2d3277;
+                    color: #ffffff;
+                    border-color: #2d3277;
+                }
+                .drawer-bottom-footer {
+                    padding: 14px 20px;
+                    border-top: 1.5px solid #e2e8f0;
+                    background: #ffffff;
+                    display: flex;
+                    gap: 10px;
+                    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.05);
+                }
+                .drawer-btn-clear {
+                    flex: 1;
+                    background: #fee2e2;
+                    color: #b91c1c;
+                    border: 1.5px solid #fca5a5;
+                    border-radius: 8px;
+                    padding: 10px;
+                    font-weight: 800;
+                    font-size: 13px;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    transition: all 0.2s;
+                }
+                .drawer-btn-clear:hover {
+                    background: #ef4444;
+                    color: #ffffff;
+                    border-color: #ef4444;
+                }
+                .drawer-btn-submit {
+                    flex: 2;
+                    background: #ffe600;
+                    color: #2d3277;
+                    border: 1.5px solid #e6cf00;
+                    border-radius: 8px;
+                    padding: 10px;
+                    font-weight: 900;
+                    font-size: 13.5px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+                }
+                .drawer-btn-submit:hover {
+                    background: #2d3277;
+                    color: #ffffff;
+                    border-color: #2d3277;
+                }
+
+                /* MOBILE CATEGORY BOTTOM SHEET */
+                .mobile-cat-backdrop {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.65);
+                    backdrop-filter: blur(4px);
+                    z-index: 999998;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.28s ease;
+                }
+                .mobile-cat-backdrop.open {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+                .mobile-cat-sheet {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    max-height: 85vh;
+                    background: #ffffff;
+                    border-radius: 20px 20px 0 0;
+                    z-index: 999999;
+                    box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.35);
+                    transform: translateY(105%);
+                    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+                    display: flex;
+                    flex-direction: column;
+                }
+                .mobile-cat-sheet.open {
+                    transform: translateY(0);
+                }
+                body.mobile-cat-sheet-open {
+                    overflow: hidden !important;
+                }
+                .mobile-cat-drag-handle {
+                    width: 44px;
+                    height: 4px;
+                    background: #cbd5e1;
+                    border-radius: 4px;
+                    margin: 10px auto 4px;
+                }
+                .mobile-cat-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 12px 20px;
+                    border-bottom: 1.5px solid #f1f5f9;
+                }
+                .mobile-cat-title {
+                    font-size: 16px;
+                    font-weight: 900;
+                    color: #2d3277;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .mobile-cat-close-btn {
+                    background: #f1f5f9;
+                    border: none;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    font-size: 20px;
+                    color: #64748b;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    line-height: 1;
+                }
+                .mobile-cat-content {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 16px 20px;
+                    -webkit-overflow-scrolling: touch;
+                }
+                .mobile-cat-content .subpopover-grid {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+                .mobile-cat-content .subpopover-col {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                .mobile-cat-content .subpopover-subtitle {
+                    display: block;
+                    font-size: 11.5px;
+                    font-weight: 900;
+                    text-transform: uppercase;
+                    color: #2d3277;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 6px;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding-bottom: 4px;
+                }
+                .mobile-cat-content .subpopover-col a {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 10px 12px;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    color: #334155;
+                    font-size: 13.5px;
+                    font-weight: 700;
+                    text-decoration: none;
+                    transition: all 0.2s;
+                }
+                .mobile-cat-content .subpopover-col a:hover,
+                .mobile-cat-content .subpopover-col a:active {
+                    background: #eff6ff;
+                    color: #1e40af;
+                    border-color: #93c5fd;
+                    transform: translateX(4px);
+                }
+                .mobile-cat-content .subpopover-col a i {
+                    color: #2563eb;
+                    font-size: 13px;
+                    width: 16px;
+                }
+                .mobile-cat-footer {
+                    padding: 12px 20px;
+                    border-top: 1px solid #f1f5f9;
+                    background: #f8fafc;
+                    border-radius: 0 0 20px 20px;
+                }
+                .mobile-cat-all-link {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    background: #2d3277;
+                    color: #ffffff;
+                    padding: 12px;
+                    border-radius: 8px;
+                    font-weight: 900;
+                    font-size: 13.5px;
+                    text-decoration: none;
+                    transition: all 0.2s;
+                }
+                .mobile-cat-all-link:hover {
+                    background: #ffe600;
+                    color: #2d3277;
+                }
+
+                /* Indicador de submenú en las burbujas */
+                .bubble-sub-arrow {
+                    display: inline-block;
+                    margin-left: 3px;
+                    font-size: 9px;
+                    color: #94a3b8;
+                    transition: transform 0.2s;
+                }
+                .category-bubble-item-wrapper:hover .bubble-sub-arrow {
+                    transform: rotate(180deg);
+                    color: #2d3277;
+                }
+
+                @media (max-width: 768px) {
+                    .side-floating-filter-tab {
+                        padding: 10px 8px;
+                        top: 55%;
+                    }
+                    .side-tab-text {
+                        font-size: 10px;
+                    }
+                    .catalog-top-controls-bar {
+                        padding: 10px 12px;
+                        gap: 8px;
+                    }
+                    .btn-open-lateral-filters {
+                        flex: 1 1 100%;
+                        justify-content: center;
+                        order: 1;
+                    }
+                    .catalog-search-inline {
+                        flex: 1 1 100%;
+                        order: 2;
+                    }
+                    .catalog-order-inline {
+                        flex: 1 1 48%;
+                        order: 3;
+                    }
+                    .catalog-switches-inline {
+                        flex: 1 1 48%;
+                        justify-content: flex-end;
+                        order: 4;
+                    }
+                }
+            </style>
+
+            <!-- BOTÓN FLOTANTE AL COSTADO DE LA PANTALLA (SIDE TAB PARA ABRIR FILTROS) -->
+            <button type="button" class="side-floating-filter-tab" id="sideFloatingFilterTab" onclick="CatalogFilterManager.openFilterDrawer()" title="Abrir Filtros y Marcas">
+                <i class="fa-solid fa-sliders side-tab-icon"></i>
+                <span class="side-tab-text">Filtros</span>
+                <span class="side-tab-badge" id="sideTabFiltersBadge" style="{% if filtros_activos_count == 0 %}display:none;{% endif %}">{{ filtros_activos_count }}</span>
+            </button>
+
+            <!-- BARRA COMPACTA PRINCIPAL SOBRE LOS PRODUCTOS -->
+            <div class="catalog-top-controls-bar" id="catalogControlsBar">
+                <!-- Botón al costado para abrir filtros laterales -->
+                <button type="button" class="btn-open-lateral-filters" onclick="CatalogFilterManager.openFilterDrawer()" title="Abrir panel lateral de filtros">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Filtros & Marcas</span>
+                    <span class="btn-filter-pill-badge" id="btnFilterPillBadge" style="{% if filtros_activos_count == 0 %}display:none;{% endif %}">{{ filtros_activos_count }}</span>
+                </button>
+
+                <!-- Buscador rápido en vivo -->
+                <div class="catalog-search-inline">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="filterInputSearch" placeholder="Buscar por modelo, marca, specs..." value="{{ query }}" autocomplete="off">
+                    <button type="button" class="search-clear-inline" id="filterSearchClear" style="{% if not query %}display:none;{% endif %}" onclick="CatalogFilterManager.clearSearch()">&times;</button>
                 </div>
-                <a href="{% url 'inicio' %}" style="display:inline-flex; align-items:center; gap:6px; background:#fffbe6; color:#2d3277; border:1px solid #ffe600; padding:8px 16px; border-radius:8px; font-weight:700; text-decoration:none; font-size:13px; transition:all 0.2s;">
-                    <i class="fa-solid fa-xmark"></i> Ver catálogo completo
-                </a>
+
+                <!-- Selector de Orden -->
+                <div class="catalog-order-inline">
+                    <i class="fa-solid fa-arrow-down-short-wide"></i>
+                    <select id="filterSelectOrden" onchange="CatalogFilterManager.onOrderChange(this.value)">
+                        <option value="recientes" {% if orden_seleccionado == 'recientes' or not orden_seleccionado %}selected{% endif %}>Más recientes</option>
+                        <option value="precio_asc" {% if orden_seleccionado == 'precio_asc' %}selected{% endif %}>Menor precio</option>
+                        <option value="precio_desc" {% if orden_seleccionado == 'precio_desc' %}selected{% endif %}>Mayor precio</option>
+                        <option value="nombre_asc" {% if orden_seleccionado == 'nombre_asc' %}selected{% endif %}>Nombre A-Z</option>
+                        <option value="descuento" {% if orden_seleccionado == 'descuento' %}selected{% endif %}>Mayor descuento</option>
+                    </select>
+                </div>
+
+                <!-- Switches rápidos de disponibilidad -->
+                <div class="catalog-switches-inline">
+                    <label class="switch-chip-inline {% if en_stock in '1 true on si' %}active{% endif %}">
+                        <input type="checkbox" id="filterCheckStock" {% if en_stock in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onStockChange(this.checked)">
+                        <i class="fa-solid fa-check"></i> En Stock
+                    </label>
+                    <label class="switch-chip-inline {% if solo_ofertas in '1 true on si' %}active{% endif %}">
+                        <input type="checkbox" id="filterCheckOfertas" {% if solo_ofertas in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onOfertasChange(this.checked)">
+                        <i class="fa-solid fa-bolt"></i> Ofertas
+                    </label>
+                </div>
             </div>
-            {% endif %}
 
-            <!-- Grid de Promociones de Laptops con Fotos Grandes -->
-            <div class="promos-grid">
-                {% for prod in productos %}
-                <div class="promo-card blue clickable-product-card" onclick="location.href='{% url 'detalle_producto' prod.id %}'" style="cursor: pointer;">
-                    <div>
-                        <div class="promo-top-meta">
-                            <span class="promo-tag">{{ prod.categoria.nombre|default:"Full Piloto" }}</span>
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                {% if user.is_authenticated and user.is_superuser or user.rol == 'admin' %}
-                                <a href="{% url 'login' %}?edit={{ prod.id }}&tab=edit_product&return_url={{ request.get_full_path }}" 
-                                   onclick="event.stopPropagation();" 
-                                   title="Editar producto" 
-                                   style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                    <i class="fa-solid fa-pen-to-square"></i> Editar
-                                </a>
-                                {% endif %}
-                                {% if prod.stock <= 4 %}
-                                <span class="promo-discount-badge" style="background:#f59e0b;"><i class="fa-solid fa-bolt"></i> Pocas unidades</span>
-                                {% else %}
-                                <span class="promo-discount-badge" style="background:#00a650;"><i class="fa-solid fa-check"></i> Disponible</span>
-                                {% endif %}
-                            </div>
+            <!-- BACKDROP OSCURO DEL PANEL LATERAL -->
+            <div class="catalog-lateral-backdrop" id="catalogLateralBackdrop" onclick="CatalogFilterManager.closeFilterDrawer()"></div>
+
+            <!-- PANEL LATERAL DE FILTROS DESLIZANTE (OFFCANVAS DRAWER) -->
+            <aside class="catalog-lateral-drawer" id="catalogLateralDrawer" aria-label="Filtros del catálogo">
+                
+                <!-- Encabezado del Drawer -->
+                <div class="drawer-top-header">
+                    <div class="drawer-title-group">
+                        <span class="drawer-badge-mini"><i class="fa-solid fa-bolt"></i> FULL TECH</span>
+                        <h3 class="drawer-heading"><i class="fa-solid fa-sliders"></i> Filtros y Marcas</h3>
+                    </div>
+                    <button type="button" class="drawer-btn-close" onclick="CatalogFilterManager.closeFilterDrawer()" aria-label="Cerrar filtros">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Cuerpo con Scroll del Drawer -->
+                <div class="drawer-scroll-body">
+                    
+                    <!-- Búsqueda en el Drawer -->
+                    <div class="drawer-filter-group">
+                        <label class="drawer-group-label"><i class="fa-solid fa-magnifying-glass"></i> Buscar producto</label>
+                        <div class="catalog-search-inline" style="background:#ffffff;">
+                            <input type="text" id="drawerInputSearch" placeholder="Ej: Lenovo Ryzen, SSD 1TB..." value="{{ query }}">
+                            <button type="button" class="search-clear-inline" id="drawerSearchClear" style="{% if not query %}display:none;{% endif %}" onclick="CatalogFilterManager.clearSearch()">&times;</button>
                         </div>
-
-                        <div class="promo-image-box">
-                            <div class="floating-badges-row">
-                                <span class="glass-badge glass-badge-stock"><span class="glass-badge-dot"></span> Stock: {{ prod.stock }} un.</span>
-                                <span class="glass-badge glass-badge-feature warranty"><i class="fa-solid fa-shield-halved"></i> Garantía 1 Año</span>
-                            </div>
-                            {% if prod.imagen_url %}
-                            <img src="{{ prod.imagen_url }}" alt="{{ prod.nombre }}" loading="lazy">
-                            {% else %}
-                            <i class="fa-solid fa-laptop" style="font-size:65px; color:#9ca3af;"></i>
-                            {% endif %}
-                            <button type="button" class="btn-quick-view-hover" onclick="event.stopPropagation(); QuickViewManager.open({{ prod.id }});" title="Vista rápida" aria-label="Vista rápida de {{ prod.nombre|escapejs }}">
-                                <i class="fa-solid fa-eye"></i> <span>Vista Rápida</span>
-                            </button>
-                            <!-- INSIGNIAS DE CONFIANZA Y FACILIDAD DE COMPRA -->
-                            <div class="floating-store-trust-badges">
-                                <span class="trust-chip trust-chip-free-delivery"><i class="fa-solid fa-truck-fast"></i> Envío Gratis</span>
-                                <span class="trust-chip trust-chip-yape"><i class="fa-solid fa-qrcode"></i> Yape / Plin</span>
-                                <span class="trust-chip trust-chip-new"><i class="fa-solid fa-sparkles"></i> Nuevo</span>
-                            </div>
-                        </div>
-
-                        <h2 class="promo-name"><a href="{% url 'detalle_producto' prod.id %}" class="product-title-link">{{ prod.nombre }}</a></h2>
-                        <p class="promo-desc">{{ prod.descripcion|truncatewords:24 }}</p>
                     </div>
 
-                    <div>
-                        <div class="promo-pricing-box">
-                            <div class="price-label-col">
-                                <span class="price-old">S/. {{ prod.precio_anterior }}</span>
-                                <span style="color:#00a650; font-weight:800; font-size:9.5px; letter-spacing:-0.2px;">
-                                    <i class="fa-solid fa-arrow-down"></i> {{ prod.porcentaje_descuento }}% OFF
-                                </span>
-                            </div>
-                            <div style="text-align:right;">
-                                <span style="display:block; font-size:10px; color:#64748b; font-weight:700; text-transform:uppercase;">Oferta Caraz</span>
-                                <div class="price-main">S/. {{ prod.precio }}</div>
-                            </div>
-                        </div>
+                    <!-- Selector de Categoría -->
+                    <div class="drawer-filter-group">
+                        <label class="drawer-group-label"><i class="fa-solid fa-shapes"></i> Categoría</label>
+                        <select id="filterSelectCategoria" class="drawer-select" onchange="CatalogFilterManager.onCategoryChange(this.value)">
+                            <option value="">Todas las Categorías</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.slug }}" {% if categoria_seleccionada == cat.slug %}selected{% endif %}>{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                        <div class="promo-card-actions-group">
-                            <button type="button" class="btn-promo-action" onclick="event.preventDefault(); event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio|unlocalize }}, image:'{{ prod.imagen_url|default:''|escapejs }}', icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock|unlocalize }} }, this);">
-                                <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                    <!-- Filtro de Marcas -->
+                    <div class="drawer-filter-group">
+                        <div class="drawer-label-flex">
+                            <label class="drawer-group-label"><i class="fa-solid fa-copyright"></i> Marcas</label>
+                            <span class="drawer-subhint">{{ marcas_disponibles|length }} marcas</span>
+                        </div>
+                        <div class="drawer-chips-wrap brands-chips-container">
+                            <button type="button" class="drawer-chip brand-chip {% if not marca_seleccionada or marca_seleccionada == 'todas' %}active{% endif %}" data-brand="" onclick="CatalogFilterManager.setMarca('')">
+                                Todas
+                            </button>
+                            {% for m in marcas_disponibles %}
+                            <button type="button" class="drawer-chip brand-chip {% if marca_seleccionada|lower == m|lower %}active{% endif %}" data-brand="{{ m }}" onclick="CatalogFilterManager.setMarca('{{ m }}')">
+                                {{ m }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Filtro de Rango de Precio -->
+                    <div class="drawer-filter-group">
+                        <label class="drawer-group-label"><i class="fa-solid fa-coins"></i> Rango de Precio</label>
+                        <div class="drawer-chips-wrap price-chips-container">
+                            <button type="button" class="drawer-chip price-chip {% if not precio_min and not precio_max %}active{% endif %}" onclick="CatalogFilterManager.setPriceRange('', '')">
+                                Todos
+                            </button>
+                            <button type="button" class="drawer-chip price-chip {% if not precio_min and precio_max == '200' %}active{% endif %}" onclick="CatalogFilterManager.setPriceRange('', '200')">
+                                Hasta S/. 200
+                            </button>
+                            <button type="button" class="drawer-chip price-chip {% if precio_min == '200' and precio_max == '1000' %}active{% endif %}" onclick="CatalogFilterManager.setPriceRange('200', '1000')">
+                                S/. 200 - 1,000
+                            </button>
+                            <button type="button" class="drawer-chip price-chip {% if precio_min == '1000' and precio_max == '2500' %}active{% endif %}" onclick="CatalogFilterManager.setPriceRange('1000', '2500')">
+                                S/. 1,000 - 2,500
+                            </button>
+                            <button type="button" class="drawer-chip price-chip {% if precio_min == '2500' and precio_max == '3500' %}active{% endif %}" onclick="CatalogFilterManager.setPriceRange('2500', '3500')">
+                                S/. 2,500 - 3,500
+                            </button>
+                            <button type="button" class="drawer-chip price-chip {% if precio_min == '3500' and not precio_max %}active{% endif %}" onclick="CatalogFilterManager.setPriceRange('3500', '')">
+                                Más de S/. 3,500
+                            </button>
+                        </div>
+                        <!-- Rango Manual -->
+                        <div class="drawer-custom-price-row">
+                            <div class="drawer-price-input-mini">
+                                <span>S/.</span>
+                                <input type="number" id="inputPrecioMin" placeholder="Mín" min="0" value="{{ precio_min }}">
+                            </div>
+                            <span class="drawer-price-dash">—</span>
+                            <div class="drawer-price-input-mini">
+                                <span>S/.</span>
+                                <input type="number" id="inputPrecioMax" placeholder="Máx" min="0" value="{{ precio_max }}">
+                            </div>
+                            <button type="button" class="drawer-btn-apply-price" onclick="CatalogFilterManager.applyCustomPrice()" title="Aplicar rango de precio">
+                                <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
+
+                    <!-- Especificaciones Técnicas: Procesador, RAM, Almacenamiento -->
+                    <div class="drawer-filter-group">
+                        <label class="drawer-group-label"><i class="fa-solid fa-microchip"></i> Procesador</label>
+                        <div class="drawer-chips-wrap cpu-chips-container">
+                            <button type="button" class="drawer-chip cpu-chip {% if not procesador_seleccionado or procesador_seleccionado == 'todos' %}active{% endif %}" data-cpu="" onclick="CatalogFilterManager.setProcesador('')">
+                                Todos
+                            </button>
+                            {% for cpu_val, cpu_label in procesadores_disponibles %}
+                            <button type="button" class="drawer-chip cpu-chip {% if procesador_seleccionado == cpu_val %}active{% endif %}" data-cpu="{{ cpu_val }}" onclick="CatalogFilterManager.setProcesador('{{ cpu_val }}')">
+                                {{ cpu_label }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="drawer-filter-group">
+                        <label class="drawer-group-label"><i class="fa-solid fa-memory"></i> Memoria RAM</label>
+                        <div class="drawer-chips-wrap ram-chips-container">
+                            <button type="button" class="drawer-chip ram-chip {% if not ram_seleccionada or ram_seleccionada == 'todas' %}active{% endif %}" data-ram="" onclick="CatalogFilterManager.setRam('')">
+                                Todas
+                            </button>
+                            {% for r in rams_disponibles %}
+                            <button type="button" class="drawer-chip ram-chip {% if ram_seleccionada == r %}active{% endif %}" data-ram="{{ r }}" onclick="CatalogFilterManager.setRam('{{ r }}')">
+                                {{ r }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="drawer-filter-group">
+                        <label class="drawer-group-label"><i class="fa-solid fa-hard-drive"></i> Almacenamiento SSD</label>
+                        <div class="drawer-chips-wrap storage-chips-container">
+                            <button type="button" class="drawer-chip storage-chip {% if not almacenamiento_seleccionado or almacenamiento_seleccionado == 'todos' %}active{% endif %}" data-storage="" onclick="CatalogFilterManager.setAlmacenamiento('')">
+                                Todos
+                            </button>
+                            {% for s in almacenamientos_disponibles %}
+                            <button type="button" class="drawer-chip storage-chip {% if almacenamiento_seleccionado == s %}active{% endif %}" data-storage="{{ s }}" onclick="CatalogFilterManager.setAlmacenamiento('{{ s }}')">
+                                {{ s }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Disponibilidad -->
+                    <div class="drawer-filter-group">
+                        <label class="drawer-group-label"><i class="fa-solid fa-sliders"></i> Disponibilidad</label>
+                        <div class="drawer-switches-col">
+                            <label class="drawer-switch-item {% if en_stock in '1 true on si' %}active{% endif %}">
+                                <input type="checkbox" id="drawerCheckStock" {% if en_stock in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onStockChange(this.checked)">
+                                <span><i class="fa-solid fa-check"></i> En Stock Inmediato</span>
+                            </label>
+                            <label class="drawer-switch-item {% if solo_ofertas in '1 true on si' %}active{% endif %}">
+                                <input type="checkbox" id="drawerCheckOfertas" {% if solo_ofertas in '1 true on si' %}checked{% endif %} onchange="CatalogFilterManager.onOfertasChange(this.checked)">
+                                <span><i class="fa-solid fa-bolt"></i> Solo Ofertas & Descuento</span>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
-                {% empty %}
-                <div style="text-align:center; padding:50px 20px; grid-column: 1 / -1; background:#ffffff; border-radius:14px; border:1px solid #e5e7eb;">
-                    <i class="fa-solid fa-box-open" style="font-size:45px; color:#cbd5e1; margin-bottom:15px;"></i>
-                    <h3 style="font-size:20px; font-weight:800; color:#2d3277; margin-bottom:8px;">No se encontraron productos disponibles en esta sección</h3>
-                    <p style="color:#666; font-size:14px;">Explora otras categorías o consúltanos por WhatsApp para pedidos especiales.</p>
+
+                <!-- Footer Fijo del Drawer -->
+                <div class="drawer-bottom-footer">
+                    <button type="button" class="drawer-btn-clear" onclick="CatalogFilterManager.clearAllFilters()">
+                        <i class="fa-solid fa-rotate-left"></i> Limpiar
+                    </button>
+                    <button type="button" class="drawer-btn-submit" onclick="CatalogFilterManager.closeFilterDrawer()">
+                        <span>Ver Resultados</span>
+                        <span class="drawer-submit-count" id="drawerSubmitCount">({{ total_productos }})</span>
+                    </button>
                 </div>
-                {% endfor %}
+
+            </aside>
+
+            <!-- BOTTOM SHEET MODAL PARA SUBCATEGORÍAS EN MÓVIL (PARTES DE PC, LAPTOPS, GAMER, ETC.) -->
+            <div class="mobile-cat-backdrop" id="mobileCatBackdrop" onclick="MobileCategoryManager.close()"></div>
+            <div class="mobile-cat-sheet" id="mobileCatSheet">
+                <div class="mobile-cat-drag-handle"></div>
+                <div class="mobile-cat-header">
+                    <h4 class="mobile-cat-title" id="mobileCatSheetTitle">
+                        <i class="fa-solid fa-microchip"></i> Partes de PC & Hardware
+                    </h4>
+                    <button type="button" class="mobile-cat-close-btn" onclick="MobileCategoryManager.close()">&times;</button>
+                </div>
+                <div class="mobile-cat-content" id="mobileCatSheetContent">
+                    <!-- Rellenado dinámicamente según la categoría pulsada -->
+                </div>
+                <div class="mobile-cat-footer">
+                    <a href="#" id="mobileCatSeeAllBtn" class="mobile-cat-all-link">
+                        Ver todos los productos <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
             </div>
 
-            <!-- PAGINACIÓN SINCRÓNICA ESTILO MERCADO LIBRE / TIENDA PROFESIONAL -->
-            {% if productos.has_other_pages %}
-            <nav class="pagination-container" aria-label="Páginas de productos">
-                <ul class="pagination-list">
-                    <!-- Botón Anterior -->
-                    {% if productos.has_previous %}
-                    <li class="page-item">
-                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ productos.previous_page_number }}#promosCatalog" 
-                           class="page-link page-prev-next" 
-                           title="Página anterior">
-                            <i class="fa-solid fa-chevron-left"></i> Anterior
-                        </a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link page-prev-next"><i class="fa-solid fa-chevron-left"></i> Anterior</span>
-                    </li>
-                    {% endif %}
-
-                    <!-- Números de Página -->
-                    {% for num in productos.paginator.page_range %}
-                        {% if productos.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link current-page">{{ num }}</span>
-                        </li>
-                        {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
-                        <li class="page-item">
-                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ num }}#promosCatalog" 
-                               class="page-link">
-                                {{ num }}
-                            </a>
-                        </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    <!-- Botón Siguiente -->
-                    {% if productos.has_next %}
-                    <li class="page-item">
-                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if categoria_seleccionada %}categoria={{ categoria_seleccionada }}&{% endif %}page={{ productos.next_page_number }}#promosCatalog" 
-                           class="page-link page-prev-next" 
-                           title="Página siguiente">
-                            Siguiente <i class="fa-solid fa-chevron-right"></i>
-                        </a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link page-prev-next">Siguiente <i class="fa-solid fa-chevron-right"></i></span>
-                    </li>
-                    {% endif %}
-                </ul>
-                <div class="pagination-info-text">
-                    Página {{ productos.number }} de {{ productos.paginator.num_pages }} • Mostrando {{ productos|length }} de {{ total_productos }} productos
+            <!-- CONTENEDOR DINÁMICO DE PRODUCTOS (ACTUALIZADO POR FETCH) -->
+            <div class="catalog-products-dynamic-wrap" id="catalogProductsWrap">
+                <!-- Indicador de Carga Flotante para Fetch -->
+                <div class="catalog-fetch-loader" id="catalogFetchLoader">
+                    <div class="spinner-fetch"></div>
+                    <span>Cargando productos...</span>
                 </div>
-            </nav>
-            {% endif %}
+
+                <div id="catalogPartialContainer">
+                    {% include 'catalogo_productos_partial.html' %}
+                </div>
+            </div>
 
         </div>
     </main>
@@ -1711,7 +2548,7 @@
     </script>
 
     <!-- POPUP MODAL DE ANUNCIO / OFERTA DESTACADA -->
-    {% if producto_destacado %}
+    {% if producto_destacado and not request.GET.nomodal %}
     <div id="promoAdModal" class="promo-ad-overlay">
         <div class="promo-ad-card">
             <button type="button" class="promo-ad-close" id="btnPromoAdClose" title="Cerrar anuncio">
@@ -2242,5 +3079,7 @@
 
     <!-- SCRIPT DEL CARRUSEL PRO & COUNTDOWN -->
     <script src="{% static 'inicio/js/hero-slider.js' %}"></script>
+    <!-- SCRIPT DE FILTROS DINÁMICOS CON FETCH -->
+    <script src="{% static 'inicio/js/catalog-filters.js' %}?v=9.1"></script>
 </body>
 </html>

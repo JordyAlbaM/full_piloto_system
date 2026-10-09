@@ -5,11 +5,12 @@ import urllib.parse
 import re
 import json
 import html
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, F
+from django.template.loader import render_to_string
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db import transaction
@@ -279,15 +280,23 @@ def obtener_datos_infotec(url):
 
 def inicio(request):
     query = request.GET.get('q', '').strip()
+    if not query:
+        query = request.GET.get('nombre', '').strip()
     categoria_slug = request.GET.get('categoria', '').strip()
+    precio_min_str = request.GET.get('precio_min', '').strip()
+    precio_max_str = request.GET.get('precio_max', '').strip()
+    marca = request.GET.get('marca', '').strip()
+    orden = request.GET.get('orden', 'recientes').strip()
+    en_stock = request.GET.get('en_stock', '').strip()
+    solo_ofertas = request.GET.get('solo_ofertas', '').strip()
 
-    # Si hay filtro de categoría, se aplica; si no, se muestran todos los productos disponibles
-    productos = Producto.objects.filter(disponible=True).select_related('categoria').order_by('-id')
+    productos = Producto.objects.filter(disponible=True).select_related('categoria')
     categoria_actual = None
-    if categoria_slug:
+
+    # 1. Filtro por categoría
+    if categoria_slug and categoria_slug != 'todas':
         categoria_actual = Categoria.objects.filter(slug=categoria_slug).first()
         if categoria_slug == 'zona-gamer' or 'gamer' in categoria_slug:
-            # En Zona Gamer se agrupan los productos asignados a la categoría o con nombres gamer/juegos
             productos = productos.filter(
                 Q(categoria__slug=categoria_slug) |
                 Q(nombre__icontains='gamer') |
@@ -298,6 +307,7 @@ def inicio(request):
         else:
             productos = productos.filter(categoria__slug=categoria_slug)
 
+    # 2. Filtro por búsqueda de texto (nombre, descripción, marca, modelo)
     if query:
         q_lower = query.lower()
         if q_lower in ['zona gamer', 'zona-gamer', 'zona_gamer']:
@@ -310,13 +320,119 @@ def inicio(request):
             )
         else:
             productos = productos.filter(
-                Q(nombre__icontains=query) | Q(descripcion__icontains=query)
+                Q(nombre__icontains=query) |
+                Q(descripcion__icontains=query) |
+                Q(marca__icontains=query) |
+                Q(modelo_codigo__icontains=query)
             )
 
+    procesador = request.GET.get('procesador', '').strip()
+    ram = request.GET.get('ram', '').strip()
+    almacenamiento = request.GET.get('almacenamiento', '').strip()
+
+    # 3. Filtro por marca
+    if marca and marca != 'todas':
+        productos = productos.filter(
+            Q(marca__iexact=marca) |
+            Q(marca__icontains=marca) |
+            Q(nombre__icontains=marca)
+        )
+
+    # 4. Filtro por procesador
+    if procesador and procesador != 'todos':
+        productos = productos.filter(
+            Q(procesador__icontains=procesador) |
+            Q(nombre__icontains=procesador) |
+            Q(descripcion__icontains=procesador)
+        )
+
+    # 5. Filtro por memoria RAM
+    if ram and ram != 'todas':
+        ram_clean = ram.replace(' ', '')
+        ram_spaced = ram_clean.replace('GB', ' GB')
+        productos = productos.filter(
+            Q(ram__icontains=ram_clean) |
+            Q(ram__icontains=ram_spaced) |
+            Q(nombre__icontains=ram_clean) |
+            Q(nombre__icontains=ram_spaced) |
+            Q(descripcion__icontains=ram_clean) |
+            Q(descripcion__icontains=ram_spaced)
+        )
+
+    # 6. Filtro por almacenamiento
+    if almacenamiento and almacenamiento != 'todos':
+        almacenamiento_clean = almacenamiento.replace(' ', '')
+        almacenamiento_spaced = almacenamiento_clean.replace('GB', ' GB').replace('TB', ' TB')
+        productos = productos.filter(
+            Q(almacenamiento__icontains=almacenamiento_clean) |
+            Q(almacenamiento__icontains=almacenamiento_spaced) |
+            Q(nombre__icontains=almacenamiento_clean) |
+            Q(nombre__icontains=almacenamiento_spaced) |
+            Q(descripcion__icontains=almacenamiento_clean) |
+            Q(descripcion__icontains=almacenamiento_spaced)
+        )
+
+    # 7. Filtro por rango de precio
+    precio_min_val = None
+    if precio_min_str:
+        try:
+            precio_min_val = Decimal(precio_min_str)
+            if precio_min_val >= 0:
+                productos = productos.filter(precio__gte=precio_min_val)
+        except (InvalidOperation, ValueError):
+            precio_min_str = ''
+
+    precio_max_val = None
+    if precio_max_str:
+        try:
+            precio_max_val = Decimal(precio_max_str)
+            if precio_max_val > 0:
+                productos = productos.filter(precio__lte=precio_max_val)
+        except (InvalidOperation, ValueError):
+            precio_max_str = ''
+
+    # 8. Filtro solo productos en stock
+    if en_stock in ['1', 'true', 'on', 'si']:
+        productos = productos.filter(stock__gt=0)
+
+    # 9. Filtro solo ofertas / descuento
+    if solo_ofertas in ['1', 'true', 'on', 'si']:
+        productos = productos.filter(precio_tachado__gt=F('precio'))
+
+    # 10. Ordenamiento dinámico
+    if orden == 'precio_asc':
+        productos = productos.order_by('precio', '-id')
+    elif orden == 'precio_desc':
+        productos = productos.order_by('-precio', '-id')
+    elif orden == 'nombre_asc':
+        productos = productos.order_by('nombre')
+    elif orden == 'nombre_desc':
+        productos = productos.order_by('-nombre')
+    elif orden == 'descuento':
+        productos = productos.order_by(F('precio_tachado') - F('precio')).reverse()
+    else:
+        orden = 'recientes'
+        productos = productos.order_by('-id')
+
     categorias = Categoria.objects.all()
+
+    # Extraer marcas disponibles dinámicamente para chips de filtro
+    marcas_db = set(Producto.objects.filter(disponible=True).exclude(marca='').values_list('marca', flat=True))
+    marcas_populares = ['Lenovo', 'HP', 'ASUS', 'Samsung', 'Hiksemi', 'PNY', 'Logitech', 'Kingston', 'Redragon', 'HyperX', 'Seagate', 'ESET', 'Epson', 'Canon']
+    nombres_prods = list(Producto.objects.filter(disponible=True).values_list('nombre', flat=True))
+    marcas_disponibles = set()
+    for m in marcas_db:
+        if m.strip():
+            marcas_disponibles.add(m.strip())
+    for mp in marcas_populares:
+        mp_lower = mp.lower()
+        if any(mp_lower in n.lower() for n in nombres_prods):
+            marcas_disponibles.add(mp)
+    marcas_disponibles = sorted(list(marcas_disponibles))
+
     producto_destacado = productos.first() or Producto.objects.filter(disponible=True).select_related('categoria').first()
 
-    # Paginación sincrónica (8 productos por página para navegación limpia y fluida)
+    # Paginación (8 productos por página)
     paginator = Paginator(productos, 8)
     page_number = request.GET.get('page', 1)
     try:
@@ -326,15 +442,75 @@ def inicio(request):
     except EmptyPage:
         productos_paginados = paginator.page(paginator.num_pages)
 
-    return render(request, 'index.html', {
+    # Query string para preservar filtros activos en la paginación
+    params = request.GET.copy()
+    if 'page' in params:
+        del params['page']
+    if 'ajax' in params:
+        del params['ajax']
+    filtros_querystring = params.urlencode()
+
+    # Contador de filtros activos
+    filtros_activos_count = 0
+    if query: filtros_activos_count += 1
+    if categoria_slug and categoria_slug != 'todas': filtros_activos_count += 1
+    if precio_min_str: filtros_activos_count += 1
+    if precio_max_str: filtros_activos_count += 1
+    if marca and marca != 'todas': filtros_activos_count += 1
+    if procesador and procesador != 'todos': filtros_activos_count += 1
+    if ram and ram != 'todas': filtros_activos_count += 1
+    if almacenamiento and almacenamiento != 'todos': filtros_activos_count += 1
+    if orden and orden != 'recientes': filtros_activos_count += 1
+    if en_stock in ['1', 'true', 'on', 'si']: filtros_activos_count += 1
+    if solo_ofertas in ['1', 'true', 'on', 'si']: filtros_activos_count += 1
+
+    context = {
         'productos': productos_paginados,
         'total_productos': paginator.count,
         'categorias': categorias,
         'query': query,
         'categoria_seleccionada': categoria_slug,
         'categoria_actual': categoria_actual,
+        'precio_min': precio_min_str,
+        'precio_max': precio_max_str,
+        'marca_seleccionada': marca,
+        'procesador_seleccionado': procesador,
+        'ram_seleccionada': ram,
+        'almacenamiento_seleccionado': almacenamiento,
+        'orden_seleccionado': orden,
+        'en_stock': en_stock,
+        'solo_ofertas': solo_ofertas,
+        'marcas_disponibles': marcas_disponibles,
+        'procesadores_disponibles': [
+            ('Core i3', 'Core i3'),
+            ('Core i5', 'Core i5'),
+            ('Core i7', 'Core i7 / Ultra'),
+            ('Ryzen 3', 'Ryzen 3'),
+            ('Ryzen 5', 'Ryzen 5'),
+            ('Ryzen 7', 'Ryzen 7'),
+        ],
+        'rams_disponibles': ['4GB', '8GB', '16GB', '32GB'],
+        'almacenamientos_disponibles': ['256GB', '512GB', '1TB', '2TB'],
+        'filtros_querystring': filtros_querystring,
+        'filtros_activos_count': filtros_activos_count,
         'producto_destacado': producto_destacado,
-    })
+    }
+
+    # Si es petición AJAX / Fetch, devolver JSON con el fragmento HTML del catálogo
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+        html_catalogo = render_to_string('catalogo_productos_partial.html', context, request=request)
+        return JsonResponse({
+            'status': 'success',
+            'html': html_catalogo,
+            'total_productos': paginator.count,
+            'page': productos_paginados.number,
+            'num_pages': paginator.num_pages,
+            'has_previous': productos_paginados.has_previous(),
+            'has_next': productos_paginados.has_next(),
+            'filtros_activos_count': filtros_activos_count,
+        })
+
+    return render(request, 'index.html', context)
 
 def detalle_producto(request, producto_id):
     producto = get_object_or_404(Producto.objects.select_related('categoria'), id=producto_id, disponible=True)
