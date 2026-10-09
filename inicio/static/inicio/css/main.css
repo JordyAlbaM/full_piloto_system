@@ -3040,16 +3040,19 @@
             transform: translateX(0) translateY(0);
         }
 
-        .category-bubble-item-wrapper[data-cat="software-antivirus"] .category-subpopover {
+        .category-bubble-item-wrapper[data-cat="software-antivirus"] .category-subpopover,
+        .category-bubble-item-wrapper[data-cat="impresoras"] .category-subpopover {
             left: auto;
             right: 0;
             transform: translateX(0) translateY(4px);
         }
-        .category-bubble-item-wrapper[data-cat="software-antivirus"] .category-subpopover::before {
+        .category-bubble-item-wrapper[data-cat="software-antivirus"] .category-subpopover::before,
+        .category-bubble-item-wrapper[data-cat="impresoras"] .category-subpopover::before {
             left: auto;
             right: 36px;
         }
-        .category-bubble-item-wrapper[data-cat="software-antivirus"]:hover .category-subpopover {
+        .category-bubble-item-wrapper[data-cat="software-antivirus"]:hover .category-subpopover,
+        .category-bubble-item-wrapper[data-cat="impresoras"]:hover .category-subpopover {
             transform: translateX(0) translateY(0);
         }
 
