@@ -126,6 +126,11 @@
                 </div>
             </div>
         </div>
+
+        <!-- Crédito de autor / Creado por Codyck -->
+        <div class="fps-creator-credit">
+            <span class="fps-creator-text">creado por : Codyck</span>
+        </div>
     </div>
 </footer>
 
@@ -135,7 +140,7 @@
     background: #080d1a !important;
     color: #94a3b8;
     border-top: 3px solid #ffe600 !important;
-    padding: 55px 0 25px 0 !important;
+    padding: 45px 0 14px 0 !important;
     margin-top: auto;
     font-family: 'Inter', sans-serif;
     position: relative;
@@ -457,6 +462,32 @@
     border-color: rgba(74, 222, 128, 0.3);
 }
 
+/* Crédito final del creador */
+.fps-creator-credit {
+    text-align: center;
+    padding: 0;
+    margin-top: 8px;
+    border: none;
+    line-height: 1;
+}
+
+.fps-creator-text {
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.45) !important;
+    display: inline-block;
+    letter-spacing: 0.2px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1;
+}
+
+.fps-creator-text:hover {
+    color: #ef4444 !important;
+    opacity: 1;
+}
+
 /* ========================================================
    RESPONSIVE DESIGN
    ======================================================== */
@@ -469,7 +500,7 @@
 
 @media (max-width: 640px) {
     .fps-footer {
-        padding: 40px 0 85px 0 !important; /* Espacio extra para botón flotante de WhatsApp */
+        padding: 35px 0 35px 0 !important;
     }
 
     .fps-footer-grid {
