@@ -5870,4 +5870,554 @@ body.mobile-cat-sheet-open {
     }
 }
 
+/* ========================================================
+   SECCIÓN DE VITRINAS POR CATEGORÍA (ESTILO MERCADO LIBRE / FALABELLA)
+   ======================================================== */
+
+.home-showcases-container {
+    padding: 30px 0 10px;
+    background: #f8fafc;
+}
+
+.home-showcase-section {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 28px;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+    position: relative;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.home-showcase-section:hover {
+    box-shadow: 0 8px 25px rgba(45, 50, 119, 0.08);
+}
+
+/* Acentos visuales para cada vitrina */
+.showcase-ofertas {
+    border-top: 4px solid #ef4444;
+}
+.showcase-laptops {
+    border-top: 4px solid #2563eb;
+}
+.showcase-gamer {
+    border-top: 4px solid #7c3aed;
+}
+.showcase-componentes {
+    border-top: 4px solid #059669;
+}
+
+/* CABECERA DE VITRINA */
+.showcase-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1.5px solid #f1f5f9;
+}
+
+.showcase-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.showcase-icon-badge {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.showcase-icon-badge.badge-fire {
+    background: linear-gradient(135deg, #ef4444, #f59e0b);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.showcase-icon-badge.badge-laptop {
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+}
+
+.showcase-icon-badge.badge-gamer {
+    background: linear-gradient(135deg, #7c3aed, #c026d3);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.showcase-icon-badge.badge-storage {
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.28);
+}
+
+.showcase-titles-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.showcase-pretitle {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #64748b;
+}
+
+.showcase-heading {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+}
+
+.showcase-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.showcase-see-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #2563eb;
+    text-decoration: none;
+    padding: 7px 15px;
+    border-radius: 20px;
+    background: #eff6ff;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.showcase-see-all-link:hover {
+    background: #2563eb;
+    color: #ffffff;
+    transform: translateX(2px);
+}
+
+.showcase-arrows-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.showcase-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.showcase-nav-btn:hover {
+    background: #2d3277;
+    color: #ffffff;
+    border-color: #2d3277;
+    box-shadow: 0 3px 8px rgba(45, 50, 119, 0.25);
+}
+
+/* TRACK Y WRAPPER */
+.showcase-track-wrapper {
+    position: relative;
+    overflow: hidden;
+    margin: 0 -6px;
+    padding: 6px;
+}
+
+.showcase-track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 8px;
+}
+
+.showcase-track::-webkit-scrollbar {
+    display: none;
+}
+
+/* TARJETA DE PRODUCTO DE LA VITRINA */
+.showcase-card {
+    flex: 0 0 240px;
+    max-width: 240px;
+    scroll-snap-align: start;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.showcase-card:hover {
+    transform: translateY(-5px);
+    border-color: #93c5fd;
+    box-shadow: 0 10px 24px rgba(45, 50, 119, 0.12);
+}
+
+.showcase-card-top {
+    display: flex;
+    flex-direction: column;
+}
+
+.showcase-meta-tags {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.showcase-brand-tag {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 2px 7px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.showcase-badge-discount {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #ffffff;
+    background: #ef4444;
+    padding: 2px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.2px;
+}
+
+.showcase-badge-gamer {
+    font-size: 10px;
+    font-weight: 900;
+    color: #ffffff;
+    background: #7c3aed;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+
+.showcase-badge-stock {
+    font-size: 10px;
+    font-weight: 800;
+    color: #92400e;
+    background: #fef3c7;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+
+.showcase-badge-ok {
+    font-size: 10px;
+    font-weight: 800;
+    color: #065f46;
+    background: #d1fae5;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+
+/* CAJA DE IMAGEN */
+.showcase-img-box {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.showcase-img-box img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.showcase-card:hover .showcase-img-box img {
+    transform: scale(1.07);
+}
+
+.showcase-placeholder-icon {
+    font-size: 52px;
+    color: #cbd5e1;
+}
+
+.btn-showcase-quickview {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(45, 50, 119, 0.9);
+    color: #ffffff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: all 0.2s;
+}
+
+.showcase-card:hover .btn-showcase-quickview {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.btn-showcase-quickview:hover {
+    background: #ffe600;
+    color: #2d3277;
+}
+
+/* TÍTULO Y SPECS */
+.showcase-card-title {
+    margin: 0 0 8px;
+    font-size: 13.5px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: #1e293b;
+    height: 36px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.showcase-card-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.showcase-card-title a:hover {
+    color: #2563eb;
+}
+
+.showcase-mini-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 12px;
+    min-height: 22px;
+}
+
+.mini-spec-chip {
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+
+.mini-spec-chip i {
+    color: #2563eb;
+    font-size: 9px;
+}
+
+/* PARTE INFERIOR Y PRECIOS */
+.showcase-card-bottom {
+    margin-top: auto;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.showcase-pricing {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.showcase-old-price {
+    font-size: 11px;
+    color: #94a3b8;
+    text-decoration: line-through;
+    font-weight: 600;
+}
+
+.showcase-main-price {
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.1;
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+}
+
+.showcase-currency {
+    font-size: 12px;
+    font-weight: 800;
+    color: #2563eb;
+}
+
+.showcase-shipping-note {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-showcase-add {
+    width: 100%;
+    padding: 9px 12px;
+    background: #ffe600;
+    color: #2d3277;
+    border: 1.5px solid #e6cf00;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-showcase-add:hover {
+    background: #2d3277;
+    color: #ffffff;
+    border-color: #2d3277;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(45, 50, 119, 0.25);
+}
+
+/* RESPONSIVE DESIGN - TABLET Y MÓVIL */
+@media (max-width: 992px) {
+    .showcase-heading {
+        font-size: 18px;
+    }
+    .showcase-card {
+        flex: 0 0 220px;
+        max-width: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-showcases-container {
+        padding: 16px 0 6px;
+    }
+    .home-showcase-section {
+        padding: 16px 14px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+    }
+    .showcase-header {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+    }
+    .showcase-icon-badge {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
+    .showcase-pretitle {
+        font-size: 9.5px;
+    }
+    .showcase-heading {
+        font-size: 15.5px;
+    }
+    .showcase-arrows-nav {
+        display: none; /* En móvil el usuario hace swipe táctil directamente */
+    }
+    .showcase-see-all-link {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+    .showcase-track-wrapper {
+        margin: 0 -14px;
+        padding: 4px 14px 10px 14px;
+    }
+    .showcase-track {
+        gap: 12px;
+    }
+    .showcase-card {
+        flex: 0 0 205px;
+        max-width: 205px;
+        padding: 12px;
+        border-radius: 12px;
+    }
+    .showcase-img-box {
+        height: 125px;
+    }
+    .btn-showcase-quickview {
+        opacity: 0.9;
+        transform: scale(0.9);
+    }
+    .showcase-main-price {
+        font-size: 16px;
+    }
+    .btn-showcase-add {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .showcase-card {
+        flex: 0 0 190px;
+        max-width: 190px;
+    }
+    .showcase-card-title {
+        font-size: 12.5px;
+        height: 34px;
+    }
+    .showcase-img-box {
+        height: 115px;
+    }
+}
+
+
 

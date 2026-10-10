@@ -464,6 +464,36 @@ def inicio(request):
     if en_stock in ['1', 'true', 'on', 'si']: filtros_activos_count += 1
     if solo_ofertas in ['1', 'true', 'on', 'si']: filtros_activos_count += 1
 
+    # Vitrinas temáticas para la portada (Estilo Mercado Libre / Amazon)
+    vitrina_ofertas = Producto.objects.filter(
+        disponible=True,
+        precio_tachado__gt=F('precio')
+    ).select_related('categoria').order_by(F('precio') - F('precio_tachado'))[:10]
+
+    vitrina_laptops = Producto.objects.filter(
+        disponible=True
+    ).filter(
+        Q(categoria__slug__in=['laptops-pc', 'laptops']) |
+        Q(nombre__icontains='laptop')
+    ).select_related('categoria').order_by('-id')[:10]
+
+    vitrina_gamer = Producto.objects.filter(
+        disponible=True
+    ).filter(
+        Q(categoria__slug='zona-gamer') |
+        Q(nombre__icontains='gamer') |
+        Q(nombre__icontains='gaming')
+    ).select_related('categoria').order_by('-id')[:10]
+
+    vitrina_componentes = Producto.objects.filter(
+        disponible=True
+    ).filter(
+        Q(categoria__slug__in=['almacenamiento', 'partes-pc']) |
+        Q(nombre__icontains='disco solido') |
+        Q(nombre__icontains='ssd') |
+        Q(nombre__istartswith='memoria')
+    ).exclude(nombre__icontains='laptop').exclude(nombre__icontains='setup').select_related('categoria').order_by('-id')[:10]
+
     context = {
         'productos': productos_paginados,
         'total_productos': paginator.count,
@@ -494,6 +524,10 @@ def inicio(request):
         'filtros_querystring': filtros_querystring,
         'filtros_activos_count': filtros_activos_count,
         'producto_destacado': producto_destacado,
+        'vitrina_ofertas': vitrina_ofertas,
+        'vitrina_laptops': vitrina_laptops,
+        'vitrina_gamer': vitrina_gamer,
+        'vitrina_componentes': vitrina_componentes,
     }
 
     # Si es petición AJAX / Fetch, devolver JSON con el fragmento HTML del catálogo

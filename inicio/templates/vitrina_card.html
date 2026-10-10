@@ -1,0 +1,74 @@
+{% load l10n %}
+<div class="showcase-card clickable-product-card" onclick="location.href='{% url 'detalle_producto' prod.id %}'" data-product-id="{{ prod.id }}" role="article" aria-label="{{ prod.nombre }}">
+    <div class="showcase-card-top">
+        <div class="showcase-meta-tags">
+            <span class="showcase-brand-tag">{{ prod.marca|default:prod.categoria.nombre|default:"Full Piloto" }}</span>
+            {% if prod.precio_tachado and prod.precio_tachado > prod.precio %}
+            <span class="showcase-badge-discount">-{{ prod.porcentaje_descuento }}% OFF</span>
+            {% elif 'gamer' in prod.nombre|lower or prod.categoria and prod.categoria.slug == 'zona-gamer' %}
+            <span class="showcase-badge-gamer"><i class="fa-solid fa-fire"></i> Gamer</span>
+            {% elif prod.stock <= 4 %}
+            <span class="showcase-badge-stock"><i class="fa-solid fa-bolt"></i> Pocas un.</span>
+            {% else %}
+            <span class="showcase-badge-ok"><i class="fa-solid fa-check"></i> Stock</span>
+            {% endif %}
+        </div>
+        
+        <div class="showcase-img-box">
+            {% if prod.imagen_url %}
+            <img src="{{ prod.imagen_url }}" alt="{{ prod.nombre }}" loading="lazy">
+            {% else %}
+            <div class="showcase-placeholder-icon">
+                <i class="fa-solid fa-laptop"></i>
+            </div>
+            {% endif %}
+            
+            <button type="button" 
+                    class="btn-showcase-quickview" 
+                    onclick="event.preventDefault(); event.stopPropagation(); QuickViewManager.open({{ prod.id }});" 
+                    title="Vista Rápida" 
+                    aria-label="Vista rápida de {{ prod.nombre|escapejs }}">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+        </div>
+
+        <h3 class="showcase-card-title" title="{{ prod.nombre }}">
+            <a href="{% url 'detalle_producto' prod.id %}" onclick="event.stopPropagation();">{{ prod.nombre }}</a>
+        </h3>
+
+        <!-- Micro chips de especificaciones -->
+        <div class="showcase-mini-specs">
+            {% if prod.procesador %}
+            <span class="mini-spec-chip" title="CPU: {{ prod.procesador }}"><i class="fa-solid fa-microchip"></i> {{ prod.procesador|truncatechars:18 }}</span>
+            {% endif %}
+            {% if prod.ram %}
+            <span class="mini-spec-chip" title="RAM: {{ prod.ram }}"><i class="fa-solid fa-memory"></i> {{ prod.ram }}</span>
+            {% endif %}
+            {% if prod.almacenamiento %}
+            <span class="mini-spec-chip" title="Almacenamiento: {{ prod.almacenamiento }}"><i class="fa-solid fa-hard-drive"></i> {{ prod.almacenamiento }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="showcase-card-bottom">
+        <div class="showcase-pricing">
+            {% if prod.precio_anterior and prod.precio_anterior > prod.precio %}
+            <span class="showcase-old-price">S/. {{ prod.precio_anterior }}</span>
+            {% endif %}
+            <div class="showcase-main-price">
+                <span class="showcase-currency">S/.</span> {{ prod.precio }}
+            </div>
+            <div class="showcase-shipping-note">
+                <i class="fa-solid fa-truck-fast"></i> Entrega Caraz
+            </div>
+        </div>
+
+        <button type="button" 
+                class="btn-showcase-add" 
+                onclick="event.preventDefault(); event.stopPropagation(); CartManager.addItem({id:'prod_{{ prod.id }}', name:'{{ prod.nombre|escapejs }}', price:{{ prod.precio|unlocalize }}, image:'{{ prod.imagen_url|default:''|escapejs }}', icon:'fa-solid fa-laptop', qty:1, maxStock:{{ prod.stock|unlocalize }} }, this);"
+                title="Agregar {{ prod.nombre|escapejs }} al carrito">
+            <i class="fa-solid fa-cart-plus"></i>
+            <span>Agregar</span>
+        </button>
+    </div>
+</div>

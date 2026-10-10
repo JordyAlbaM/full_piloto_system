@@ -1,0 +1,171 @@
+{% load l10n %}
+<!-- SECCIÓN DE VITRINAS POR CATEGORÍA ESTILO MERCADO LIBRE / FALABELLA -->
+<section class="home-showcases-container" id="homeShowcasesContainer" style="{% if query or categoria_seleccionada or filtros_activos_count > 0 %}display: none;{% endif %}">
+    <div class="container">
+        
+        <!-- 1. VITRINA: OFERTAS DEL DÍA & LIQUIDACIÓN -->
+        {% if vitrina_ofertas %}
+        <div class="home-showcase-section showcase-ofertas" id="showcaseOfertas">
+            <div class="showcase-header">
+                <div class="showcase-header-left">
+                    <div class="showcase-icon-badge badge-fire">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div class="showcase-titles-col">
+                        <span class="showcase-pretitle">Descuentos Especiales • Oportunidades Únicas</span>
+                        <h2 class="showcase-heading">Ofertas Flash y Precios Rebajados</h2>
+                    </div>
+                </div>
+                <div class="showcase-header-right">
+                    <a href="{% url 'inicio' %}?solo_ofertas=1#promosCatalog" 
+                       class="showcase-see-all-link" 
+                       onclick="if(window.CatalogFilterManager){ CatalogFilterManager.onOfertasChange(true); return false; }">
+                        <span>Ver todas las ofertas</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <div class="showcase-arrows-nav">
+                        <button type="button" class="showcase-nav-btn prev" onclick="scrollShowcaseTrack('trackOfertas', -1)" aria-label="Ver ofertas anteriores" title="Anterior">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="showcase-nav-btn next" onclick="scrollShowcaseTrack('trackOfertas', 1)" aria-label="Ver más ofertas" title="Siguiente">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-track-wrapper">
+                <div class="showcase-track" id="trackOfertas">
+                    {% for prod in vitrina_ofertas %}
+                        {% include 'vitrina_card.html' with prod=prod %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 2. VITRINA: LAPTOPS & PORTÁTILES DESTACADAS -->
+        {% if vitrina_laptops %}
+        <div class="home-showcase-section showcase-laptops" id="showcaseLaptops">
+            <div class="showcase-header">
+                <div class="showcase-header-left">
+                    <div class="showcase-icon-badge badge-laptop">
+                        <i class="fa-solid fa-laptop"></i>
+                    </div>
+                    <div class="showcase-titles-col">
+                        <span class="showcase-pretitle">Trabajo, Estudio y Profesionales • Garantía 1 Año</span>
+                        <h2 class="showcase-heading">Laptops & Portátiles Seleccionadas</h2>
+                    </div>
+                </div>
+                <div class="showcase-header-right">
+                    <a href="{% url 'inicio' %}?categoria=laptops-pc#promosCatalog" 
+                       class="showcase-see-all-link" 
+                       onclick="if(window.CatalogFilterManager){ CatalogFilterManager.onCategoryChange('laptops-pc', true); return false; }">
+                        <span>Ver todas las Laptops</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <div class="showcase-arrows-nav">
+                        <button type="button" class="showcase-nav-btn prev" onclick="scrollShowcaseTrack('trackLaptops', -1)" aria-label="Ver laptops anteriores" title="Anterior">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="showcase-nav-btn next" onclick="scrollShowcaseTrack('trackLaptops', 1)" aria-label="Ver más laptops" title="Siguiente">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-track-wrapper">
+                <div class="showcase-track" id="trackLaptops">
+                    {% for prod in vitrina_laptops %}
+                        {% include 'vitrina_card.html' with prod=prod %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 3. VITRINA: ZONA GAMER & ALTO RENDIMIENTO -->
+        {% if vitrina_gamer %}
+        <div class="home-showcase-section showcase-gamer" id="showcaseGamer">
+            <div class="showcase-header">
+                <div class="showcase-header-left">
+                    <div class="showcase-icon-badge badge-gamer">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <div class="showcase-titles-col">
+                        <span class="showcase-pretitle">Setups Gamer, Gráficos RTX y Tasa Alta de Hz</span>
+                        <h2 class="showcase-heading">Zona Gamer & Alto Rendimiento</h2>
+                    </div>
+                </div>
+                <div class="showcase-header-right">
+                    <a href="{% url 'inicio' %}?categoria=zona-gamer#promosCatalog" 
+                       class="showcase-see-all-link" 
+                       onclick="if(window.CatalogFilterManager){ CatalogFilterManager.onCategoryChange('zona-gamer', true); return false; }">
+                        <span>Explorar Zona Gamer</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <div class="showcase-arrows-nav">
+                        <button type="button" class="showcase-nav-btn prev" onclick="scrollShowcaseTrack('trackGamer', -1)" aria-label="Ver productos gamer anteriores" title="Anterior">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="showcase-nav-btn next" onclick="scrollShowcaseTrack('trackGamer', 1)" aria-label="Ver más productos gamer" title="Siguiente">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-track-wrapper">
+                <div class="showcase-track" id="trackGamer">
+                    {% for prod in vitrina_gamer %}
+                        {% include 'vitrina_card.html' with prod=prod %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 4. VITRINA: ALMACENAMIENTO & REPOTENCIACIÓN -->
+        {% if vitrina_componentes %}
+        <div class="home-showcase-section showcase-componentes" id="showcaseComponentes">
+            <div class="showcase-header">
+                <div class="showcase-header-left">
+                    <div class="showcase-icon-badge badge-storage">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <div class="showcase-titles-col">
+                        <span class="showcase-pretitle">Acelera tu PC o Laptop • SSDs M.2, SATA y Memoria RAM</span>
+                        <h2 class="showcase-heading">Almacenamiento & Repotenciación</h2>
+                    </div>
+                </div>
+                <div class="showcase-header-right">
+                    <a href="{% url 'inicio' %}?categoria=almacenamiento#promosCatalog" 
+                       class="showcase-see-all-link" 
+                       onclick="if(window.CatalogFilterManager){ CatalogFilterManager.onCategoryChange('almacenamiento', true); return false; }">
+                        <span>Ver Componentes</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <div class="showcase-arrows-nav">
+                        <button type="button" class="showcase-nav-btn prev" onclick="scrollShowcaseTrack('trackComponentes', -1)" aria-label="Ver componentes anteriores" title="Anterior">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="showcase-nav-btn next" onclick="scrollShowcaseTrack('trackComponentes', 1)" aria-label="Ver más componentes" title="Siguiente">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="showcase-track-wrapper">
+                <div class="showcase-track" id="trackComponentes">
+                    {% for prod in vitrina_componentes %}
+                        {% include 'vitrina_card.html' with prod=prod %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>

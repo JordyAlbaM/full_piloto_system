@@ -379,6 +379,13 @@ const CatalogFilterManager = (() => {
         if (submitCount && typeof totalProducts !== 'undefined') {
             submitCount.textContent = `(${totalProducts})`;
         }
+
+        // Sincronizar visibilidad de vitrinas temáticas (se ocultan si el usuario está buscando o filtrando)
+        const showcasesEl = document.getElementById('homeShowcasesContainer');
+        if (showcasesEl) {
+            const hasFilters = (filterCount > 0) || Boolean(state.q) || Boolean(state.categoria && state.categoria !== 'todas');
+            showcasesEl.style.display = hasFilters ? 'none' : 'block';
+        }
     }
 
     /* ========================================================================== */

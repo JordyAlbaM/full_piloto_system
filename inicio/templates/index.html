@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=9.2">
+    <link rel="stylesheet" href="{% static 'inicio/css/main.css' %}?v=9.3">
     <link rel="stylesheet" href="{% static 'inicio/css/cart.css' %}?v=5.8">
 </head>
 <body>
@@ -782,7 +782,10 @@
         </div>
     </section>
 
-    <!-- CUERPO: SECCIÓN DE PROMOCIONES DESTACADAS -->
+    <!-- SECCIÓN DE VITRINAS POR CATEGORÍA ESTILO MERCADO LIBRE -->
+    {% include 'vitrinas_portada.html' %}
+
+    <!-- CUERPO: SECCIÓN DE PROMOCIONES DESTACADAS Y CATÁLOGO COMPLETO -->
     <main class="promos-section" id="promosCatalog">
         <div class="container">
             
@@ -790,11 +793,11 @@
             <div class="promos-header meli-promos-banner" style="margin-bottom: 30px;">
                 <div class="meli-banner-content">
                     <span class="promos-badge" style="background:#ffe600; color:#2d3277; border-color:#e6cf00;">
-                        <i class="fa-solid fa-bolt"></i> PROMOCIONES EXCLUSIVAS 2026
+                        <i class="fa-solid fa-boxes-stacked"></i> CATÁLOGO COMPLETO 2026
                     </span>
-                    <h1 class="promos-title">Laptops en Oferta con Entrega Inmediata</h1>
+                    <h1 class="promos-title">Explora Todos los Productos en Caraz</h1>
                     <p class="promos-subtitle">
-                        Equipos sellados, garantía escrita en Caraz y configuración lista para trabajar, estudiar o jugar. ¡Aprovecha los mejores precios locales!
+                        Filtra por marcas, categorías, almacenamiento, procesador o rango de precio. Equipos garantizados y entrega inmediata.
                     </p>
                 </div>
             </div>
@@ -3063,11 +3066,21 @@
             }, 1000);
         }
     });
+
+    // Desplazamiento suave para los carruseles de las vitrinas
+    window.scrollShowcaseTrack = function(trackId, direction) {
+        const track = document.getElementById(trackId);
+        if (!track) return;
+        const card = track.querySelector('.showcase-card');
+        const cardWidth = card ? card.offsetWidth + 16 : 240;
+        const scrollAmount = cardWidth * 2;
+        track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    };
     </script>
 
     <!-- SCRIPT DEL CARRUSEL PRO & COUNTDOWN -->
     <script src="{% static 'inicio/js/hero-slider.js' %}"></script>
     <!-- SCRIPT DE FILTROS DINÁMICOS CON FETCH -->
-    <script src="{% static 'inicio/js/catalog-filters.js' %}?v=9.2"></script>
+    <script src="{% static 'inicio/js/catalog-filters.js' %}?v=9.3"></script>
 </body>
 </html>
